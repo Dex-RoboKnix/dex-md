@@ -1,0 +1,13 @@
+{
+  "name": "dex-md",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "test": "node --test \"engine/build/test/**/*.test.mjs\"",
+    "build": "node engine/build/tools/bundle.mjs && node engine/build/tools/make-vault.mjs && node engine/build/tools/make-builders.mjs && node engine/build/tools/release.mjs",
+    "testdrive": "node engine/build/tools/testdrive.mjs",
+    "scan": "node engine/build/tools/scan.mjs"
+  }
+}

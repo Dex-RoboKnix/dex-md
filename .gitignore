@@ -1,0 +1,4 @@
+node_modules/
+testdrive-results.json
+.env
+.env.*

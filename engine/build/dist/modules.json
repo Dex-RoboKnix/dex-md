@@ -1,0 +1,502 @@
+[
+  {
+    "name": "p1/action-row",
+    "node": "L4.E04",
+    "input": "{ id: <string>, node: <node-format>, kind: <string>, action: <string>, skill: <skill-name>, status: <enum> }"
+  },
+  {
+    "name": "p1/backup-record",
+    "node": "L1.E06",
+    "input": "{ backups: [{ original: <row-obj>, replacement: <row-obj>, timestamp: <iso> }, ...], checkpointDate: <iso-date> }"
+  },
+  {
+    "name": "p1/checkpoint-summary",
+    "node": "L4.E08",
+    "input": "{ checkpoint: { journal?: [], source?: [], claim?: [], nodeChange?: [], action?: [] } }"
+  },
+  {
+    "name": "p1/coverage-score",
+    "node": "L1.E05",
+    "input": "{answered, weak, total} counts"
+  },
+  {
+    "name": "p1/coverage-threshold",
+    "node": "L1.E05",
+    "input": "{coverage: number (0-100)}"
+  },
+  {
+    "name": "p1/folio-stale",
+    "node": "L4.E07",
+    "input": "{ folioTimestamp: <iso-string>, vaultFileTimestamps: [<iso-string>, ...] }"
+  },
+  {
+    "name": "p1/id-allocator",
+    "node": "L4.E08",
+    "input": "{existingIds: number[]} array of existing IDs"
+  },
+  {
+    "name": "p1/issue-reason-gate",
+    "node": "L3.E03",
+    "input": "{ reason: <code>, text?: <string>, requester?: <string> }"
+  },
+  {
+    "name": "p1/journal-entry",
+    "node": "L4.E08",
+    "input": "{humanWords: string, issueLink: string, vaultPath: string}"
+  },
+  {
+    "name": "p1/node-change-proposal",
+    "node": "L1.E03",
+    "input": "{proposal: object, yes?: boolean}"
+  },
+  {
+    "name": "p1/node-row-parse",
+    "node": "L4.E08",
+    "input": "{point: string, answer: string, tag: string, state: string, sources: string|string[], verified: string, next: string|string[]}"
+  },
+  {
+    "name": "p1/node-row-replace",
+    "node": "L4.E08",
+    "input": "{table: Array<{point: string, ...}>, pointToReplace: string, replacementRow: object}"
+  },
+  {
+    "name": "p1/provenance-check",
+    "node": "L1.E04",
+    "input": "{ content: <markdown-or-yaml>, path: <filepath> }"
+  },
+  {
+    "name": "p1/runlog-row",
+    "node": "L4.E08",
+    "input": "{runNumber: number, date: string (ISO 8601), mode: string, version: string, summary: string}"
+  },
+  {
+    "name": "p1/state-weight",
+    "node": "L1.E05",
+    "input": "{ state: <code> } or { states: [<code>, ...] }"
+  },
+  {
+    "name": "p1/story-chapter",
+    "node": "L4.E08",
+    "input": "{action: 'append'|'edit', chapterText: string, date: string (ISO 8601), existingChapters: Array<{date: string, text: string}>, requestingUser?: string}"
+  },
+  {
+    "name": "p1/tag-validate",
+    "node": "L1.E05",
+    "input": "{ tag: <string> } or { tags: [<string>, ...] }"
+  },
+  {
+    "name": "p1/validate-wrap",
+    "node": "L5.E02",
+    "input": "{ errors: [<error>, ...], warnings: [<warning>, ...] }"
+  },
+  {
+    "name": "p1/verbatim-guard",
+    "node": "L1.E03",
+    "input": "{text: string, sourceFile?: string, lineNumber?: number}"
+  },
+  {
+    "name": "p1/verified-guard",
+    "node": "L3.E05",
+    "input": "{ verified: <boolean>, name?: <string>, email?: <string>, date?: <iso-string> }"
+  },
+  {
+    "name": "p2/agents-md-note",
+    "node": "L1.E02",
+    "input": "{ hasClaudeMd: boolean, hasClaudeLocalMd?: boolean, phase: string }"
+  },
+  {
+    "name": "p2/chat-export-detect",
+    "node": "L1.E01",
+    "input": "{ files: string[] }"
+  },
+  {
+    "name": "p2/claude-md-merge-plan",
+    "node": "L1.E01",
+    "input": "{ hasExistingClaudemd: boolean, nodeDir: string, dexContent: string, existingClaudemdContent?: string }"
+  },
+  {
+    "name": "p2/export-split",
+    "node": "L1.E01",
+    "input": "{ conversations: array, exportType: 'openai' | 'gemini' }"
+  },
+  {
+    "name": "p2/fetch-plan",
+    "node": "L1.E03",
+    "input": "{ repo: string, ref: string, destination: string, folderState: 'blank' | 'blank-with-context' | 'in-flight' }"
+  },
+  {
+    "name": "p2/folder-classify",
+    "node": "L1.E01",
+    "input": "{ files: string[] }"
+  },
+  {
+    "name": "p2/gitignore-lines",
+    "node": "L3.E05",
+    "input": "{ gitignoreContent?: string, isTracked?: { claudeLocal?: boolean, settingsLocal?: boolean }, now?: string }"
+  },
+  {
+    "name": "p2/install-consent",
+    "node": "L3.E03",
+    "input": "{ actionId: string, actionName: string, consentGiven: boolean, now?: string }"
+  },
+  {
+    "name": "p2/install-rerun",
+    "node": "L4.E06",
+    "input": "{ hasRunlog: boolean, hasDexVault: boolean, isDirty: boolean }"
+  },
+  {
+    "name": "p2/mcp-propose",
+    "node": "L3.E02",
+    "input": "{ serverName: string, token: string, existingConfig?: object }"
+  },
+  {
+    "name": "p2/node-assign",
+    "node": "L1.E01",
+    "input": "{ conversations: array }"
+  },
+  {
+    "name": "p2/original-keep",
+    "node": "L1.E06",
+    "input": "{ originalPath: string, nodeDir: string, existingFiles?: string[] }"
+  },
+  {
+    "name": "p2/pin-ref",
+    "node": "L1.E01",
+    "input": "{ ref: string }"
+  },
+  {
+    "name": "p2/secret-detect",
+    "node": "L3.E05",
+    "input": "{ files: string[] }"
+  },
+  {
+    "name": "p2/settings-merge",
+    "node": "L5.E04",
+    "input": "{ existing: object, dexEntries: object }"
+  },
+  {
+    "name": "p2/skill-frontmatter",
+    "node": "L5.E05",
+    "input": "{ content: string, expectedName: string }"
+  },
+  {
+    "name": "p2/skill-path",
+    "node": "L5.E02",
+    "input": "{ skillName: string }"
+  },
+  {
+    "name": "p2/slant-draft",
+    "node": "L1.E04",
+    "input": "{ folderContents: string[], location: string, name?: string }"
+  },
+  {
+    "name": "p2/vault-recommend",
+    "node": "L1.E01",
+    "input": "{ folderState: 'blank' | 'blank-with-context' | 'stuck' | 'in-flight', parentFolder: string, existingFolders?: string[], human?: { choice: 'parent' | 'dex-vault', yes: boolean }, previousChoice?: 'parent' | 'dex-vault', now?: string }"
+  },
+  {
+    "name": "p2/verify-detect",
+    "node": "L5.E05",
+    "input": "{ packageJsonScripts?: object, makefileContent?: string, now?: string }"
+  },
+  {
+    "name": "p3/agent-budget",
+    "node": "L5.E03",
+    "input": "{ tasks: Array<{id: string, tokens: number}>, budgetPerAgent?: number }"
+  },
+  {
+    "name": "p3/checkpoint-call",
+    "node": "L4.E08",
+    "input": "{ skillRun: string | {code, log}, now: ISO8601string }"
+  },
+  {
+    "name": "p3/grill-batch",
+    "node": "L5.E03",
+    "input": "{ questions: Array<{options: Array}> }"
+  },
+  {
+    "name": "p3/grill-independence",
+    "node": "L5.E03",
+    "input": "{ questions: Array<{text: string}> }"
+  },
+  {
+    "name": "p3/grill-suggest",
+    "node": "L2.E03",
+    "input": "{ answer: string, source: {type: string, id: string}, now: ISO8601string }"
+  },
+  {
+    "name": "p3/grill-vague",
+    "node": "L2.E03",
+    "input": "{ answer: string, followUp?: string, now?: string }"
+  },
+  {
+    "name": "p3/grill-verbatim-log",
+    "node": "L2.E03",
+    "input": "{ answer: string, now?: string, source?: string, confidence?: number }"
+  },
+  {
+    "name": "p3/hooks-plan",
+    "node": "L5.E02",
+    "input": "{ hooksToRegister: ['Stop', 'PreToolUse', 'SessionStart'] }"
+  },
+  {
+    "name": "p3/human-gate",
+    "node": "L3.E03",
+    "input": "{ requiredAnswers: [{name, human_filled: bool, uncertain: bool}], now: ISO8601string }"
+  },
+  {
+    "name": "p3/review-drift",
+    "node": "L6.E05",
+    "input": "{ codeComments: [{file, line, comment}], spec: string }"
+  },
+  {
+    "name": "p3/review-roster",
+    "node": "L2.E07",
+    "input": "{ team: [{ name, role }], definitions: { roles: [name, ...] } }"
+  },
+  {
+    "name": "p3/review-verdict",
+    "node": "L2.E07",
+    "input": "{ findings: [{ description, blocker: bool }] }"
+  },
+  {
+    "name": "p3/rules-split",
+    "node": "L5.E04",
+    "input": "{ claudemdLines: number, dexSections?: Array<{layer: string, content: string}> }"
+  },
+  {
+    "name": "p3/skill-handoff",
+    "node": "L5.E03",
+    "input": "{ contract: {fieldname: typeName, ...}, output: object }"
+  },
+  {
+    "name": "p3/skill-registry",
+    "node": "L5.E02",
+    "input": "{ registered: [name, ...], installed: [{name, version, status}] }"
+  },
+  {
+    "name": "p3/spec-delta",
+    "node": "L5.E03",
+    "input": "{ change: any, reason?: string, specVersion?: string, deltaCount?: number }"
+  },
+  {
+    "name": "p3/spec-finalise",
+    "node": "L5.E03",
+    "input": "{ deltas: Array<{taskId?: string, change: any}>, tasks: Array<{id: string}> }"
+  },
+  {
+    "name": "p3/spec-phases",
+    "node": "L5.E03",
+    "input": "{ phases: Array<{name: string, tasks: Array}> }"
+  },
+  {
+    "name": "p3/spec-status",
+    "node": "L5.E03",
+    "input": "{ state: 'DRAFT'|'FINAL', action: 'finalise'|'amend'|'read'|'write', reviewPass?: boolean, amendment?: any, actor?: string, reason?: string, now?: string }"
+  },
+  {
+    "name": "p3/subagent-plan",
+    "node": "L2.E02",
+    "input": "{ pattern: 's10-adversarial-review' | 'custom-pattern' }"
+  },
+  {
+    "name": "p4/agent-lifecycle",
+    "node": "L5.E03",
+    "input": "{ agentId, cumulativeTokens, tasksCompleted, isTaskComplete }"
+  },
+  {
+    "name": "p4/attempt-cap",
+    "node": "L2.E07",
+    "input": "{ attemptCount, reviewPassed, delta, escalationOutcome }"
+  },
+  {
+    "name": "p4/attempt-counter",
+    "node": "L6.E07",
+    "input": "{ taskId, reviewRound, completed }"
+  },
+  {
+    "name": "p4/budget-split",
+    "node": "L5.E01",
+    "input": "{ taskCount: number, roleTokenCosts: { grill: number, spec: number, implement: number, review: number }, phaseCount?: number, reservedSlots?: number, now? }"
+  },
+  {
+    "name": "p4/cost-estimate",
+    "node": "L5.E03",
+    "input": "{ taskCount: number, roleTokenCosts: { grill: number, spec: number, implement: number, review: number }, escalationCost?: number, willEscalate?: boolean, now? }"
+  },
+  {
+    "name": "p4/escalate-model",
+    "node": "L2.E02",
+    "input": "{ taskId: string, priorAttempts: object[], configuredRoles: string[] | object, escalationBriefId?: string, outcome?: 'pass' | 'fail', now?: string }"
+  },
+  {
+    "name": "p4/escalation-brief",
+    "node": "L2.E07",
+    "input": "{ taskId, priorSpec: string, priorOutputs: string[], reviewFeedback: string, failureClassifications: string[], priorAgentAttempts: { agentId: string, model: string }[], vaultLogPath: string, now? }"
+  },
+  {
+    "name": "p4/escalation-record",
+    "node": "L4.E08",
+    "input": "{ taskId, outcome: 'pass'|'fail', opusModel: string, sonnetTeamModel: string, attemptCount: number, errorDetails?: string, now? }"
+  },
+  {
+    "name": "p4/fail-classify",
+    "node": "L6.E08",
+    "input": "{ taskId, failureEvidence: { type, symptoms, context }, now? }"
+  },
+  {
+    "name": "p4/human-veto",
+    "node": "L3.E06",
+    "input": "{ vetoFlag: boolean, pendingActions: string[], now? }"
+  },
+  {
+    "name": "p4/live-agent-limit",
+    "node": "L5.E03",
+    "input": "{ liveAgentCount, taskQueueLength, agentIdToSpawn }"
+  },
+  {
+    "name": "p4/log-route",
+    "node": "L1.E04",
+    "input": "{ logKind, phaseNumber, vaultRoot, agentId, themeId, attemptNumber }"
+  },
+  {
+    "name": "p4/loop-machine",
+    "node": "L6.E03",
+    "input": "{ taskId, currentPhase, reviewPassed, outputComplete, attempt }"
+  },
+  {
+    "name": "p4/loop-trace",
+    "node": "L2.E07",
+    "input": "{ taskId, events: [ { type: 'phase-start'|'phase-end'|'failure'|'escalation'|'stall'|'retry'|'completed-task', phase?, failureClassification?, context?, timestamp? } ], now? }"
+  },
+  {
+    "name": "p4/outcome-check",
+    "node": "L2.E05",
+    "input": "{ taskId, acceptanceItems }"
+  },
+  {
+    "name": "p4/reasoning-capture",
+    "node": "L1.E04",
+    "input": "{ agentId, taskId, reasoningText, now, agentRestart }"
+  },
+  {
+    "name": "p4/retry-delta",
+    "node": "L2.E06",
+    "input": "{ taskId, delta: { before: string, after: string, additions: string[], deletions: string[], changes: string[] }, failureClassification: 'spec-gap'|'impl-bug'|'test-gap'|'environment', now? }"
+  },
+  {
+    "name": "p4/stall-detect",
+    "node": "L6.E05",
+    "input": "{ taskId, loopHistory: [ { round: number, failureClassification: string, affectedItems: string[] }, ... ], now? }"
+  },
+  {
+    "name": "p4/token-meter",
+    "node": "L5.E02",
+    "input": "{ agentId, tokensUsedThisAction, cumulativeTokensBefore, actionOutcome }"
+  },
+  {
+    "name": "p4/wave-schedule",
+    "node": "L5.E03",
+    "input": "{ taskIds: string[], maxAgentsPerWave?: number, now? }"
+  },
+  {
+    "name": "p5/case-row",
+    "node": "L5.E05",
+    "input": "{ task_id, attempts, outcome, time_elapsed_minutes, run_manifest_hash, artifact_url, notes, now: ISO8601 }"
+  },
+  {
+    "name": "p5/case-stats",
+    "node": "L5.E05",
+    "input": "{ cases: [{ task_id, attempts, outcome: 'pass'|'fail'|'abandoned'|'escalated-and-resolved' }], now?: string }"
+  },
+  {
+    "name": "p5/catch-up-ingest",
+    "node": "L4.E08",
+    "input": "{ log_lines: [ { line_number, text, timestamp_attempt } ], cutoff_date: ISO8601, now: ISO8601 }"
+  },
+  {
+    "name": "p5/chapter-per-issue",
+    "node": "L4.E08",
+    "input": "{ issue: { number, title, body }, now: ISO8601 }"
+  },
+  {
+    "name": "p5/chat-fixture",
+    "node": "L5.E02",
+    "input": "{ seed, N: number, now: ISO8601 }"
+  },
+  {
+    "name": "p5/coverage-report",
+    "node": "L1.E05",
+    "input": "{ coverage_scores: { node_id: { status: C|W|N|U|NA, layer, ... } }, now: ISO8601 }"
+  },
+  {
+    "name": "p5/folio-watch",
+    "node": "L4.E02",
+    "input": "{ old_hashes: { filepath: hash }, new_hashes: { filepath: hash }, now: ISO8601 }"
+  },
+  {
+    "name": "p5/html-escape",
+    "node": "L5.E05",
+    "input": "{ text: string }"
+  },
+  {
+    "name": "p5/issue-link",
+    "node": "L4.E04",
+    "input": "{ issue_number: number, repo_url: string, check_private?: boolean }"
+  },
+  {
+    "name": "p5/issue-version-tag",
+    "node": "L4.E06",
+    "input": "{ issue_number, date_string (YYYY-MM-DD), counter, now: ISO8601 }"
+  },
+  {
+    "name": "p5/phase-gate",
+    "node": "L1.E05",
+    "input": "{ tasks: [{ id, status: 'pass'|'fail'|'abandoned'|'escalated-and-resolved'|'never-run' }], escalated_approval?: boolean, layer8_name?: string, layer8_date?: string, layer8_waivers?: string[] }"
+  },
+  {
+    "name": "p5/repro-hash",
+    "node": "L5.E05",
+    "input": "{ phase: number, models_used: string[], agent_count: number, task_count: number, git_commit_at_start: string }"
+  },
+  {
+    "name": "p5/run-manifest",
+    "node": "L4.E06",
+    "input": "{ run_date: string, start_time: string, end_time: string, models_used: string[], agent_count: number, task_count: number, phase_number: number, git_commit_at_start: string, events?: Array }"
+  },
+  {
+    "name": "p5/signoff-record",
+    "node": "L3.E04",
+    "input": "{ human_name: string, date: string (ISO 8601), commit_ref: string, reason?: string, amendment_of?: string }"
+  },
+  {
+    "name": "p5/sim-label",
+    "node": "L3.E05",
+    "input": "{ answer: string, check_tag?: boolean }"
+  },
+  {
+    "name": "p5/skip-detect",
+    "node": "L6.E05",
+    "input": "{ stages: [{ name: string, timestamp?: string, exit_code?: number }], attempt_cap?: number, layer8_waivers?: string[] }"
+  },
+  {
+    "name": "p5/timeline-point",
+    "node": "L4.E07",
+    "input": "{ point: { issue_number, title, date, commit_hash, entered_by, entered_at, modified_at, modified_by, source_issue_url }, now: ISO8601 }"
+  },
+  {
+    "name": "p5/timeline-sort",
+    "node": "L4.E07",
+    "input": "{ points: [{ issue_number: number, title: string, date?: string, commit_hash?: string }], now?: string }"
+  },
+  {
+    "name": "p5/untracked-detect",
+    "node": "L6.E08",
+    "input": "{ untracked_files: [ filepath ], gitignore_patterns: [ pattern ], repo_boundaries: { repo_root: [ nested_git_paths ] }, now: ISO8601 }"
+  },
+  {
+    "name": "p5/work-log",
+    "node": "L4.E07",
+    "input": "{ entries: [ { agent_name, timestamp, theme, file_path, commit_hash } ], now: ISO8601 }"
+  }
+]
