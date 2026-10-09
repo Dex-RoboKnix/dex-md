@@ -69,7 +69,7 @@ step('p2/folder-classify: .git or .scratch means in-flight, in-flight wins', () 
   return { pass: !!r && r.ok && /in-flight/.test(JSON.stringify(r)), detail: JSON.stringify(r).slice(0, 200) };
 });
 step('p2/pin-ref accepts the pinned 40-hex commit and rejects a branch name', () => {
-  const ref = (md.match(/\| Ref \(a full commit hash, never a branch\) \| `([0-9a-f]{40})` \|/) || [])[1];
+  const ref = (md.match(/\| `([0-9a-f]{40})` \| `dex-vault\/\.dex\/dexspine\/` \|/) || [])[1];
   const ok = J(vault('run', 'p2/pin-ref', '--json', JSON.stringify({ ref })).stdout);
   const bad = vault('run', 'p2/pin-ref', '--json', JSON.stringify({ ref: 'main' }));
   return { pass: !!ref && ok && ok.ok === true && bad.status === 1, detail: `ref ${ref}; branch status ${bad.status}` };
