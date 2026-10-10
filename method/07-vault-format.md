@@ -242,8 +242,8 @@ C001, C004, J001. <one line on what is unchecked>
 
 | File | From | Version | Written |
 |---|---|---|---|
-| .dex/vault.mjs | unpacked from dex.md section 9 | 0.8 | YYYY-MM-DD |
-| .dex/build_folio.mjs | unpacked from dex.md section 9 | 0.8 | YYYY-MM-DD |
-| .dex/dex-folio.template.html | unpacked from dex.md section 9 | 0.8 | YYYY-MM-DD |
+| .dex/vault.mjs | installed from dex-md (dex.md section 3) | 0.9.0 | YYYY-MM-DD |
+| .dex/build_folio.mjs | installed from dex-md (dex.md section 3) | 0.9.0 | YYYY-MM-DD |
+| .dex/dex-folio.template.html | installed from dex-md (dex.md section 3) | 0.9.0 | YYYY-MM-DD |
 | .dex/dexspine/ | clone of the public dexspine-core repo (only if the owner said yes) | commit | YYYY-MM-DD |
 ```

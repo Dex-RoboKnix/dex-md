@@ -30,6 +30,8 @@ HASH_LIMIT = 5 * 1024 * 1024
 
 def template():
     """Copy the Folio template out of dex.md (or any .md next to dex-vault/ that carries it). Falls back to the last copy."""
+    if TEMPLATE.is_file():
+        return TEMPLATE.read_text(encoding="utf-8")
     pat = re.compile(re.escape(START) + r"\r?\n~~~[a-z]*\r?\n(.*?)\r?\n~~~\r?\n" + re.escape(END), re.S)
     for p in sorted(ROOT.glob("*.md"), key=lambda q: (q.name != "dex.md", q.name)):
         m = pat.search(p.read_text(encoding="utf-8", errors="replace"))
@@ -39,7 +41,7 @@ def template():
             return text
     if TEMPLATE.is_file():
         return TEMPLATE.read_text(encoding="utf-8")
-    sys.exit("Folio template not found. Keep dex.md in the folder that holds dex-vault/.")
+    sys.exit("Folio template not found in dex-vault/.dex/. Run the installer again (dex.md section 3).")
 
 
 def scan():

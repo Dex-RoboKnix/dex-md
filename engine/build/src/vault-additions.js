@@ -3,7 +3,7 @@
 const DEX_VERSION = '0.9';
 async function lib() {
   const f = path.join(HERE, 'dex-lib.mjs');
-  if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Unpack dex.md again (section 9).');
+  if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Run the installer again (dex.md section 3).');
   return import(pathToFileURL(f).href);
 }
 async function modulesCmd() {

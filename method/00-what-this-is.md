@@ -7,7 +7,7 @@ source: dex.md 0.9 section 0
 
 A **Matter of Fact** is a plain, objective description of what a matter is: what exists, what state it is in, what is claimed, what is actually known and what nobody knows yet. A matter can be anything a folder is about: a half-built product, a research pile, a plan, a recipe collection, a dispute, a job search, a codebase.
 
-**Dex is the entry point into Dex: one file you attach to a live or blank project that acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM), and turns the work into issues.** Dex is a workspace for adding the owner's own thoughts to actions and issues in a project before an agent reasons about them and fixes them. Dex builds the DexSpine, DEX838 gives every node one universal wire form, the Dex Folio and ShadowOS are the human interface, and an agent working at project level implements the issues or passes them on.
+**Dex is the entry point into Dex: one file you attach to a live or blank project that acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM), and turns the work into issues.** Dex is a workspace for adding the owner's own thoughts to actions and issues in a project before an agent reasons about them and fixes them. Dex builds the DexSpine, DEX838 gives every node one universal wire form, the folio and ShadowOS are the human interface, and an agent working at project level implements the issues or passes them on.
 
 It is not a hosted service, not a model or a fine-tune, not a prompt library and not a replacement for a task tracker or GitHub. It works with those and helps improve them.
 

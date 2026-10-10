@@ -24,12 +24,13 @@ const rel = (base, p) => path.relative(base, p).split(path.sep).join('/');
 const byName = (a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
 
 function template() {
+  if (fs.existsSync(TEMPLATE)) return fs.readFileSync(TEMPLATE, 'utf8');
   const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const pat = new RegExp(reEsc(START) + '\\r?\\n~~~[a-z]*\\r?\\n([\\s\\S]*?)\\r?\\n~~~\\r?\\n' + reEsc(END));
   const mds = fs.readdirSync(ROOT).filter(n => /\.md$/i.test(n)).sort((a, b) => (a !== 'dex.md') - (b !== 'dex.md') || (a < b ? -1 : a > b ? 1 : 0));
   for (const n of mds) { const m = fs.readFileSync(path.join(ROOT, n), 'utf8').match(pat); if (m) { const text = m[1].replace(/\r\n/g, '\n') + '\n'; fs.writeFileSync(TEMPLATE, text); return text; } }
   if (fs.existsSync(TEMPLATE)) return fs.readFileSync(TEMPLATE, 'utf8');
-  console.error('Folio template not found. Keep dex.md in the folder that holds dex-vault/.'); process.exit(1);
+  console.error('Folio template not found in dex-vault/.dex/. Run the installer again (dex.md section 3).'); process.exit(1);
 }
 function scan() {
   const files = {};

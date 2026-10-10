@@ -15,5 +15,8 @@ const files = [
   ['dist/dex-lib.mjs', 'dex-lib.mjs'],
   ['dist/modules.json', 'modules.json'],
 ];
-for (const [from, to] of files) fs.copyFileSync(path.join(BUILD, from), path.join(ENGINE, to));
+for (const [from, to] of files) {
+  const text = fs.readFileSync(path.join(BUILD, from), "utf8").split("Unpacked from dex.md into").join("Installed from the dex-md repo into");
+  fs.writeFileSync(path.join(ENGINE, to), text);
+}
 console.log(`Released ${files.length} files into ${ENGINE}`);

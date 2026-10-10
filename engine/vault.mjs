@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Dex vault tool (Node 18 or later, no packages). Unpacked from dex.md into dex-vault/.dex/.
+// Dex vault tool (Node 18 or later, no packages). Installed from the dex-md repo into dex-vault/.dex/.
 //
 //   node dex-vault/.dex/vault.mjs scaffold --title "<matter>" [--scope <slug>] [--spine <dexspine-core folder>]
 //        make all 114 node folders (6 layers x 19 nodes), each with contextual.md and sources/. Never overwrites.
@@ -469,7 +469,7 @@ function splitRow(line) {
 const DEX_VERSION = '0.9';
 async function lib() {
   const f = path.join(HERE, 'dex-lib.mjs');
-  if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Unpack dex.md again (section 9).');
+  if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Run the installer again (dex.md section 3).');
   return import(pathToFileURL(f).href);
 }
 async function modulesCmd() {

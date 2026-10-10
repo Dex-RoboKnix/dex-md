@@ -53,7 +53,7 @@ Record the choice in `00_index.md` as `home: local | github`. The repo commands 
 2. Choose **five skills** from the library in section 5 that cover the thinnest areas and the places that need human input. `dex grill` (the skill `SK-GRILL`) is always one of the five. If nothing in the library fits a gap, write a custom skill with the template in section 5.
 3. Present the five as a numbered list. For each: name and ID, why this matter needs it (one line), the nodes it feeds, whether it needs the human.
 4. Ask the human to approve, swap or reorder. In the same message ask which **voice** the story should be told in: `plain` (the default), `storybook`, or a voice they describe. Wait for the answer.
-5. On approval, ask for consent to create `dex-vault/`. **Consent is per action** (rule 17): this yes covers creating the folder and unpacking only. Then ask separately whether you may fetch the DexSpine reference. It is **pinned**: show the owner the repository, the exact ref and the destination first, for example:
+5. On approval, ask for consent to create `dex-vault/`. **Consent is per action** (rule 17): this yes covers creating the folder only. Then ask separately whether you may fetch the DexSpine reference. It is **pinned**: show the owner the repository, the exact ref and the destination first, for example:
 
    > Fetch `<repo>` at `<ref>` into `dex-vault/.dex/dexspine/` (about a megabyte)? It supplies the standard's own base questions and the DEX838 notation. Without it the vault tool uses a built-in copy of the same questions.
 
@@ -228,37 +228,26 @@ Write `dex-vault/08_story.md`: a short story of what has happened, told from the
 - **Footnotes:** put claim IDs in square brackets after the sentences they support. Finish with a section headed `## What this rests on` that lists every claim and journal ID used.
 - **Voice** comes from `story_voice` in `00_index.md`. `plain` is clear and neutral. `storybook` is a warm narrative written to be read aloud. Any other value is a voice the human described. A named author or narrator is a style to echo, never a source to copy: no lines, characters, places or catchphrases from anyone's work. For legal or other regulated matters the story still says plainly what is fact and what is not. The voice never changes a fact.
 
-### Stage 6. Build the Dex Folio
+### Stage 6. Build the folio
 
 Run `node dex-vault/.dex/vault.mjs fold`, then the builder (section 9), and confirm `dex-vault/dex-folio.html` exists. The Folio reads the flat layer files that `fold` generates from the node folders, so always fold first. The builder also takes a snapshot of the folder, which the next run uses to see what changed. Tell the human to open it by double-clicking. It works offline in any modern browser.
 
 ### Stage 6b. Install ShadowOS (optional)
 
-ShadowOS is a native desktop that opens on this folder only (a "fractional desktop"): Finder, the Dex Folio, Notes and tickets, Surf and a Claude window. Nothing outside the folder is visible to it. It is optional and **only on the owner's explicit yes**. It needs the Folio from Stage 6, so it always comes after it. If the owner asked for it earlier ("launch ShadowOS"), that is the yes: do not ask again, but still do it here, in order. Otherwise ask once: "Install ShadowOS? It is built from the `Dex-RoboKnix/shadowos` repo (private while it is pre-1.0, so `gh` must be signed in to an account that can see it), takes 5 to 10 minutes and a few GB of disk the first time, and everything stays in `dex-vault/.shadowos/`." If the answer is no, note it in `RUNLOG.md` and go to Stage 7.
+ShadowOS is a small local web desktop that opens on this folder only (a "fractional desktop"): Finder, the folio, Notes and tickets, Surf and a Claude window. Nothing outside the folder is visible to it. It is optional and **only on the owner's explicit yes**. It needs the Folio from Stage 6, so it always comes after it. If the owner asked for it earlier ("launch ShadowOS"), that is the yes: do not ask again, but still do it here, in order. Otherwise ask once: "Install ShadowOS? It is a small no-build app from the `Dex-RoboKnix/shadowos` repo (private while it is pre-1.0, so `gh` must be signed in to an account that can see it). It needs only Node 20 or newer, no install and no build, and everything stays in `dex-vault/.shadowos/`." If the answer is no, note it in `RUNLOG.md` and go to Stage 7.
 
 **`dex-vault/.shadowos/` is tooling, never material.** Never read it, ingest it, cite it or count it in any stage, now or on later runs.
 
-1. **Already installed or already built?** If `dex-vault/.shadowos/src` exists, do not clone again: offer to launch it (step 6) or to update it (`git -C dex-vault/.shadowos/src pull`, then step 5). Ask which. **If the owner names an existing build elsewhere, copy it instead of cloning and building**: copy its source folder without `node_modules` and `src-tauri/target` into `dex-vault/.shadowos/src`, copy the binary into `dex-vault/.shadowos/`, write the `.gitignore` of step 4, then check the copy (`cmp` the binary with the original, `git -C dex-vault/.shadowos/src rev-parse --short HEAD` equals the original's, `git status` clean). Copy only. The original stays where it was and keeps running if it is running. Skip steps 3 to 5 and go to step 6.
-2. **Detect the system.** Windows, macOS or Linux, and the CPU (`uname -sm`, or in PowerShell `$env:OS` and `$env:PROCESSOR_ARCHITECTURE`). Say what you found.
-3. **Check what is needed. Install nothing yourself.**
-   - All systems: `gh` signed in and able to see the repo (`gh repo view Dex-RoboKnix/shadowos`), `git`, Node 20 or newer (`node -v`), Rust (`cargo -V`).
-   - Windows: the Microsoft C++ Build Tools ("Desktop development with C++"), and WebView2, which Windows 10 and 11 already have.
-   - macOS: the Xcode command line tools (`xcode-select -p`).
-   - Linux (Debian and Ubuntu names; other distributions: see the prerequisites page at tauri.app): `build-essential`, `libwebkit2gtk-4.1-dev`, `libxdo-dev`, `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev`.
-   - For anything missing, tell the owner what it is and the command or page that installs it, and let them do it. If something cannot be met, stop, say why, log it and go to Stage 7.
-4. **Fetch.** `gh repo clone Dex-RoboKnix/shadowos dex-vault/.shadowos/src -- --depth 1`, then write a file `dex-vault/.shadowos/.gitignore` containing the single line `*`, so git never picks up the build.
-5. **Build.** From `dex-vault/.shadowos/src`: `npm ci`, then `npx tauri build --no-bundle` (macOS: `npx tauri build --bundles app`). Tell the owner it is running and roughly how long it takes. Then copy the result into `dex-vault/.shadowos/`:
-   - Windows: `src-tauri/target/release/shadowos.exe`
-   - Linux: `src-tauri/target/release/shadowos`
-   - macOS: the folder `src-tauri/target/release/bundle/macos/ShadowOS.app` (copy with `cp -R`).
-6. **Launch** on the folder that holds this file, **detached**, so it does not hold up this session and stays open after it. Run `fold` and the Folio builder first so it opens on a current vault:
-   - Windows (PowerShell): `Start-Process "dex-vault.shadowos\shadowos.exe" -ArgumentList '--root','"<that folder>"'`
-   - Linux: `nohup dex-vault/.shadowos/shadowos --root "<that folder>" >/dev/null 2>&1 &`
-   - macOS: `open -n dex-vault/.shadowos/ShadowOS.app --args --root "<that folder>"`
-   Check that the process is running and the window is visible, then ask the owner to confirm the window opened on the right folder. If the vault changes afterwards (a rebuilt Folio), the Folio window's reload button picks it up: no relaunch.
-7. **Log it** in `RUNLOG.md`: the system, the repo commit (`git -C dex-vault/.shadowos/src rev-parse --short HEAD`), the binary path, and how long the build took. If a step failed, log which step and the error. A failed install never fails the run.
+1. **Already installed?** If `dex-vault/.shadowos/src` exists, do not clone again: offer to launch it (step 4) or to update it (`git -C dex-vault/.shadowos/src fetch --tags`, then check out the ref pinned in section 3 of dex.md). Ask which. **If the owner names an existing copy elsewhere, copy it instead of cloning**: copy its source folder into `dex-vault/.shadowos/src`, write the `.gitignore` of step 3, then check the copy (`git -C dex-vault/.shadowos/src rev-parse --short HEAD` equals the original's, `git status` clean). Copy only. The original stays where it was and keeps running if it is running. Skip steps 2 and 3 and go to step 4.
+2. **Check what is needed. Install nothing yourself.** `gh` signed in and able to see the repo (`gh repo view Dex-RoboKnix/shadowos`), `git`, and Node 20 or newer (`node -v`). Nothing else: no Rust, no compiler, no build tools. For anything missing, tell the owner what it is and the command or page that installs it, and let them do it. If something cannot be met, stop, say why, log it and go to Stage 7.
+3. **Fetch.** Show the exact command first and run it only on its own yes: `git clone --depth 1 --branch v0.2.0 https://github.com/Dex-RoboKnix/shadowos dex-vault/.shadowos/src` (the ref is pinned in section 3 of dex.md). Then write `dex-vault/.shadowos/.gitignore` containing the single line `*`, so git never picks up the app.
+4. **Launch** on the folder that holds this file, **detached**, so it does not hold up this session and stays open after it. Run `fold` and the Folio builder first so it opens on a current vault. The server finds `dex-vault/` under the root:
+   - Windows (PowerShell): `Start-Process node -ArgumentList 'dex-vault/.shadowos/src/server.mjs','--root','"<that folder>"','--issues','"<that folder>/dex-vault/07_inbox/shadowos/issues"' -WindowStyle Minimized`
+   - macOS and Linux: `nohup node dex-vault/.shadowos/src/server.mjs --root "<that folder>" --issues "<that folder>/dex-vault/07_inbox/shadowos/issues" >/dev/null 2>&1 &`
+   The default port is 4174 (`--port` changes it). Open `http://localhost:4174/` and ask the owner to confirm the page shows this vault. If the vault changes afterwards (a rebuilt Folio), reload the page: no relaunch.
+5. **Log it** in `RUNLOG.md`: the system, the repo ref and commit (`git -C dex-vault/.shadowos/src rev-parse --short HEAD`), the launch command and the port. If a step failed, log which step and the error. A failed install never fails the run.
 
-ShadowOS writes only to `dex-vault/07_inbox/shadowos/` (notes and ticket drafts). It never edits the vault. **Tell the owner before they use it:** in this version its Send button files a GitHub issue to a repository that is fixed inside the app, not to the owner's own repo. Drafts, notes and Preview are safe. Press Send only if that fixed repository is where the ticket should go. Later runs: `dex shadowos` does step 1.
+ShadowOS writes only to its own `issues/` folder under `dex-vault/07_inbox/shadowos/` (notes and ticket drafts as markdown). It never edits the vault and never sends anything to GitHub: a ticket draft is a markdown file the owner files by hand if wanted. Later runs: `dex shadowos` does step 1.
 
 ### Stage 7. Hand back
 

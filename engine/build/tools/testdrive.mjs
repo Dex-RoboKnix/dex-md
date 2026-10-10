@@ -44,6 +44,16 @@ step('dex.md is short (300 lines or fewer) and carries no packed assets', () => 
 step('dex.md checks GitHub sign-in before any clone and says how to sign in', () => ({ pass: /gh auth status/.test(md) && /gh auth login/.test(md) && md.indexOf('gh auth status') < md.indexOf('git clone') }));
 const m = /git clone --depth 1 --branch (v\d+\.\d+\.\d+) https:\/\/github\.com\/Dex-RoboKnix\/dex-md dex-vault\/\.dex\/dex-md/.exec(md);
 step('dex.md pins the dex-md clone to a release tag, shallow, into dex-vault/.dex/dex-md', () => ({ pass: !!m, detail: m ? m[1] : 'no pinned clone command' }));
+step('dex.md section 3 pins ShadowOS to a vX.Y.Z tag with a shallow clone command', () => { const x = /git clone --depth 1 --branch (v\d+\.\d+\.\d+) https:\/\/github\.com\/Dex-RoboKnix\/shadowos dex-vault\/\.shadowos\/src/.exec(md); return { pass: !!x, detail: x ? x[1] : 'no pinned ShadowOS clone' }; });
+step('every git clone in dex.md uses a tag or a 40-hex ref, never a branch', () => {
+  const bad = [];
+  for (const line of md.split('\n')) for (const c of line.matchAll(/git clone ([^`|]*)/g)) {
+    const b = /--branch (\S+)/.exec(c[1]);
+    if (b) { if (!/^v\d+\.\d+\.\d+$/.test(b[1])) bad.push(c[1]); }
+    else if (!/checkout [0-9a-f]{40}/.test(line)) bad.push(c[1]);
+  }
+  return { pass: bad.length === 0, detail: bad.join(' ; ') };
+});
 fs.mkdirSync(path.join(sandbox, 'dex-vault', '.dex'), { recursive: true });
 step('the pinned clone succeeds at that tag', () => { const r = git('clone', '--depth', '1', '--branch', m[1], remote, path.join('dex-vault', '.dex', 'dex-md')); return { pass: r.status === 0, detail: (r.stderr || r.stdout).trim() }; });
 step('install says it installed 11 files', () => { const r = node([path.join('dex-vault', '.dex', 'dex-md', 'engine', 'install.mjs')]); return { pass: /Installed 11 files/.test(r.stdout), detail: r.stdout + r.stderr }; });
