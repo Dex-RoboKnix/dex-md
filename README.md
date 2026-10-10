@@ -30,6 +30,18 @@ The method, engine and skills behind **dex.md**, the one-file installer for Dex.
 | `templates/` | the CLAUDE.md template | installed at Stage 2, used at Stage 4b |
 | `docs/` | explainers and implementation steps | for people; not read during a run |
 
+## How it connects
+
+Every DexRoboKnix component and its repos are listed in the [sitemap](https://github.com/Dex-RoboKnix/Dex_RoboKnix/blob/main/SITEMAP.md). dex.md pins three of them:
+
+| Repo | Ref | Stage | Why |
+|---|---|---|---|
+| [dex-md](https://github.com/Dex-RoboKnix/dex-md) (this repo) | tag in dex.md section 3 | 2 | method, engine, skills |
+| [dexspine-core](https://github.com/Dex-RoboKnix/dexspine-core) (L1) | commit `fbcd0a89` | 2, own yes | DexSpine base questions, DEX838 notation |
+| [shadowos](https://github.com/Dex-RoboKnix/shadowos) (L2) | `v0.2.0` | 6b, optional | the desktop, run with `node server.mjs --root <folder>` |
+
+The folio builders and template come from [dexfolio](https://github.com/Dex-RoboKnix/dexfolio) (L2) `v0.1.0`, vendored byte-identical in `engine/`, so no separate clone is needed.
+
 ## Releases
 
 dex.md pins a tag (`vX.Y.Z`). A new release is a new tag and a new dex.md; an old dex.md keeps working against its own tag.

@@ -1,7 +1,7 @@
 ---
 name: dex-md
 description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It holds the rules, consent and the stage list; the method, engine and skills are cloned from the dex-md repo at a pinned tag when a stage needs them. The agent reads the folder, builds a DexSpine vault in dex-vault/ next to this file, places the Claude project files and the five dex skills (each with the human's yes), retells the matter as a short story, renders it as a folio and turns open work into issues.
-version: 0.9.1
+version: 0.9.2
 tier: L2 (universal installer; DEX838 and DexSpine, L1, define it)
 author: Dex-RoboKnix
 provenance: AAC
@@ -63,7 +63,7 @@ Each clone is shallow, at the ref below, into the path below. Show the exact com
 
 | When | Repo | Ref | Into | Command |
 |---|---|---|---|---|
-| Stage 2 (always) | `https://github.com/Dex-RoboKnix/dex-md` | `v0.9.1` | `dex-vault/.dex/dex-md/` | `git clone --depth 1 --branch v0.9.1 https://github.com/Dex-RoboKnix/dex-md dex-vault/.dex/dex-md` |
+| Stage 2 (always) | `https://github.com/Dex-RoboKnix/dex-md` | `v0.9.2` | `dex-vault/.dex/dex-md/` | `git clone --depth 1 --branch v0.9.2 https://github.com/Dex-RoboKnix/dex-md dex-vault/.dex/dex-md` |
 | Stage 2 (own yes) | `https://github.com/Dex-RoboKnix/dexspine-core` | `fbcd0a89008e87416c5a0bfe6b56524b584b49a8` | `dex-vault/.dex/dexspine/` | `git clone https://github.com/Dex-RoboKnix/dexspine-core dex-vault/.dex/dexspine` then `git -C dex-vault/.dex/dexspine checkout fbcd0a89008e87416c5a0bfe6b56524b584b49a8` |
 | Stage 6b (own yes, only if wanted) | `https://github.com/Dex-RoboKnix/shadowos` | `v0.2.0` | `dex-vault/.shadowos/src/` | `git clone --depth 1 --branch v0.2.0 https://github.com/Dex-RoboKnix/shadowos dex-vault/.shadowos/src` |
 
