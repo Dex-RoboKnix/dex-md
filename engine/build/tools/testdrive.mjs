@@ -56,7 +56,7 @@ step('every git clone in dex.md uses a tag or a 40-hex ref, never a branch', () 
 });
 fs.mkdirSync(path.join(sandbox, 'dex-vault', '.dex'), { recursive: true });
 step('the pinned clone succeeds at that tag', () => { const r = git('clone', '--depth', '1', '--branch', m[1], remote, path.join('dex-vault', '.dex', 'dex-md')); return { pass: r.status === 0, detail: (r.stderr || r.stdout).trim() }; });
-step('install says it installed 11 files', () => { const r = node([path.join('dex-vault', '.dex', 'dex-md', 'engine', 'install.mjs')]); return { pass: /Installed 11 files/.test(r.stdout), detail: r.stdout + r.stderr }; });
+step('install says it installed 13 files', () => { const r = node([path.join('dex-vault', '.dex', 'dex-md', 'engine', 'install.mjs')]); return { pass: /Installed 13 files/.test(r.stdout), detail: r.stdout + r.stderr }; });
 step('installed tool files exist (vault, lib, builders, template, CLAUDE template, five skills)', () => {
   const need = ['vault.mjs', 'dex-lib.mjs', 'build_folio.mjs', 'build_folio.py', 'dex-folio.template.html', 'dex-claude.md', 'skills/dex-grill.md', 'skills/dex-spec.md', 'skills/dex-implement.md', 'skills/dex-review.md', 'skills/dex-checkpoint.md'];
   const missing = need.filter((f) => !fs.existsSync(path.join(sandbox, 'dex-vault', '.dex', f)));

@@ -26,7 +26,7 @@ The method, engine and skills behind **dex.md**, the one-file installer for Dex.
 | `method/` | stage detail (one file per section of the 0.9 instructions) | read by the agent at each stage |
 | `engine/` | the vault tool, `dex-lib.mjs` (100 modules), Folio builders and template, `install.mjs` | installed into `dex-vault/.dex/` at Stage 2 |
 | `engine/build/` | module sources, tests and the tools that build `engine/` | not used at runtime |
-| `skills/` | the five dex skills | installed at Stage 2, placed in `.claude/skills/` at Stage 4b on the owner's yes |
+| `skills/` | the seven dex skills (five for each issue, plus `dex-loop` and `dex-sprint` for step 2) | installed at Stage 2, placed in `.claude/skills/` at Stage 4b on the owner's yes |
 | `templates/` | the CLAUDE.md template | installed at Stage 2, used at Stage 4b |
 | `docs/` | explainers and implementation steps | for people; not read during a run |
 

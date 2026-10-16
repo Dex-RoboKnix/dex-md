@@ -12,7 +12,7 @@ status: prototype, pre-1.0, for local testing. Not yet run end to end by a perso
 
 **Dex is one file you attach to a live or blank project.** It acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM) in `dex-vault/` next to this file, and turns the work into issues. It holds nothing about any particular matter: the **slant** comes from the folder it lands in, confirmed by the human.
 
-This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, 100 tested modules, the Folio) and the five dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
+This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, 100 tested modules, the Folio) and the seven dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
 
 **dex.md finds a better balance between quality and efficiency, keeping the human in the loop before things change.** The workflow is a brake: nothing changes without your yes. If the human follows it, it works. If a stage is skipped, it does not. You grill the human first and assess coverage at every checkpoint.
 
@@ -74,7 +74,7 @@ Each clone is shallow, at the ref below, into the path below. Show the exact com
 
 The Folio files come from dexfolio v0.1.0, vendored inside dex-md (no separate clone).
 
-After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 11 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
+After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 13 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
 
 From here on, **"this file" in the method docs means dex.md**, and section numbers refer to the method files: section N is `dex-vault/.dex/dex-md/method/NN-*.md`.
 
@@ -88,7 +88,7 @@ Run them in order. Nothing is written before Stage 2. Before each stage from Sta
 2. **Onboarding.** Coverage forecast, five suggested skills (`dex grill` always one), the story voice. On approval and separate yeses: create `dex-vault/`, make the clones in section 3, install, build the starter vault and scaffold all 114 node folders. `method/03-first-run.md` Stage 2.
 3. **Run the five skills,** one question at a time, saving answers verbatim. `method/03-first-run.md` Stage 3, `method/05-skill-library.md`.
 4. **Build the vault.** `method/03-first-run.md` Stage 4, `method/07-vault-format.md`.
-4b. **Place the Claude project files and the five dex skills,** each as a diff on its own yes. `method/03-first-run.md` Stage 4b.
+4b. **Place the Claude project files and the seven dex skills,** each as a diff on its own yes. `method/03-first-run.md` Stage 4b.
 5. **Write the Matter of Fact story** from what the vault holds. Stage 5.
 6. **Build the folio.** Stage 6, `method/09-engine.md`.
 6b. **Install ShadowOS** (optional, on its own yes). Stage 6b.

@@ -310,7 +310,7 @@ You are pointed at the project folder. The vault is `dex-vault/`, a sandbox besi
 
 **Checkpoints.** The end of Stage 4 and the end of every update run are checkpoints. At each one, run `fold --checkpoint`: it appends to `06_journal/changes.md` the nodes whose state moved since the last checkpoint, so understanding is visibly growing. Then review the slant against what you have learned. If something has shifted it, **propose** the new slant; only the owner can accept it. If they do, keep the old slant in `06_journal/slant-history.md` (date, old slant, new slant, why), rewrite `slant.md`, and run `adapt` again for the nodes still open.
 
-### Stage 4b. Place the Claude project files and the five dex skills (each on its own yes)
+### Stage 4b. Place the Claude project files and the seven dex skills (each on its own yes)
 
 A project needs more than a `CLAUDE.md`. This stage fills the gaps, using what Anthropic documents for Claude Code (sources at the end of this stage). **Rules for every file here:** write only inside a **marked block** (`<!-- dex:managed:start -->` to `<!-- dex:managed:end -->`) or into a **new `dex-` file**; never overwrite or reorder text outside a block; show the **diff first**; one yes per file (rule 17); the human can veto any of it; never write a secret, token or key value (an environment variable **name** is the most a file may carry). The bundled modules do the planning and return what they would write; you do the writing, after the yes. Run one with `node dex-vault/.dex/vault.mjs run <module> --json '{...}'`; `node dex-vault/.dex/vault.mjs modules` lists the input each expects.
 
@@ -324,7 +324,7 @@ A project needs more than a `CLAUDE.md`. This stage fills the gaps, using what A
 | Hooks | `.claude/hooks/dex-*` registered in settings | propose only: a Stop hook that runs the verify command, a PreToolUse guard for paths, a SessionStart status line. A rule in `CLAUDE.md` that says "must" is a hook candidate (instructions are advisory, hooks are deterministic) | `p3/hooks-plan` |
 | Subagent | `.claude/agents/dex-reviewer.md` | propose a read-only reviewer with a fresh context | `p3/subagent-plan` |
 | MCP | `.mcp.json` | propose only, never silently. Tokens as `${VAR}` placeholders, flag a literal secret in an existing file, warn that non-interactive runs load project servers without asking | `p2/mcp-propose` |
-| The five dex skills | `.claude/skills/dex-<name>/SKILL.md` | copy `dex-grill`, `dex-spec`, `dex-implement`, `dex-review` and `dex-checkpoint` from `dex-vault/.dex/skills/`, one yes per skill. Check the path and the frontmatter first | `p2/skill-path`, `p2/skill-frontmatter`, `p3/skill-registry` |
+| The seven dex skills | `.claude/skills/dex-<name>/SKILL.md` | copy `dex-grill`, `dex-spec`, `dex-implement`, `dex-review`, `dex-checkpoint`, `dex-loop` and `dex-sprint` from `dex-vault/.dex/skills/`, one yes per skill. Check the path and the frontmatter first | `p2/skill-path`, `p2/skill-frontmatter`, `p3/skill-registry` |
 | Auto memory | `~/.claude/projects/<project>/memory/` | Dex does **not** write here. It may suggest lines for the owner to keep | none |
 
 **What is not confirmed.** The research behind this table could not confirm from a primary page: the file-by-file contents of the `.claude` directory page, the exact key shapes of `permissions` and `env` in settings, any size guidance for settings, and the `.claude/output-styles`, `.worktreeinclude` and README conventions. Check the current Claude Code documentation before writing any of those, and say so to the human.

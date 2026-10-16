@@ -25,3 +25,12 @@ every skill ends with: dex-checkpoint
 **Limits (rule 20).** A task gets **2 attempts**. After the second failed review round it goes to a higher model (Opus with a Sonnet team). A retry must carry a new change, otherwise it is refused and not counted. At most 8 agents are live, one slot kept free for escalation. A Haiku agent costs roughly 34k tokens before it does any work in a typical harness, so give each run about five tasks, not one. **Reasoning capture:** how much of an agent's reasoning the harness exposes is unchecked. Check it first and, if it is not exposed, save the agent's output and tool summaries instead and say so.
 
 **Every finding is checked before it is acted on.** Reviewers (people or models) are advisory. A claim in a review is verified against the text before anything changes.
+
+### Step 2: keeping the work going
+
+The loop is step 2 of dex.md. Two skills run it: `dex-loop` works one batch of issues through the skills above, and `dex-sprint` runs several batches at once, gathering their questions into one popup per round (at most four).
+
+1. **Working doesn't mean changing.** Reading, mapping, drafting and suggesting run freely. Each change (a file outside the working area, an issue comment or close, a commit, a push, a deploy) needs the human's yes to that change.
+2. **Next actions.** When an issue closes, offer up to three next actions in one popup, the recommended one first: the next issue in the batch, a follow-up the work surfaced, or "stop here". Nothing starts before the human picks.
+3. **When the slant is achieved.** A slant is achieved when every loop under it has met its success criteria (P05) and the human agrees. Until then, step 2 keeps going.
+4. **Tool work is kept apart from project work.** During a project run, an idea for dex.md itself is filed as an issue, and the project keeps using dex.md at its pinned version. Changes to dex.md are made between runs and tagged.
