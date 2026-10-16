@@ -5,6 +5,15 @@ description: Build a dex-spec phase with a Sonnet 5.5 orchestrator and a Haiku t
 
 **Dex implement** builds the spec phase by phase. PROTOTYPE, built 2026-10-09 for #77.
 
+## Opening line
+
+Start with one line, so the human knows where they are and how long it takes:
+
+```
+[<vault> vault] dex-implement #<n>: <k> phases, one question on the pace. Say park to save a thought for later.
+```
+Readable: name the vault, the skill and the issue, and roughly how many questions are coming. "park" saves the place with `node dex-vault/.dex/vault.mjs park`.
+
 ## Step 0. Ask the pace (the human chooses; one question, recommended option first)
 
 1. **One phase at a time (Recommended).** Build a phase, gate it, review it, fix what the review really finds, checkpoint, and only then start the next. Total tokens are the same as the other option, spread over more time, and you can stop between phases. What a review teaches (a missing rule, a test that checks the wrong thing) goes into the builder instructions before the next phase starts, so the same mistake is not built twice. Best on a metered or limited plan (for example a Pro account).

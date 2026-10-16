@@ -5,6 +5,15 @@ description: Grill the human on one ticket at a time until it is settled, three 
 
 **Dex grill** works **one ticket** from first question to closure, in a live exchange with the human. It is the style used in the 2026-10-03 round 1 session on `Dex-RoboKnix/dexroboknix`. It is meant to replace `SK-GRILL` in `MoF.md` (the same pattern, with tickets as its target); `MoF.md` is not edited until the human says so.
 
+## Opening line
+
+Start with one line, so the human knows where they are and how long it takes:
+
+```
+[<vault> vault] dex-grilling #<n>: <k> open points, about <k> questions. Say park to save a thought for later.
+```
+Readable: name the vault, the skill and the issue, and roughly how many questions are coming. "park" saves the place with `node dex-vault/.dex/vault.mjs park`.
+
 ## Hard rules
 
 1. **Never answer for the human.** No inferred answers, no subagent resolving a grilling, prototype or task ticket.

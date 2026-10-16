@@ -5,6 +5,15 @@ description: End-of-skill write-back to the vault. The skill does the judgement 
 
 **Dex checkpoint** closes every dex skill so the vault never goes stale (#76, #13 upward). PROTOTYPE, built 2026-10-09 for #77.
 
+## Opening line
+
+Start with one line, so the human knows where they are and how long it takes:
+
+```
+[<vault> vault] dex-checkpoint #<n>: <k> node changes to propose. Say park to save a thought for later.
+```
+Readable: name the vault, the skill and the issue, and roughly how many questions are coming. "park" saves the place with `node dex-vault/.dex/vault.mjs park`.
+
 ## Skill does (judgement)
 1. Journal the session verbatim with its source; the human's words stay separate from your reading.
 2. Propose node changes (never apply them). Each is inert until the human says yes; the replaced rows are kept in `05_actions/work/checkpoint-<date>.md`.

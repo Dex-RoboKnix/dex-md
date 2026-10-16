@@ -26,6 +26,10 @@ swap('// Paths come from this file\'s location', [
   '//        list a folder\'s top level (names only) and classify it: blank, blank-with-context or in-flight; lists secret-class files.',
   '//   node dex-vault/.dex/vault.mjs checkpoint [--skill <name>] [--summary "<text>"] [--chapter "<text>"] [--now <ISO>]',
   '//        close a skill: fold, coverage, RUNLOG row, story chapter, then the vault check. Never applies a node change.',
+  '//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]',
+  '//        hold where a skill stopped in .dex/state/<skill>.json so a later session can come back to the same question.',
+  '//   node dex-vault/.dex/vault.mjs resume [--skill <name>]',
+  '//        print the held skill, issue and question, or "nothing held".',
   '//',
   '// Paths come from this file\'s location',
 ].join('\n'), false);
@@ -33,8 +37,8 @@ swap('// Paths come from this file\'s location', [
 const mainAt = v.indexOf('// ---- main');
 if (mainAt < 0) throw new Error('main section not found');
 v = v.slice(0, mainAt) + add + '\n' + v.slice(mainAt);
-swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd };', false);
-swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|migrate|modules|run|classify|checkpoint>", false);
+swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd };', false);
+swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|migrate|modules|run|classify|checkpoint|park|resume>", false);
 swap('commands[cmd](a);', 'Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));', false);
 fs.writeFileSync(path.join(ROOT, 'src/vault.mjs'), v);
 console.log('wrote src/vault.mjs', v.split('\n').length, 'lines; remaining "mof" mentions:', (v.match(/\bmof\b/gi) || []).length);

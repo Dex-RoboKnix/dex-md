@@ -5,6 +5,15 @@ description: Review built work against its FINAL spec with the full team, includ
 
 **Dex review** checks code against the FINAL spec and its delta log. PROTOTYPE, built 2026-10-09 for #77.
 
+## Opening line
+
+Start with one line, so the human knows where they are and how long it takes:
+
+```
+[<vault> vault] dex-review #<n>: <k> phases to check, one verdict to agree. Say park to save a thought for later.
+```
+Readable: name the vault, the skill and the issue, and roughly how many questions are coming. "park" saves the place with `node dex-vault/.dex/vault.mjs park`.
+
 ## Hard rules
 1. The reviewer never reviews its own build, and never edits code. It writes a verdict.
 2. A pass needs **both** a reviewer PASS and the machine checks (tests green, devops lint clean). A reviewer PASS over a failing test is recorded as FAIL.

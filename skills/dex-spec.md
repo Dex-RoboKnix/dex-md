@@ -5,6 +5,15 @@ description: Turn settled grill sessions across the dexspine into a spec of 5 ph
 
 **Dex spec** is the downward half of the vault loop (#13): grill answers become a spec; nothing is built here. PROTOTYPE, built 2026-10-09 for #77 and corrected after each test.
 
+## Opening line
+
+Start with one line, so the human knows where they are and how long it takes:
+
+```
+[<vault> vault] dex-spec #<n>: <k> phases to draft, about <k> questions. Say park to save a thought for later.
+```
+Readable: name the vault, the skill and the issue, and roughly how many questions are coming. "park" saves the place with `node dex-vault/.dex/vault.mjs park`.
+
 ## Hard rules
 1. The human's grill answers are the only source of decisions. A spec line that rests on an agent's guess is marked `(reading)`.
 2. A spec has exactly **5 phases**; each phase is a list of tracer bullets (thin end-to-end slices) with a spine node id (`L<1-6>.E<01-08>` or `.P`).

@@ -74,7 +74,7 @@ Each clone is shallow, at the ref below, into the path below. Show the exact com
 
 The Folio files come from dexfolio v0.1.0, vendored inside dex-md (no separate clone).
 
-After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 13 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
+After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 13 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/`, `.dex/state/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
 
 From here on, **"this file" in the method docs means dex.md**, and section numbers refer to the method files: section N is `dex-vault/.dex/dex-md/method/NN-*.md`.
 

@@ -97,3 +97,28 @@ async function checkpointCmd(a) {
   // 5. the vault check last: it exits 1 on a problem
   check();
 }
+// Hold a skill's place so a later session can come back to the same question (dex-loop 4b).
+// park writes dex-vault/.dex/state/<skill>.json; resume prints what is held. The state folder is gitignored.
+const STATE = path.join(HERE, 'state');
+function parkCmd(a) {
+  const skill = typeof a.skill === 'string' ? a.skill : '';
+  const question = typeof a.question === 'string' ? a.question : '';
+  if (!skill || !question) die('Usage: node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]');
+  if (!/^[a-z0-9-]+$/.test(skill)) die(`Skill names are lowercase letters, digits and dashes: ${skill}`);
+  fs.mkdirSync(STATE, { recursive: true });
+  const held = { skill, issue: typeof a.issue === 'string' ? a.issue : null, question, thought: typeof a.thought === 'string' ? a.thought : null, parked: typeof a.now === 'string' ? a.now : new Date().toISOString() };
+  fs.writeFileSync(path.join(STATE, `${skill}.json`), JSON.stringify(held, null, 2) + '\n');
+  console.log(`Parked ${skill}${held.issue ? ` #${held.issue}` : ''}: ${question}`);
+}
+function resumeCmd(a) {
+  const files = fs.existsSync(STATE) ? fs.readdirSync(STATE).filter((f) => f.endsWith('.json')) : [];
+  const want = typeof a.skill === 'string' ? `${a.skill}.json` : null;
+  const pick = want ? files.filter((f) => f === want) : files;
+  if (!pick.length) { console.log('nothing held'); return; }
+  for (const f of pick.sort()) {
+    const h = JSON.parse(fs.readFileSync(path.join(STATE, f), 'utf8'));
+    console.log(`Held: ${h.skill}${h.issue ? ` #${h.issue}` : ''} (parked ${h.parked})`);
+    console.log(`  Question: ${h.question}`);
+    if (h.thought) console.log(`  Thought: ${h.thought}`);
+  }
+}
