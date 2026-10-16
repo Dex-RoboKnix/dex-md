@@ -165,6 +165,12 @@ ${question ? `- ${question}` : '-'}
 ## Owner's words (verbatim)
 ${owner}
 
+## Needs
+-
+
+## Wants
+-
+
 ## Agent reading
 ${reading}
 

@@ -14,6 +14,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "Prototypes pile up and I lose track of which ones still run." |
 | 5 Procedure | "I want to see what is real, what is a prototype and what is stalled." |
 | 4 Process | "So I can decide what to build next at L1." |
 | 3 Policy | "Core never imports Enterprise; layers come from CONTEXT.md." |

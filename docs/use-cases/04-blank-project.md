@@ -12,6 +12,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "I start reading lists and abandon them within a week." |
 | 5 Procedure | "I want a small app that tracks my reading." |
 | 4 Process | "I want to try one idea each month." |
 | 3 Policy | "Ship something tiny before adding anything." |

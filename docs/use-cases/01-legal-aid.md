@@ -16,6 +16,7 @@ This is a generic pattern. It is not anyone's own legal matter, and it holds no 
 
 | Rung | Answer (the volunteer's words) |
 |---|---|
+| 6 Pattern | "Cases go quiet for weeks, then a deadline letter turns up and we scramble." |
 | 5 Procedure | "I want one place that shows where each case stands and what the next letter is." |
 | 4 Process | "Because cases stall when nobody knows who owes the next step." |
 | 3 Policy | "We hand over a case with a written summary, always." |

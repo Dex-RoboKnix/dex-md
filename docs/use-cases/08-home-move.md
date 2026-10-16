@@ -14,6 +14,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "We keep talking about moving and never get past the first listing." |
 | 5 Procedure | "Decide whether to move, and where." |
 | 4 Process | "Compare options against what we need." |
 | 3 Policy | "We both have to agree." |

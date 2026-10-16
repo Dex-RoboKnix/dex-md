@@ -12,6 +12,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "I keep re-asking questions I know I already worked out in a chat." |
 | 5 Procedure | "Turn two years of chats into something I can search and trust." |
 | 4 Process | "I lose decisions between sessions." |
 | 3 Policy | "Anything I decided must be traceable to a chat." |

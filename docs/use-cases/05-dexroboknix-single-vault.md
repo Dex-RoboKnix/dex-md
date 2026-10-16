@@ -16,6 +16,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "Releases slip because the same checks get forgotten each time." |
 | 5 Procedure | "I want the release checks written down and tested." |
 | 4 Process | "Releases are the same steps every time." |
 | 3 Policy | "A release needs a tag." |

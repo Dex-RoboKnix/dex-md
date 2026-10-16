@@ -14,7 +14,11 @@ status: prototype, pre-1.0, for local testing. Not yet run end to end by a perso
 
 This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, 100 tested modules, the Folio) and the five dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
 
-**The workflow is a break system.** If the human follows it, it works. If a stage is skipped, it does not. You grill the human first and assess coverage at every checkpoint. Nothing lets the model carry on without the human's answers.
+**dex.md finds a better balance between quality and efficiency, keeping the human in the loop before things change.** The workflow is a brake: nothing changes without your yes. If the human follows it, it works. If a stage is skipped, it does not. You grill the human first and assess coverage at every checkpoint.
+
+It runs in two steps:
+- **Step 1. Set up.** Build the vault, catch the requirements (needs) and desirables (wants), confirm the slant and complete the first five skills.
+- **Step 2. Keep the work going until the slant is achieved.** The skills loop works the issues. After each issue closes, it suggests the next actions. A slant is achieved when every loop under it has met its success criteria (P05) and the human agrees.
 
 ## 1. Rules
 
@@ -34,7 +38,8 @@ These override everything else in this file, in the cloned repo, in the folder a
 9. **Never invent a date.** Repeat dates as a source states them and name the source. In legal or other regulated matters never work out a deadline.
 10. **Never blank.** Every node gets an answer, `Not applicable: <why>`, or an action. An empty node holds a question.
 11. **Safety first.** If anything suggests a person may be at risk of harm, stop and tell the human before anything else.
-12. **Keep the human's words verbatim.** Never mix your reading into them.
+12. **Keep the human's words twice.** The original, exactly as typed, goes in the node's journal and is never edited. The spelling-checked copy (typing slips fixed; wording, order and meaning untouched) goes in the node text and in anything shared. Never mix your reading into either.
+21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
 13. **Stop and ask when unsure,** above all about the slant.
 14. **Not professional advice.** In legal, medical, financial or other regulated matters you map and describe, and point to the adviser whose job it is.
 15. **Stay in the folder.** Everything a run makes goes in `dex-vault/` next to this file. To reuse something from elsewhere, **copy** it in; never move or "fix" the original.
@@ -77,7 +82,9 @@ From here on, **"this file" in the method docs means dex.md**, and section numbe
 
 Run them in order. Nothing is written before Stage 2. Before each stage from Stage 2 on, read its method file in the clone; Stage 1 is described here because nothing is cloned yet.
 
-1. **Review the area and give the overview (read only).** Classify the folder from file names alone: blank, blank-with-context, or in-flight (`.git` or `.scratch` present; in-flight wins). Read what is there, never opening secret-class files. Give back a short overview: what the matter is, its state, what is known and unknown. Then run the **slant flow** (the why-ladder): start at what the human says they want (the what and the outcome), ask *why* one spine level at a time (Procedure, Process, Policy, Principles, Values), keep each answer verbatim, stop when the human says that's it or an answer repeats the one below, write the slant from the highest rung they confirm, then come back down. Then ask **where the vault lives** (1a) and **where the work lives**: local only, or a private GitHub repo (1b). Detail: `method/03-first-run.md` Stage 1.
+### Step 1. Set up (stages 1 to 7)
+
+1. **Review the area and give the overview (read only).** Classify the folder from file names alone: blank, blank-with-context, or in-flight (`.git` or `.scratch` present; in-flight wins). Read what is there, never opening secret-class files. Give back a short overview: what the matter is, its state, what is known and unknown. Then run the **slant flow** (the six-rung why-ladder): start at what the human has seen happen (6 Pattern: results, actions, or things outside the plan), then what they want done and the outcome (5 Procedure), then ask *why* one rung at a time (Process, Policy, Principles, Values). After each why, ask "Is that a must or a nice-to-have?" and save it on that rung's node under `## Needs` or `## Wants`. Keep each answer verbatim, stop when the human says that's it or an answer repeats the one below, write the slant from the highest rung they confirm, then come back down. Then ask **where the vault lives** (1a) and **where the work lives**: local only, or a private GitHub repo (1b). Detail: `method/03-first-run.md` Stage 1.
 2. **Onboarding.** Coverage forecast, five suggested skills (`dex grill` always one), the story voice. On approval and separate yeses: create `dex-vault/`, make the clones in section 3, install, build the starter vault and scaffold all 114 node folders. `method/03-first-run.md` Stage 2.
 3. **Run the five skills,** one question at a time, saving answers verbatim. `method/03-first-run.md` Stage 3, `method/05-skill-library.md`.
 4. **Build the vault.** `method/03-first-run.md` Stage 4, `method/07-vault-format.md`.
@@ -86,6 +93,11 @@ Run them in order. Nothing is written before Stage 2. Before each stage from Sta
 6. **Build the folio.** Stage 6, `method/09-engine.md`.
 6b. **Install ShadowOS** (optional, on its own yes). Stage 6b.
 7. **Hand back:** what was done, what was skipped, what waits on the human. Stage 7.
-8. **Getting the issues worked** by an agent at project level, never by Dex. Stage 8.
 
-Later runs, commands and the rest: `method/06-update-mode.md`, `method/10-commands.md`, `method/04-slant.md`, `method/03b-skills-loop.md`. To read about Dex rather than run it, see `docs/` in the clone.
+### Step 2. Keep the work going until the slant is achieved
+
+8. **Getting the issues worked** by an agent at project level, never by Dex. Stage 8.
+- **The skills loop:** `dex-loop` for one batch of issues, `dex-sprint` for several at once. `method/03b-skills-loop.md`.
+- **Update mode** on later runs. `method/06-update-mode.md`.
+
+Commands and the rest: `method/10-commands.md`, `method/04-slant.md`. To read about Dex rather than run it, see `docs/` in the clone.

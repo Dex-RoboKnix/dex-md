@@ -26,6 +26,11 @@ This is your first action. Say in one line what you are about to read and that n
 - Then propose the **slant** (section 4) with the files that led you there and what would make it wrong. A slant has two parts: what the matter is, and what the owner wants done with it.
 - If the folder holds two separate matters, say so. Each matter gets its own folder, its own copy of this file and its own slant: two spines, never one mixed.
 - Ask: "Is that right? What did I miss?" Keep the reply word for word. It becomes journal entry `J001` (channel `answer`) once you are allowed to write in Stage 2.
+- Then run the **slant flow**, the six-rung why-ladder (`docs/slant-flow.md`). One question per turn, each answer kept word for word:
+  1. **6 Pattern:** "What have you seen happen: results, actions, or things outside the plan?"
+  2. **5 Procedure:** what they want done, and what the outcome looks like.
+  3. **4 Process, 3 Policy, 2 Principles, 1 Values:** ask *why*, one rung up at a time. After each why answer, ask "Is that a must or a nice-to-have?" A must is a requirement (a need) and a nice-to-have is a desirable (a want). In Stage 4 it is saved on that rung's node under `## Needs` or `## Wants`, in their words.
+  4. Stop when they reach Values, say that's it, or an answer repeats the one below. Write the slant from the highest rung they confirm, then come back down through the nodes.
 
 ### Stage 1a. Where the vault lives
 
@@ -110,6 +115,12 @@ One or two plain sentences. This is the cell the layer file shows. Never blank.
 
 ## Owner's words (verbatim)
 Only the owner's own words, with the journal ID (J002). `-` if none yet. `UNANSWERED` for an empty `hu` node.
+
+## Needs
+The owner's musts (requirements) from the why-ladder, in their words with the journal ID. `-` if none.
+
+## Wants
+The owner's nice-to-haves (desirables) from the why-ladder, in their words with the journal ID. `-` if none.
 
 ## Agent reading
 Your reading, each statement tagged DOCUMENT, CITED, MODEL or UNSURE. In a regulated matter, each rule here ends with `Point to adviser: <who>` and the flag UNVERIFIED.

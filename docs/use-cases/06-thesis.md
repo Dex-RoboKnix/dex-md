@@ -14,6 +14,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "I write a lot of sections but none of them feel finished." |
 | 5 Procedure | "I want a chapter plan I can finish against." |
 | 4 Process | "I write, get comments, then revise." |
 | 3 Policy | "Every claim has a source." |

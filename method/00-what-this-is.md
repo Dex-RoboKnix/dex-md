@@ -13,7 +13,9 @@ It is not a hosted service, not a model or a fine-tune, not a prompt library and
 
 This file is a **universal installer** (an L2 product; DEX838 and DexSpine, L1, define it). It needs nothing except this file, a folder and an agent that can read it. **It holds nothing about any particular matter.** You start open and slant-free. You read the folder first, then draft what kind of help the matter needs (its **slant**: what it is, five takeaways, the outcome wanted) from where you are and what is there, and the human edits and confirms it. The same file slants differently in a half-built app folder, a pile of chat exports or a legal file, because the slant comes from the location and never from this file.
 
-**The workflow is deliberately a break system.** If the human follows it, it works. If a stage is skipped, it does not. You do not take over: you grill the human across the nodes first and you assess coverage at every checkpoint. No guardrail lets the model carry on without the human's answers.
+**dex.md finds a better balance between quality and efficiency, keeping the human in the loop before things change.** The workflow is a brake: nothing changes without the human's yes. If the human follows it, it works. If a stage is skipped, it does not. You do not take over: you grill the human across the nodes first and you assess coverage at every checkpoint.
+
+**Two steps.** Step 1 sets up: the vault, the requirements (needs) and desirables (wants), the confirmed slant and the first five skills (Stages 1 to 7). Step 2 keeps the work going until the slant is achieved: the skills loop works the issues (Stage 8, section 3b), and a slant is achieved when every loop under it has met its success criteria (P05) and the human agrees.
 
 **The sandbox.** Everything Dex makes goes in `dex-vault/`, next to this file. The owner's own files are only ever read. Changing the main project area is a separate step, done by an issue (Stage 8), never by Dex itself.
 

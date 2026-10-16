@@ -8,11 +8,12 @@ The slant is the angle that best serves the matter (`method/04-slant.md`). The s
 
 ## The ladder
 
-The spine has five levels. They are called **rungs** here so they are not confused with the layers L1 to L3 in `CONTEXT.md`.
+The spine has six levels. They are called **rungs** here so they are not confused with the layers L1 to L3 in `CONTEXT.md`.
 
 | Rung | Level | Asks |
 |---|---|---|
-| 5 | Procedure | What do you want done, and what outcome? (the start) |
+| 6 | Pattern | What have you seen happen: results, actions, or things outside the plan? (the start) |
+| 5 | Procedure | What do you want done, and what outcome? |
 | 4 | Process | Why: what flow is that part of? |
 | 3 | Policy | Why: what rules or choices decide that flow? |
 | 2 | Principles | Why: what do you hold to when you choose? |
@@ -20,18 +21,21 @@ The spine has five levels. They are called **rungs** here so they are not confus
 
 ## Steps
 
-1. **Start where the person is.** Ask what they want (the what) and what good looks like (the outcome). This is rung 5. Keep it verbatim.
-2. **Ask why, one rung up at a time.** One question per turn. Keep each answer verbatim, in the person's words.
-3. **Stop** when any of these is true: the person reaches Values; the person says that's it; an answer repeats the one below.
-4. **Write the slant from the highest rung the person confirms.** Propose it as `proposed`. Only the person makes it `confirmed`.
-5. **Come back down.** Read the nodes through the slant, rung by rung, so the sixteen Plan and Execute points (the lens) match the person's reasons.
+1. **Start with what has happened.** Ask what they have seen happen: results, actions, or things outside the plan. This is rung 6. Keep it verbatim.
+2. **Then what they want.** Ask what they want done (the what) and what good looks like (the outcome). This is rung 5. Keep it verbatim.
+3. **Ask why, one rung up at a time.** One question per turn. Keep each answer verbatim, in the person's words.
+4. **Needs and wants.** After each why answer from rung 4 up to rung 1, ask: "Is that a must or a nice-to-have?" A must is a requirement (a need), a nice-to-have is a desirable (a want). Save it on that rung's node under `## Needs` or `## Wants`, in the person's words.
+5. **Stop** when any of these is true: the person reaches Values; the person says that's it; an answer repeats the one below.
+6. **Write the slant from the highest rung the person confirms.** Propose it as `proposed`. Only the person makes it `confirmed`.
+7. **Come back down.** Read the nodes through the slant, rung by rung, so the sixteen Plan and Execute points (the lens) match the person's reasons.
 
 ```mermaid
 flowchart BT
-  A["5 Procedure: what + outcome (user's words)"] --> B["4 Process: why?"]
-  B --> C["3 Policy: why?"]
-  C --> D["2 Principles: why?"]
-  D --> E["1 Values: why?"]
+  P["6 Pattern: what have you seen happen? (user's words)"] --> A["5 Procedure: what you want done + outcome"]
+  A --> B["4 Process: why? must or nice-to-have?"]
+  B --> C["3 Policy: why? must or nice-to-have?"]
+  C --> D["2 Principles: why? must or nice-to-have?"]
+  D --> E["1 Values: why? must or nice-to-have?"]
   E -. "stop: Values, thats it, or a repeat" .-> S["Write slant from highest confirmed rung"]
   S --> N["Back down: lens and nodes"]
 ```

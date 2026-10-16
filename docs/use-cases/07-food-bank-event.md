@@ -14,6 +14,7 @@ provenance: AAC
 
 | Rung | Answer |
 |---|---|
+| 6 Pattern | "Last time two volunteers turned up for one slot and another slot was empty." |
 | 5 Procedure | "Everyone knows their slot and nothing is double-booked." |
 | 4 Process | "Helpers sign up, then I confirm by message." |
 | 3 Policy | "Nobody works alone." |
