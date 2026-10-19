@@ -37,8 +37,40 @@ test('resume with nothing held says so', () => {
 });
 
 test('park refuses without a skill or a question, and refuses a path-like skill name', () => {
-  const { vault } = sandbox();
+  const { dex, vault } = sandbox();
   assert.notEqual(vault('park', '--question', 'x').status, 0);
   assert.notEqual(vault('park', '--skill', 'dex-loop').status, 0);
-  assert.notEqual(vault('park', '--skill', '../evil', '--question', 'x').status, 0);
+  const evil = vault('park', '--skill', '../evil', '--question', 'x');
+  assert.notEqual(evil.status, 0);
+  assert.match(evil.stderr, /lowercase letters, digits and dashes/);
+  assert.ok(!fs.existsSync(path.join(dex, 'state')) || fs.readdirSync(path.join(dex, 'state')).length === 0, 'a refused park wrote a file');
+  assert.ok(!fs.existsSync(path.join(dex, 'evil.json')));
+});
+
+test('parking again replaces the held question', () => {
+  const { vault } = sandbox();
+  vault('park', '--skill', 'dex-grill', '--question', 'first');
+  vault('park', '--skill', 'dex-grill', '--question', 'second');
+  const r = vault('resume', '--skill', 'dex-grill');
+  assert.match(r.stdout, /Question: second/);
+  assert.doesNotMatch(r.stdout, /first/);
+});
+
+test('resume --skill shows only that skill', () => {
+  const { vault } = sandbox();
+  vault('park', '--skill', 'dex-grill', '--question', 'grill question');
+  vault('park', '--skill', 'dex-spec', '--question', 'spec question');
+  const r = vault('resume', '--skill', 'dex-spec');
+  assert.match(r.stdout, /spec question/);
+  assert.doesNotMatch(r.stdout, /grill question/);
+});
+
+test('a broken state file gives a clear message, not a crash', () => {
+  const { dex, vault } = sandbox();
+  fs.mkdirSync(path.join(dex, 'state'), { recursive: true });
+  fs.writeFileSync(path.join(dex, 'state', 'dex-loop.json'), '{ not json');
+  const r = vault('resume');
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /state\/dex-loop\.json: it is not valid JSON/);
+  assert.doesNotMatch(r.stderr, /SyntaxError|\n\s+at /);
 });

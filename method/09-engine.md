@@ -11,7 +11,7 @@ The engine lives in the `dex-md` repo, not in dex.md. Stage 2 clones it at the p
 
 ### 9.1 Install
 
-After the pinned clone (dex.md, Stage 2) run `node dex-vault/.dex/dex-md/engine/install.mjs`. It should say it installed 13 files. Record them, with the tag, in `MANIFEST.md`. It writes only inside `dex-vault/.dex/`; the skill files are **not** placed in `.claude/skills/` until Stage 4b and the human's yes. To update, the owner approves a new tag, you fetch and check it out in the clone and run the installer again.
+After the pinned clone (dex.md, Stage 2) run `node dex-vault/.dex/dex-md/engine/install.mjs`. It should say it installed 14 files. Record them, with the tag, in `MANIFEST.md`. It writes only inside `dex-vault/.dex/`; the skill files are **not** placed in `.claude/skills/` until Stage 4b and the human's yes. To update, the owner approves a new tag, you fetch and check it out in the clone and run the installer again.
 
 ### 9.2 The vault tool
 

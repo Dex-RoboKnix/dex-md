@@ -8,9 +8,9 @@ description: Dex loop, step 2 of dex.md. Picks the next logical batch of issues 
 ## Hard rules
 
 1. **Working doesn't mean changing.** Reading, mapping, drafting and suggesting run freely. A change needs the human's yes to that change: a file outside the loop's working area, an issue comment, label or close, a commit, push, deploy or visibility change.
-2. **Never answer for the human.** Grilling, prototype and task issues need the human. An agent may take research issues, or build against a FINAL spec.
+2. **Never answer for the human.** Grilling, prototype and task issues need the human. A research agent may take a research issue that needs up-to-date outside information.
 3. **The human's words are kept twice** (rule 12): the original in the journal, the spelling-checked copy in anything shared. Your reading goes on a separate line.
-4. **Agents are limited** (rule 20). Subagents run only when the human has asked for them.
+4. **One agent** (rule 20). You run every skill yourself. A research agent runs only for up-to-date outside information (a web search, scraping a site), and you turn its handover into an HTML page for the human.
 5. **Tag claims** `DOCUMENT`, `CITED`, `MODEL` or `UNSURE`. Only the human verifies.
 
 ## The loop
@@ -41,7 +41,7 @@ Take the next issue that is unblocked and that others depend on, foundation befo
 | Type | Skill | Human's part |
 |---|---|---|
 | grilling | dex-grill | answers every question |
-| research | research into one file | reads the findings |
+| research | answer from the vault first; a research agent for up-to-date outside information, its handover as an HTML page | reads the findings |
 | prototype | build the throwaway | reacts |
 | task | show what you would do | says yes, then you do it |
 | settled, with build work | dex-spec, dex-implement, dex-review | sees the phase list and chooses the pace |
@@ -69,4 +69,4 @@ When the human raises something that is not an answer to the open question:
 
 ## 5. Stop
 
-The loop ends when its P05 is met and the human agrees, when the human stops it, or when two failed rounds escalate and the human parks it. Say what shipped, what is parked and which batch you would take next.
+The loop ends when its P05 is met and the human agrees, when the human stops it, or when a task fails twice and the human parks it. Say what shipped, what is parked and which batch you would take next.

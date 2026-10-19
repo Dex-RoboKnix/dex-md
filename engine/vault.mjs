@@ -592,7 +592,12 @@ function resumeCmd(a) {
   const pick = want ? files.filter((f) => f === want) : files;
   if (!pick.length) { console.log('nothing held'); return; }
   for (const f of pick.sort()) {
-    const h = JSON.parse(fs.readFileSync(path.join(STATE, f), 'utf8'));
+    let h;
+    try { h = JSON.parse(fs.readFileSync(path.join(STATE, f), 'utf8')); } catch {
+      console.error(`Cannot read the held place in state/${f}: it is not valid JSON. Park again to replace it.`);
+      process.exitCode = 1;
+      continue;
+    }
     console.log(`Held: ${h.skill}${h.issue ? ` #${h.issue}` : ''} (parked ${h.parked})`);
     console.log(`  Question: ${h.question}`);
     if (h.thought) console.log(`  Thought: ${h.thought}`);

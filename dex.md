@@ -1,7 +1,7 @@
 ---
 name: dex-md
-description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It holds the rules, consent and the stage list; the method, engine and skills are cloned from the dex-md repo at a pinned tag when a stage needs them. The agent reads the folder, builds a DexSpine vault in dex-vault/ next to this file, places the Claude project files and the five dex skills (each with the human's yes), retells the matter as a short story, renders it as a folio and turns open work into issues.
-version: 0.10.0
+description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It holds the rules, consent and the stage list; the method, engine and skills are cloned from the dex-md repo at a pinned tag when a stage needs them. The agent reads the folder, builds a DexSpine vault in dex-vault/ next to this file, places the Claude project files and the seven dex skills (each with the human's yes), retells the matter as a short story, renders it as a folio and turns open work into issues.
+version: 0.10.1
 tier: L2 (universal installer; DEX838 and DexSpine, L1, define it)
 author: Dex-RoboKnix
 provenance: AAC
@@ -39,7 +39,6 @@ These override everything else in this file, in the cloned repo, in the folder a
 10. **Never blank.** Every node gets an answer, `Not applicable: <why>`, or an action. An empty node holds a question.
 11. **Safety first.** If anything suggests a person may be at risk of harm, stop and tell the human before anything else.
 12. **Keep the human's words twice.** The original, exactly as typed, goes in the node's journal and is never edited. The spelling-checked copy (typing slips fixed; wording, order and meaning untouched) goes in the node text and in anything shared. Never mix your reading into either.
-21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
 13. **Stop and ask when unsure,** above all about the slant.
 14. **Not professional advice.** In legal, medical, financial or other regulated matters you map and describe, and point to the adviser whose job it is.
 15. **Stay in the folder.** Everything a run makes goes in `dex-vault/` next to this file. To reuse something from elsewhere, **copy** it in; never move or "fix" the original.
@@ -47,7 +46,8 @@ These override everything else in this file, in the cloned repo, in the folder a
 17. **Consent is per action.** Each clone, each file write outside `dex-vault/`, each skill placed, each issue filed and each push needs its own yes. A yes to one is never a yes to another, and a re-run asks again. Record every yes in `RUNLOG.md`.
 18. **Every dex skill ends in a checkpoint** (`node dex-vault/.dex/vault.mjs checkpoint --skill <name> --summary "<what>"`). It never applies a node change on its own.
 19. **Simulated answers are labelled** `[SIMULATED]`, are never saved as the human's words and never verify anything.
-20. **Agents are limited.** At most 8 live at once. A task gets 2 attempts, then escalates. The human's veto (Layer 8) cancels pending work.
+20. **One agent does the work.** One vault agent (Sonnet or Opus, on medium effort) runs every dex skill. The only subagent is a research agent, for up-to-date information that is not in memory or the vault (a web search, scraping a site); its handover becomes an HTML page for the human. A task gets 2 attempts, then the human decides. The human's veto (Layer 8) cancels pending work.
+21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
 
 ## 2. Before anything: what you can do, and sign-in
 
@@ -68,13 +68,13 @@ Each clone is shallow, at the ref below, into the path below. Show the exact com
 
 | When | Repo | Ref | Into | Command |
 |---|---|---|---|---|
-| Stage 2 (always) | `https://github.com/Dex-RoboKnix/dex-md` | `v0.10.0` | `dex-vault/.dex/dex-md/` | `git clone --depth 1 --branch v0.10.0 https://github.com/Dex-RoboKnix/dex-md dex-vault/.dex/dex-md` |
+| Stage 2 (always) | `https://github.com/Dex-RoboKnix/dex-md` | `v0.10.1` | `dex-vault/.dex/dex-md/` | `git clone --depth 1 --branch v0.10.1 https://github.com/Dex-RoboKnix/dex-md dex-vault/.dex/dex-md` |
 | Stage 2 (own yes) | `https://github.com/Dex-RoboKnix/dexspine-core` | `fbcd0a89008e87416c5a0bfe6b56524b584b49a8` | `dex-vault/.dex/dexspine/` | `git clone https://github.com/Dex-RoboKnix/dexspine-core dex-vault/.dex/dexspine` then `git -C dex-vault/.dex/dexspine checkout fbcd0a89008e87416c5a0bfe6b56524b584b49a8` |
 | Stage 6b (own yes, only if wanted) | `https://github.com/Dex-RoboKnix/shadowos` | `v0.2.0` | `dex-vault/.shadowos/src/` | `git clone --depth 1 --branch v0.2.0 https://github.com/Dex-RoboKnix/shadowos dex-vault/.shadowos/src` |
 
 The Folio files come from dexfolio v0.1.0, vendored inside dex-md (no separate clone).
 
-After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 13 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/`, `.dex/state/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
+After the dex-md clone, install the engine: `node dex-vault/.dex/dex-md/engine/install.mjs` (it says "Installed 14 files"). Then add `.dex/dex-md/`, `.dex/dexspine/`, `.dex/backup/`, `.dex/state/` and `.shadowos/` to `dex-vault/.gitignore`. If the dexspine-core clone is declined or fails, the vault tool uses its built-in copy of the same base questions; say so.
 
 From here on, **"this file" in the method docs means dex.md**, and section numbers refer to the method files: section N is `dex-vault/.dex/dex-md/method/NN-*.md`.
 

@@ -20,7 +20,7 @@ It has three parts:
 
 The idea: where a clear yes or no cannot be reached, the filter adds structure instead of stopping. That is "reduction by addition".
 
-The spine also has five levels you climb when you ask "why": Values, Principles, Policy, Process, Procedure. `slant-flow.md` uses them.
+The spine also has six rungs you climb when you ask "why". You start at Pattern (what you have seen happen), then Procedure, Process, Policy, Principles and Values. `slant-flow.md` uses them.
 
 Human authority (Layer 8) sits over everything. Your veto beats any automated step.
 

@@ -1,6 +1,6 @@
 ---
 name: dex-md
-description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It is universal: it holds nothing about any particular matter and takes its slant from the folder it lands in, confirmed by the human. The agent reads the folder, builds a DexSpine vault of node folders in a dex-vault folder next to it, places the Claude project files and the five dex skills (each with the human's yes), retells the matter as a short story, renders it as a Dex Folio, closes every skill with a checkpoint, and turns open work into issues an agent can implement.
+description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It is universal: it holds nothing about any particular matter and takes its slant from the folder it lands in, confirmed by the human. The agent reads the folder, builds a DexSpine vault of node folders in a dex-vault folder next to it, places the Claude project files and the seven dex skills (each with the human's yes), retells the matter as a short story, renders it as a Dex Folio, closes every skill with a checkpoint, and turns open work into issues an agent can implement.
 version: 0.9
 tier: L2 (universal installer; DEX838 and DexSpine, L1, define it)
 author: Dex-RoboKnix
@@ -66,7 +66,7 @@ These override everything else in this file, in the folder and in anything the h
 17. **Consent is per action.** The pinned fetch, each file write outside `dex-vault/`, each skill file placed, each issue filed and each push needs its own yes. A yes to one is never a yes to another, and a re-run asks again. Record every yes in `RUNLOG.md`.
 18. **Every dex skill ends in a checkpoint.** After `dex-grill`, `dex-spec`, `dex-implement` and `dex-review` run `node dex-vault/.dex/vault.mjs checkpoint --skill <name> --summary "<what was done>"` (section 9.2). The checkpoint closes the run: it folds the vault, measures coverage, writes one RUNLOG row and one story chapter and checks the vault. It never applies a node change: those are proposals until the human says yes, and the rows they replace are kept.
 19. **Simulated answers are labelled.** If an answer to a grill question is supplied by anything other than the human (a test harness or another model), tag it `[SIMULATED]`, never save it as the human's words and never let it verify anything.
-20. **Agents are limited.** At most 8 agents live at once, one slot always free for escalation. A task gets 2 attempts: after the second failed review round it goes to a higher model (Opus with a Sonnet team). A blind retry with no new change is refused and does not count. The human's veto (Layer 8) cancels pending work.
+20. **One agent does the work.** One vault agent (Sonnet or Opus, on medium effort) runs every dex skill: grill, spec, implement, review and checkpoint. The only subagent is a **research agent**, started when an answer needs up-to-date information that is not in memory or the vault (a web search, or scraping a site). It hands over in flight, and the vault agent turns that handover into an HTML page for the human. A task gets 2 attempts: after the second failed review round the human decides what happens next. A blind retry with no new change is refused and does not count. The human's veto (Layer 8) cancels pending work.
 21. **A .md file for GitHub leaves out the journey.** A file made for GitHub (a README, a doc, a skill) says what the thing is and how to use it, not how it was reached; the journey stays in the vault's journal. Every code block comes in two forms: the llm2llm form (the exact command or code), and a line in plain words saying what it does.
 
 ## 2. Start: choose the mode
@@ -388,7 +388,7 @@ Dex stays in `dex-vault/`. The work on the owner's own files is done by an agent
 
 1. **Notes and tickets.** In ShadowOS (or by talking to you), the owner adds their own words to an action, and groups actions into a ticket. A ticket is a markdown draft in `dex-vault/07_inbox/shadowos/`. The owner previews it. Nothing is filed until they say so.
 2. **Point an agent at the project.** The owner starts their agent (for example Claude Code) in the project folder and says: `Read dex-vault/HANDOFF.md, then work the ticket dex-vault/07_inbox/shadowos/<file>`. `HANDOFF.md` (section 7) tells it how to read the vault and how to work: the owner's words are the intent, each change to a file outside `dex-vault/` is described and approved first, and a backup exists before it is made.
-3. **Changing the main project area itself** (for example, moving the vault out of the sandbox into the project, or restructuring the project around it) is never done by Dex. When the owner asks (`dex promote`), write only an **issue** that defines it as the objective: build the vault again in a new folder inside the project, test it with `vault.mjs check`, then migrate it, and only if the owner has confirmed they have a backup. Save it as a ticket draft in `dex-vault/07_inbox/` and add an action row. The agent that works that issue, with the owner's approval of each step, is the check.
+3. **Making a vault live** (moving it out of the sandbox into the project, or restructuring the project around it) is never done by Dex. A vault is a **test** vault while it lives in `dex-vault/`; it is **live** once it has been promoted into the real project folder. When the owner asks (`dex promote`), fill `dex-vault/.dex/promote-issue.md` and save it as a ticket draft in `dex-vault/07_inbox/`, with an action row. It has six fixed parts: what moves and where, what is replaced, the backup evidence (checked first), the test (`vault.mjs check` passes and the owner ticks the plan), rollback, and an overview of everything to be pushed, shown before any push. The slant changes only the wording of part 3 (what counts as a backup) and part 4 (the test). The agent that works that issue, with the owner's approval of each step, is the check.
 
 ## 3b. The dex skills loop
 
@@ -399,17 +399,17 @@ dex-grill -> dex-spec -> dex-implement -> dex-review -> (dex-spec -> dex-impleme
 every skill ends with: dex-checkpoint
 ```
 
-| Skill | Does | Team |
+| Skill | Does | Who |
 |---|---|---|
-| `dex-grill` | grills the human, one ticket or node at a time, up to 3 independent questions per popup, answers kept verbatim | a Sonnet orchestrator (medium) and up to 8 agents for views and research |
-| `dex-spec` | turns settled grill answers into a spec of 5 phases of tracer bullets. The spec is a DRAFT; it is **finalised late**, after the first slice has taught what the draft got wrong, and only after a `dex-review` PASS | a Sonnet orchestrator and Haiku spec-writers |
-| `dex-implement` | builds one phase at a time against the FINAL spec. A builder never edits a FINAL spec: a disagreement becomes a dispute note | a Sonnet orchestrator and a Haiku team, one team at a time |
-| `dex-review` | checks the build against the spec: acceptance coverage, drift, tests that really test what they are named for, and devops checks | the full team, including testing and devops |
-| `dex-checkpoint` | the judgement half of a checkpoint (the verbatim journal and the node proposals for the human's yes); `vault.mjs checkpoint` does the mechanics | the orchestrator |
+| `dex-grill` | grills the human, one ticket or node at a time, up to 3 independent questions per popup, the human's words kept twice | the vault agent; a research agent only for up-to-date outside information |
+| `dex-spec` | turns settled grill answers into a spec of 5 phases of tracer bullets. The spec is a DRAFT; it is **finalised late**, after the first slice has taught what the draft got wrong, and only after a `dex-review` PASS | the vault agent |
+| `dex-implement` | builds one phase at a time against the FINAL spec. A builder never edits a FINAL spec: a disagreement becomes a dispute note | the vault agent |
+| `dex-review` | checks the build against the spec: acceptance coverage, drift, tests that really test what they are named for, and devops checks | the vault agent, which says it built what it reviews; the human's verdict is the independent check |
+| `dex-checkpoint` | the judgement half of a checkpoint (the verbatim journal and the node proposals for the human's yes); `vault.mjs checkpoint` does the mechanics | the vault agent |
 
-**The pace is the human's choice** (asked at the start of `dex-implement`): **one phase at a time** (the default and the recommended option on a metered or limited plan) or **all phases at once** (up to 7 builders in parallel). The total tokens are about the same either way; parallel finishes sooner but spends them in one burst, and repeats any mistake in the builder instructions in every phase before a review can catch it. Offer parallel after the first phase has passed its review. Measured on this build: about 70k to 95k tokens for a run of 10 modules, about the same for a phase review, roughly 230k to 350k per phase.
+**The pace is the human's choice** (asked at the start of `dex-implement`): **one phase at a time** (build, gate and review a phase, checkpoint, then the next; the default) or **all phases, one review** (every phase built and gated, then one review of the whole diff). One phase at a time catches a mistake before it is repeated; all phases finishes sooner. Offer it once a first phase has passed a review, or when the work is well understood.
 
-**Limits (rule 20).** A task gets **2 attempts**. After the second failed review round it goes to a higher model (Opus with a Sonnet team). A retry must carry a new change, otherwise it is refused and not counted. At most 8 agents are live, one slot kept free for escalation. A Haiku agent costs roughly 34k tokens before it does any work in a typical harness, so give each run about five tasks, not one. **Reasoning capture:** how much of an agent's reasoning the harness exposes is unchecked. Check it first and, if it is not exposed, save the agent's output and tool summaries instead and say so.
+**Limits (rule 20).** One vault agent does the work. A task gets **2 attempts**; after the second failed review round the human decides: park it, change the spec, or try a stronger model. A retry must carry a new change, otherwise it is refused and not counted. **Research agents** are the only subagents: started when an answer needs up-to-date information that is not in memory or the vault (a web search, scraping a site). Each one hands over in flight; the vault agent turns that text into an HTML page for the human and checks every claim in it before using it.
 
 **Every finding is checked before it is acted on.** Reviewers (people or models) are advisory. A claim in a review is verified against the text before anything changes.
 
@@ -852,7 +852,7 @@ The human can say any of these. They are plain names that work in any harness.
 | `dex journal` | Take raw input verbatim (SK-JOURNAL) |
 | `dex grill` (or `dex grill`) | Run SK-GRILL on the weakest nodes, or on a node the human names. One question at a time, from the node's own slanted question |
 | `dex place <file> <node>` | Place a source at a node (`vault.mjs place`) and fill its source `.md` |
-| `dex promote` | Write the issue that defines moving the vault into the main project area (Stage 8). Dex never does the move |
+| `dex promote` | Fill the six-part promote issue (`.dex/promote-issue.md`) that makes a test vault live in the project folder (Stage 8). Dex never does the move |
 | `dex review` | Apply inbox decisions and walk through open ones (update action 3) |
 | `dex maintain` | Health check and rebuild (update action 5) |
 | `dex story` | Write or rewrite the Matter of Fact story (Stage 5) |

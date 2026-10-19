@@ -19,9 +19,9 @@ Not set yet.
 ## How to work here
 1. **The human decides.** You propose. Nothing outward (issues, pushes, comments, new files outside `dex-vault/`) without a yes, one action at a time.
 2. **Grill before you build.** Use `dex-grill` to get the human's answers across the nodes; do not answer for them. An answer that did not come from the human is tagged `[SIMULATED]` and never verifies anything.
-3. **The loop:** `dex-grill`, `dex-spec`, `dex-implement`, `dex-review`, then spec and implement again until the outcome is met. A task gets 2 attempts; after the second failed review it goes to a higher model. At most 8 agents live.
+3. **The loop:** `dex-grill`, `dex-spec`, `dex-implement`, `dex-review`, then spec and implement again until the outcome is met. One vault agent does the work; a research agent only for up-to-date outside information, and its handover becomes an HTML page. A task gets 2 attempts; after the second failed review the human decides.
 4. **Every skill ends with** `node dex-vault/.dex/vault.mjs checkpoint --skill <name> --summary "<what was done>"`. A checkpoint never applies node changes; those wait for the human's yes.
-5. Keep the human's words verbatim. Keep your own reading separate and tagged (`DOCUMENT`, `CITED`, `MODEL`, `UNSURE`).
+5. Keep the human's words twice: the original in the journal, the spelling-checked copy in anything shared. Keep your own reading separate and tagged (`DOCUMENT`, `CITED`, `MODEL`, `UNSURE`).
 6. Secrets (`.env`, keys, tokens) are listed, never copied, opened or quoted.
 
 ## Not here
