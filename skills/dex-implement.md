@@ -29,6 +29,15 @@ Record the choice in `RUNLOG.md`.
 4. A task gets 2 attempts. After the second failed review, the human decides: park it, change the spec, or try a stronger model.
 5. The human's veto cancels pending work.
 
+## Document mode
+
+When the issue produces a document (a letter, pack, report or plan), not code:
+- A phase is one document, drafted in `dex-vault/07_inbox/`. There is no slice, lint or test run.
+- The gate is `node dex-vault/.dex/vault.mjs audit --output <file>`: the draft names its audience and carries a trace list (claim IDs, source IDs, the vault commit, counts by tag). Fix what it finds before review.
+- The acceptance list is the vault's output rules (a `RULES.md` output section if the vault has one, otherwise `method/03b-skills-loop.md`).
+- The human's own wording is kept. Every change to it is listed in the draft's header with the reason; a wording the human removed is never put back without asking.
+- Nothing is sent, filed or posted. The human sends it, and what was sent comes back in as a new source.
+
 ## Steps
 
 1. Ask the pace (step 0).

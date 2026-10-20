@@ -11,6 +11,10 @@ description: Dex sprint. Runs two or more batches of issues (dex loops) in the s
 | Questions per round | that batch's open questions | 2 per batch by default (the human may set 1), 4 at most per popup |
 | Use when | one workload | several workloads in the same project |
 
+## When to suggest it
+
+The human starts a sprint; you may suggest one. Suggest `dex-loop` by default. Suggest `dex-sprint` only when the batches can share the human's attention: their questions are short and independent. Push back when a batch needs the whole focus of the human and the agent (a hard decision, a long document, a sensitive matter): run that one as a loop.
+
 ## Hard rules
 
 1. **Every dex-loop rule applies to every batch.**

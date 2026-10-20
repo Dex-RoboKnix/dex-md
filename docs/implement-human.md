@@ -15,7 +15,7 @@ You need: a computer with Node 18 or later, `git`, and an agent that can read an
 7. **Answer the questions.** Your agent will:
    - Stage 1: look at the folder and ask why you want the work done (the why-ladder).
    - Stage 2: ask before it creates `dex-vault/`, clones the repo and installs the engine.
-   - Stage 3: grill you with five skills, one question at a time.
+   - Stage 3: ask you, item by item, what to keep from older versions or other systems and where it goes, then grill you one question at a time.
    - Stage 4: build the vault, then ask before placing Claude project files and skills.
    - Stages 5 and 6: write the story and build the folio.
    - Stage 6b: ShadowOS, only if you want it.

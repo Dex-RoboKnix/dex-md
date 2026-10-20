@@ -25,9 +25,9 @@ provenance: AAC
 
 Research and synthesis desk. Evidence: papers, notes, open questions. Wrong if the main blocker is time, not structure. The lens reads Success Criteria as "what the examiner must find".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-INVENTORY`, `SK-TIMELINE`, `SK-STALL`, `SK-GOALS`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the inventory, timeline, stall and done angles (method section 5).
 
 ## Privacy notes
 

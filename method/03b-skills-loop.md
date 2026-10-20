@@ -5,7 +5,7 @@ source: dex.md 0.9 section 3b
 
 ## 3b. The dex skills loop
 
-After the vault is built, the work runs as a loop of five skills, installed in Stage 4b. Each one is a prototype: it is corrected after it has been run on a real project.
+After the vault is built, the work runs as a loop of the dex skills, installed in Stage 4b. Each one is a prototype: it is corrected after it has been run on a real project.
 
 ```
 dex-grill -> dex-spec -> dex-implement -> dex-review -> (dex-spec -> dex-implement -> dex-review) until the outcome is met
@@ -21,6 +21,21 @@ every skill ends with: dex-checkpoint
 | `dex-checkpoint` | the judgement half of a checkpoint (the verbatim journal and the node proposals for the human's yes); `vault.mjs checkpoint` does the mechanics | the vault agent |
 
 **The pace is the human's choice** (asked at the start of `dex-implement`): **one phase at a time** (build, gate and review a phase, checkpoint, then the next; the default) or **all phases, one review** (every phase built and gated, then one review of the whole diff). One phase at a time catches a mistake before it is repeated; all phases finishes sooner. Offer it once a first phase has passed a review, or when the work is well understood.
+
+**Code or documents.** Many matters produce documents, not code: a letter, a pack, a report, a plan. Then `dex-spec`, `dex-implement` and `dex-review` run in **document mode**:
+
+- a phase is one document, drafted in `07_inbox/`;
+- the acceptance list is the vault's output rules: a `RULES.md` section on outputs if the vault has one, otherwise the defaults below;
+- the machine check is `node dex-vault/.dex/vault.mjs audit --output <file>`, in place of tests and lint.
+
+The defaults:
+1. The draft names who it is for.
+2. It ends with, or carries in its header, a trace list: the claim IDs and source IDs it uses, the vault commit it was built from, and a count of its statements by tag.
+3. Anything not checked by the owner is shown as unchecked.
+4. In a regulated matter, a point of law or remedy is marked "owner's argument, adviser to confirm".
+5. The owner's own wording is kept, and every change to it is listed in the header with why.
+
+**Routes.** Every open node and every action names one route: `dex-grill` (only the human can answer), `task` (the agent shows what it would do, then does it on a yes), `research` (a research agent, handover as an HTML page) or `dex-spec` (something to build). These are the issue types dex-loop runs, so the loop picks its next batch straight from the nodes and `05_actions/actions.md` (section 5).
 
 **Limits (rule 20).** One vault agent does the work. A task gets **2 attempts**; after the second failed review round the human decides: park it, change the spec, or try a stronger model. A retry must carry a new change, otherwise it is refused and not counted. **Research agents** are the only subagents: started when an answer needs up-to-date information that is not in memory or the vault (a web search, scraping a site). Each one hands over in flight; the vault agent turns that text into an HTML page for the human and checks every claim in it before using it.
 

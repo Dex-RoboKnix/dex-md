@@ -27,9 +27,9 @@ provenance: AAC
 
 Operations: runbooks, incidents and checklists. Wrong if the area is mostly unbuilt. The lens reads Metrics as "which checks pass".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-RULES`, `SK-TIMELINE`, `SK-STALL`, `SK-GOALS`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the rules, timeline, stall and done angles (method section 5).
 
 ## Privacy notes
 

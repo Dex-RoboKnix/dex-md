@@ -24,6 +24,9 @@
 //        list a folder's top level (names only) and classify it: blank, blank-with-context or in-flight; lists secret-class files.
 //   node dex-vault/.dex/vault.mjs checkpoint [--skill <name>] [--summary "<text>"] [--chapter "<text>"] [--now <ISO>]
 //        close a skill: fold, coverage, RUNLOG row, story chapter, then the vault check. Never applies a node change.
+//   node dex-vault/.dex/vault.mjs audit [--all] [--json] [--strict] | audit --output <draft.md> [--strict]
+//        the meaning check (check tests the shape): nodes that do not fit their question, open nodes with no route or a generic one,
+//        missing Needs and Wants, entry points older than this tool, action statuses. --output checks a draft's audience and trace list. Read-only.
 //   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]
 //        hold where a skill stopped in .dex/state/<skill>.json so a later session can come back to the same question.
 //   node dex-vault/.dex/vault.mjs resume [--skill <name>]
@@ -143,7 +146,7 @@ const wireFor = (scope, nd, question) => {
   return `dex(${scope}, @${ctx})["${question.replace(/"/g, "'")}"]`;
 };
 function contextual(nd, { scope, question, answer = 'Not observable.', tag = '-', state = 'N', sources = '-', verified = 'no', next, owner = '-', reading = '-', date = today() }) {
-  const nextCol = next ?? (nd.key === 'llm' ? '-' : nd.key === 'hu' ? `SK-JOURNAL: ${question}` : `SK-GRILL: ${question}`);
+  const nextCol = next ?? (nd.key === 'llm' ? '-' : `dex-grill: ${question}`);
   return `---
 node: ${nd.id}
 layer: ${nd.layer}
@@ -193,19 +196,19 @@ function scaffold(a) {
   const q = baseQuestions(spine);
   fs.mkdirSync(HERE, { recursive: true });
   writeConfig({ title, scope, spine: spine || null });
-  let made = 0, kept = 0;
+  let made = 0, kept = 0, filled = 0;
   for (const nd of nodes()) {
     const dir = nodeDir(nd);
     fs.mkdirSync(path.join(dir, 'sources'), { recursive: true });
     const keep = path.join(dir, 'sources', '.gitkeep');
     if (!fs.existsSync(keep)) fs.writeFileSync(keep, '');
     const file = path.join(dir, 'contextual.md');
-    if (fs.existsSync(file)) { kept++; continue; }
+    if (fs.existsSync(file)) { kept++; if (backfillSections(file)) filled++; continue; }
     const question = questionFor(nd, q);
     fs.writeFileSync(file, contextual(nd, { scope, question, answer: nd.key === 'hu' ? 'UNANSWERED' : 'Not observable.', owner: nd.key === 'hu' ? 'UNANSWERED' : '-' }));
     made++;
   }
-  console.log(`Scaffold: ${made} node folders written, ${kept} already there (left as they are). ${nodes().length} nodes in all.`);
+  console.log(`Scaffold: ${made} node folders written, ${kept} already there (left as they are). ${nodes().length} nodes in all.${filled ? ` Needs and Wants sections added to ${filled} existing node(s); nothing else in them changed.` : ''}`);
 }
 
 // ---- place -------------------------------------------------------------------
@@ -297,7 +300,7 @@ function adapt(a) {
     const question = String(q).replace(/\s+/g, ' ').trim();
     if (!question) die(`Empty question for ${id}`);
     const text = fs.readFileSync(f, 'utf8')
-      .replace(/^next: (SK-[A-Z]+): .*$/m, (_, sk) => `next: ${sk}: ${question}`)
+      .replace(/^next: (SK-[A-Z]+|dex-grill): .*$/m, () => `next: dex-grill: ${question}`)
       .replace(/^wire: .*$/m, () => `wire: ${wireFor(scope, nd, question)}`)
       .replace(/(## Open questions\r?\n)- .*/, (_, head) => `${head}- ${question}`)
       .replace(/^updated: .*$/m, `updated: ${today()}`);
@@ -476,7 +479,7 @@ function splitRow(line) {
 
 // ---- Dex additions: bundled modules, classify and checkpoint ---------------------------------------
 // The modules in dex-lib.mjs are pure: they return what must be written; this tool does the writing.
-const DEX_VERSION = '0.9';
+const DEX_VERSION = '0.11.0'; // set from package.json by make-vault.mjs
 async function lib() {
   const f = path.join(HERE, 'dex-lib.mjs');
   if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Run the installer again (dex.md section 3).');
@@ -521,8 +524,14 @@ async function checkpointCmd(a) {
   const summary = (typeof a.summary === 'string' ? a.summary : 'checkpoint').replace(/\s*\n\s*/g, ' ');
   const skill = typeof a.skill === 'string' ? a.skill : 'manual';
 
-  // 1. fold the node folders into the flat layer files and log state changes since the last checkpoint
+  // 1. fold the node folders into the flat layer files and log state changes since the last checkpoint.
+  // Edited against moved: coverage only moves when a node's state moves, so say when edits moved nothing.
+  const lastCheckpoint = fs.existsSync(STATES) ? fs.statSync(STATES).mtimeMs : null;
+  const statesBefore = lastCheckpoint === null ? null : JSON.parse(fs.readFileSync(STATES, 'utf8'));
+  const edited = lastCheckpoint === null ? 0 : nodes().filter((nd) => { const f = path.join(nodeDir(nd), 'contextual.md'); return fs.existsSync(f) && fs.statSync(f).mtimeMs > lastCheckpoint; }).length;
   fold({ checkpoint: true });
+  const statesAfter = JSON.parse(fs.readFileSync(STATES, 'utf8'));
+  const movedCount = statesBefore ? Object.keys(statesAfter).filter((k) => statesBefore[k] !== undefined && statesBefore[k] !== statesAfter[k]).length : 0;
 
   // 2. coverage per question: covered 1, weak half, not observable and unsure 0, not applicable leaves the denominator
   const counts = { C: 0, W: 0, N: 0, NA: 0, U: 0 };
@@ -568,9 +577,13 @@ async function checkpointCmd(a) {
   console.log(`Checkpoint ${runNumber}: ${counts.C} covered, ${counts.W} weak, ${counts.N} not observable, ${counts.U} unsure, ${counts.NA} not applicable.`);
   console.log(`Coverage: ${coverage === null ? 'not measurable yet' : coverage + '%'}${mode ? ` (mode: ${mode}; the bar is 90%)` : ''}.`);
   console.log(`RUNLOG row ${runNumber} written. Story: ${storyNote}.`);
+  if (lastCheckpoint !== null) {
+    console.log(`${edited} node(s) edited since the last checkpoint, ${movedCount} changed state.${edited > 0 && movedCount === 0 ? ' Coverage only moves when a state moves: propose the state changes these edits earn, for the human\'s yes.' : ''}`);
+  }
   console.log('Not done here, on purpose: node changes (they need the human yes), the journal (write it verbatim with place or the journal notes), and the Folio. Rebuild the Folio next, then the vault check below runs.');
 
-  // 5. the vault check last: it exits 1 on a problem
+  // 5. the meaning check (never fails a checkpoint), then the shape check last: it exits 1 on a problem
+  printAudit(auditFindings(), { brief: true });
   check();
 }
 // Hold a skill's place so a later session can come back to the same question (dex-loop 4b).
@@ -604,9 +617,154 @@ function resumeCmd(a) {
   }
 }
 
+// ---- scaffold backfill: sections a newer version added to the node template ----------------------
+// An existing node keeps every line it has. Only a missing "## Needs" or "## Wants" section is added, before the agent reading.
+function backfillSections(file) {
+  const text = fs.readFileSync(file, 'utf8');
+  const eol = text.includes('\r\n') ? '\r\n' : '\n';
+  const has = (h) => new RegExp(`^## ${h}\\s*$`, 'm').test(text);
+  if (has('Needs') && has('Wants')) return false;
+  const add = [has('Needs') ? null : `## Needs${eol}-${eol}`, has('Wants') ? null : `## Wants${eol}-${eol}`].filter(Boolean).join(eol) + eol;
+  const at = text.search(/^## Agent reading\s*$/m);
+  fs.writeFileSync(file, at < 0 ? `${text}${text.endsWith(eol) ? '' : eol}${eol}${add}` : `${text.slice(0, at)}${add}${text.slice(at)}`);
+  return true;
+}
+
+// ---- audit: the meaning check. check tests the shape (folders, headings, sources); audit reads what is in them ----------
+// Read-only. Exit 0 unless --strict. Each finding is a proposal for the human, never applied here.
+const ROUTES = ['dex-grill', 'task', 'research', 'dex-spec'];
+const STATUSES = ['proposed', 'open', 'doing', 'done', 'parked', 'dropped'];
+const GENERIC = /^(strengthen( this node)?|tbd|todo|to do|fill (this|it) in|review|check|more detail|-+)\s*\.?$/i;
+const clip = (s, n = 60) => { const t = String(s).replace(/\s+/g, ' ').trim(); return t.length > n ? `${t.slice(0, n - 1)}…` : t; };
+const readText = (p) => fs.readFileSync(p, 'utf8');
+function auditFindings() {
+  const out = [];
+  const add = (kind, where, text) => out.push({ kind, where, text });
+  // 1. entry points: the files an agent reads first must match this version
+  const idx = path.join(VAULT, '00_index.md');
+  if (fs.existsSync(idx)) {
+    const v = parseFront(readText(idx)).fields.dex_version;
+    if (!v) add('entry', '00_index.md', `no dex_version (this tool is ${DEX_VERSION})`);
+    else if (v !== DEX_VERSION) add('entry', '00_index.md', `dex_version is ${v}; this tool is ${DEX_VERSION}: run the upgrade (02b section 0)`);
+  }
+  const handoff = path.join(VAULT, 'HANDOFF.md');
+  if (fs.existsSync(handoff) && /(^|[^-\w])mof\//m.test(readText(handoff))) add('entry', 'HANDOFF.md', 'still points at mof/: rewrite it from the template with dex-vault/ paths');
+  // 2. nodes: route, action, sections, size; answers grouped by layer and phase for the fit check
+  const groups = {};
+  let verifiedNodes = 0, total = 0;
+  for (const nd of nodes()) {
+    const file = path.join(nodeDir(nd), 'contextual.md');
+    if (!fs.existsSync(file)) continue;
+    total++;
+    const raw = readText(file);
+    const { fields, body } = parseFront(raw);
+    const sec = sections(body);
+    const state = String(fields.state || 'N').toUpperCase();
+    const next = String(fields.next || '-').trim();
+    if (fields.verified && !/^(no|-|)$/i.test(fields.verified)) verifiedNodes++;
+    if (next && next !== '-') {
+      const m = /^([A-Za-z][\w-]*)\s*:\s*(.*)$/.exec(next);
+      if (!m) add('route', nd.id, `Next has no route: "${clip(next)}"`);
+      else if (/^SK-/i.test(m[1])) add('older', nd.id, `Next names ${m[1]}, from the older skill library: convert it to a route (${ROUTES.join(', ')})`);
+      else if (!ROUTES.includes(m[1])) add('route', nd.id, `Next names an unknown route "${m[1]}" (routes: ${ROUTES.join(', ')})`);
+      if (m && GENERIC.test(m[2].trim())) add('generic', nd.id, `Next is generic ("${clip(m[2])}"): name one specific question or action`);
+    } else if ((state === 'W' || state === 'N') && nd.key !== 'llm') { // llm is the agent's own reading, filled in Stage 4
+      const acts = [sec['defined actions'], sec['undefined actions']].filter((s) => s && s !== '-');
+      if (!acts.length) add('no-action', nd.id, `state ${state} with no Next and no action: what one question or action would cover it?`);
+    }
+    for (const k of ['open questions', 'defined actions', 'undefined actions']) if (sec[k] && /strengthen this node/i.test(sec[k])) add('generic', nd.id, `"${k}" says "strengthen this node", which no one can act on`);
+    if (!('needs' in sec) || !('wants' in sec)) add('sections', nd.id, 'no ## Needs or ## Wants section: run scaffold, which adds them and changes nothing else');
+    const kb = Buffer.byteLength(raw) / 1024;
+    if (kb > 8) add('fit', nd.id, `${Math.round(kb)} KB: a catch-all? Keep what answers this node's question; move the rest to the node that asks for it`);
+    // a short, name-like label (a party, a role, a thing), not a sentence opener such as "Outcome wanted, in the owner's words:"
+    const lab = /^([A-Z][\w'’-]*(?: [\w'’-]+){0,2}):\s/.exec(String(sec.answer || '').trim());
+    const label = lab && !nd.title.toLowerCase().startsWith(lab[1].trim().toLowerCase()) ? lab[1].trim() : null;
+    (groups[`L${nd.layer} ${nd.phase}`] ||= []).push({ id: nd.id, label });
+  }
+  for (const [g, list] of Object.entries(groups)) {
+    const by = {};
+    for (const x of list) if (x.label) (by[x.label] ||= []).push(x.id);
+    for (const [label, ids] of Object.entries(by)) if (ids.length >= 3) add('fit', ids.join(', '), `${ids.length} sibling nodes in ${g} start with "${label}:": one list spread across slots? Each node should answer its own question`);
+    const labelled = list.filter((x) => x.label);
+    if (labelled.length >= 5 && Object.values(by).every((ids) => ids.length < 3)) add('fit', labelled.map((x) => x.id).join(', '), `${labelled.length} sibling nodes in ${g} start with a label: a list spread across slots? Each node should answer its own question`);
+  }
+  // 3. Needs and Wants: a confirmed slant means the why-ladder ran, so L1 to L4 hu should hold some
+  const slant = path.join(VAULT, '01_matter', 'slant.md');
+  if (fs.existsSync(slant) && /^status:\s*(confirmed|accepted)\b/im.test(readText(slant))) {
+    const any = [1, 2, 3, 4].some((l) => {
+      const f = path.join(nodeDir(find(`L${l}.hu`)), 'contextual.md');
+      if (!fs.existsSync(f)) return false;
+      const s = sections(parseFront(readText(f)).body);
+      return [s.needs, s.wants].some((x) => x && x !== '-');
+    });
+    if (!any) add('ladder', 'L1.hu to L4.hu', 'the slant is confirmed but no Needs or Wants are saved: run the why-ladder (Stage 1) with the human; never fill it from earlier answers');
+  }
+  // 4. actions: a route in Skill, a Status a loop can read
+  const acts = path.join(VAULT, '05_actions', 'actions.md');
+  if (fs.existsSync(acts)) {
+    let head = null;
+    for (const line of readText(acts).split(/\r?\n/)) {
+      if (!line.trim().startsWith('|')) { head = null; continue; }
+      const cs = splitRow(line);
+      if (cs.some((c) => /^status$/i.test(c))) { head = cs.map((c) => c.toLowerCase()); continue; }
+      if (!head || /^:?-{2,}/.test(cs[0]) || !/^[A-Z]+\d{2,}$/.test(cs[0])) continue;
+      const status = cs[head.indexOf('status')] || '';
+      const skill = head.includes('skill') ? cs[head.indexOf('skill')] || '' : '';
+      const first = status.toLowerCase().split(/[\s:;,(]/)[0];
+      if (!STATUSES.includes(first)) add('status', cs[0], `Status "${clip(status, 40)}" does not start with ${STATUSES.join(', ')}`);
+      if (/^SK-/i.test(skill)) add('older', cs[0], `Skill ${skill} is from the older skill library: convert it to a route`);
+      else if (skill && skill !== '-' && !ROUTES.includes(skill)) add('route', cs[0], `Skill "${clip(skill, 30)}" is not a route (${ROUTES.join(', ')})`);
+    }
+  }
+  // 5. verification (information, not a finding): only a human verifies
+  let claims = 0, verifiedClaims = 0;
+  const ledger = path.join(VAULT, '04_claims', 'ledger.md');
+  if (fs.existsSync(ledger)) for (const line of readText(ledger).split(/\r?\n/)) { if (!/^\|\s*C\d{3,}\s*\|/.test(line)) continue; claims++; if (/\|\s*VERIFIED\s*\|/.test(line)) verifiedClaims++; }
+  out.info = `${verifiedNodes} of ${total} nodes and ${verifiedClaims} of ${claims} claims verified by a human.`;
+  return out;
+}
+const AUDIT_KINDS = { entry: 'entry points out of date', older: 'older system still in use', route: 'no route or an unknown one', generic: 'generic action', 'no-action': 'open node with no action', sections: 'node sections missing', fit: 'node does not fit its question', ladder: 'why-ladder not run', status: 'action status a loop cannot read' };
+function printAudit(findings, { brief = false, all = false } = {}) {
+  const kinds = Object.keys(AUDIT_KINDS).filter((k) => findings.some((f) => f.kind === k));
+  console.log(`Audit (meaning; check tests the shape): ${findings.length ? `${findings.length} finding(s) of ${kinds.length} kind(s).` : 'no findings.'}`);
+  for (const k of kinds) {
+    const list = findings.filter((f) => f.kind === k);
+    console.log(`  ${AUDIT_KINDS[k]}: ${list.length}${brief ? ` (e.g. ${list.slice(0, 3).map((f) => f.where).join('; ')})` : ''}`);
+    if (!brief) for (const f of all ? list : list.slice(0, 8)) console.log(`    ${f.where}: ${f.text}`);
+    if (!brief && !all && list.length > 8) console.log(`    ... ${list.length - 8} more (--all lists every one)`);
+  }
+  if (findings.info) console.log(`  ${findings.info}`);
+  if (brief && findings.length) console.log('  Run `node dex-vault/.dex/vault.mjs audit` for the details. Each finding is a proposal for the human.');
+}
+// A draft document (document mode): an audience line and a complete trace list.
+function auditOutput(file) {
+  if (!fs.existsSync(file)) die(`No such file: ${file}`);
+  const t = readText(file);
+  const miss = [];
+  if (!/^\W*(audience|for)\s*:/im.test(t)) miss.push('no audience line ("Audience: <who it is for>")');
+  if (!/\bC\d{3,}\b/.test(t)) miss.push('no claim IDs (C001)');
+  if (!/\bS\d{3,}\b/.test(t)) miss.push('no source IDs (S001)');
+  if (!/\b(commit|built from)\b[^\n]*\b[0-9a-f]{7,40}\b/i.test(t)) miss.push('no vault commit ("Built from commit <hash>")');
+  const tags = new Set([...t.matchAll(/\b(DOCUMENT|CITED|MODEL|UNSURE)\s*:?\s*\d+/g)].map((m) => m[1]));
+  if (tags.size < 4) miss.push(`no count by tag ("Tags: DOCUMENT n, CITED n, MODEL n, UNSURE n"; found ${tags.size} of 4)`);
+  return miss;
+}
+function auditCmd(a) {
+  if (typeof a.output === 'string') {
+    const miss = auditOutput(path.resolve(a.output));
+    console.log(miss.length ? `Draft ${a.output}: ${miss.length} gap(s) in its header or trace list.\n${miss.map((m) => `  ${m}`).join('\n')}` : `Draft ${a.output}: audience and trace list complete.`);
+    if (miss.length && a.strict) process.exitCode = 1;
+    return;
+  }
+  const findings = auditFindings();
+  if (a.json) console.log(JSON.stringify({ version: DEX_VERSION, findings, info: findings.info }, null, 2));
+  else printAudit(findings, { all: !!a.all });
+  if (findings.length && a.strict) process.exitCode = 1;
+}
+
 // ---- main -------------------------------------------------------------------------
 const a = args(process.argv.slice(2));
 const cmd = a._[0];
-const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd };
-if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|migrate|modules|run|classify|checkpoint|park|resume> ...');
+const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, audit: auditCmd };
+if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume> ...');
 Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));

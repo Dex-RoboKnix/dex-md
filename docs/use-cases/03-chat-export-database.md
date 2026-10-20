@@ -23,9 +23,9 @@ provenance: AAC
 
 Research and synthesis desk. Evidence: notes, open questions, many sources. Wrong if the real aim is deleting the data. The lens reads Scope as "which chats count".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-INVENTORY`, `SK-TIMELINE`, `SK-STALL`, `SK-GOALS`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the inventory, timeline, stall and done angles (method section 5).
 
 ## Privacy notes
 

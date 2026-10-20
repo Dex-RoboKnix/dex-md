@@ -23,6 +23,14 @@ Readable: name the vault, the skill and the issue, and roughly how many question
 5. The verdict states that the builder reviewed its own work. The human agrees or overrules it in one popup. Only the human writes `VERIFIED`.
 6. A task gets 2 attempts. After the second FAIL, the human decides what happens next; record the outcome either way.
 
+## Document mode
+
+For a document, the spec is the vault's output rules and the draft's stated purpose:
+- The machine check is `node dex-vault/.dex/vault.mjs audit --output <file>`. It must report no finding.
+- Check each rule as an Acceptance item: audience named; trace list complete; unchecked statements shown as unchecked; in a regulated matter, each point of law or remedy marked "owner's argument, adviser to confirm"; held-back points left out; the human's wording kept and every change listed.
+- Prove the check can fail: remove the trace list from a copy once, see `audit --output` report it, then discard the copy.
+- FAIL for a blocker: a missing trace list, a held-back point included, a statement shown as checked that nobody checked, or a changed wording that is not listed.
+
 ## Steps
 
 1. Run the machine checks: the tests, the lint, and the project's own checks.

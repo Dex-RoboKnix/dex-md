@@ -25,9 +25,9 @@ With nothing in the folder, the ladder matters more: the slant rests on these wo
 
 App development factory, provisional. Evidence: only the person's answers. Wrong if the idea is really a habit, not a product. Review at the first checkpoint.
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-GOALS`, `SK-RULES`, `SK-PEOPLE`, `SK-INVENTORY` (the last lists what exists, which may be nothing).
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the done, rules, people and inventory angles (method section 5). For a blank folder there is nothing to sort, and the inventory angle lists what exists, which may be nothing.
 
 ## Privacy notes
 

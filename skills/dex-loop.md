@@ -36,6 +36,8 @@ State the batch's **P02 Purpose**, **P05 Success criteria**, **P06 Dependencies*
 
 Take the next issue that is unblocked and that others depend on, foundation before detail. Say which one and why, in one line. Skip an issue with an assignee or an open blocker.
 
+With no issue tracker (a private vault), the issues are the rows of `dex-vault/05_actions/actions.md` whose Status is `proposed` or `open`, and the open nodes' Next values. Each names its route (`dex-grill`, `task`, `research`, `dex-spec`); `node dex-vault/.dex/vault.mjs audit` lists any that do not. Route those first.
+
 ## 2. Run the skill the issue's type calls for
 
 | Type | Skill | Human's part |
@@ -45,6 +47,7 @@ Take the next issue that is unblocked and that others depend on, foundation befo
 | prototype | build the throwaway | reacts |
 | task | show what you would do | says yes, then you do it |
 | settled, with build work | dex-spec, dex-implement, dex-review | sees the phase list and chooses the pace |
+| a document (letter, pack, report) | dex-spec, dex-implement, dex-review in document mode | checks the draft, sends it themselves |
 
 ## 3. Checkpoint after every skill
 

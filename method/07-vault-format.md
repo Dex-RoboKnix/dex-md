@@ -24,7 +24,7 @@ dex-vault/
       <each node>/sources/                        placed copies, each with a <file>.md beside it
   03_spine/L1_values.md    GENERATED flat file per layer (L1 to L6). Never edit by hand
   04_claims/ledger.md      one claim per row
-  05_actions/onboarding.md the five skills and their status
+  05_actions/onboarding.md the setup list: items from older versions or other systems and the human's choice for each
   05_actions/actions.md    decisions waiting, proposed issues and action overrides
   05_actions/work/         skill outputs
   06_journal/answers/      answers to questions, verbatim
@@ -42,7 +42,11 @@ dex-vault/
 
 **DEX838.** Every node carries its position and its question as one DEX838 wire string, `dex(scope, @layer:policy,phase:plan,point:5)["the question"]`. The scope is the matter's short name. `dex(...)` is softcode: intent, a question still open. `dex[...]` inside a subject is hardcode: a literal requirement. The vault tool writes and updates the string; you never type it by hand.
 
-**States.** `C` covered, `W` weak, `N` not observable (an action), `NA` not applicable. **Channels.** `source`, `answer`, `raw`, `agent`. **Status** for claims: `UNVERIFIED`, `VERIFIED`, `DISPUTED`. **Next** values: `SK-<NAME>: <action>` or `-`.
+**States.** `C` covered, `W` weak, `N` not observable (an action), `NA` not applicable. **Channels.** `source`, `answer`, `raw`, `agent`. **Status** for claims: `UNVERIFIED`, `VERIFIED`, `DISPUTED`. **Next** values: `<route>: <one specific question or action>` or `-`. The route is `dex-grill`, `task`, `research` or `dex-spec` (section 5); never a generic line. **Status** for actions and setup items: one of `proposed`, `open`, `doing`, `done`, `parked`, `dropped`, optionally followed by a colon and a note (`done: sent 8 Oct`). A loop reads only the first word.
+
+**Fit.** Each node answers its own question (its `wire` string). Material that answers another node's question goes to that node. A list (parties, rules, events) is never split one item per node across a layer's points. `vault.mjs audit` flags a run of three or more sibling nodes whose answers start with the same label, and any node over 8 KB.
+
+**Needs and Wants.** The why-ladder (section 4, Stage 1) saves the human's musts under `## Needs` and nice-to-haves under `## Wants` on the `hu` node of the rung they were asked at: L4.hu (Process), L3.hu (Policy), L2.hu (Principles), L1.hu (Values). Every node carries both sections; `-` when empty.
 
 **Empty cells.** The Answer or Content cell is never blank. Every other cell holds `-` when there is nothing to put in it (Tag, Sources, Verified, Next, Checked, Date). Start each Point cell with its two-digit number, for example `01 Definition`. Write `\|` for a pipe inside a cell.
 
@@ -88,7 +92,7 @@ stage: onboarding | skills | built
 mode: vault | single-document
 material: . | ../ | <path relative to this folder>
 home: local | github
-dex_version: 0.9
+dex_version: <the dex.md version that built or last upgraded this vault>
 story_voice: plain
 owner: <how the human wants to be named, or Owner>
 created: YYYY-MM-DD
@@ -150,8 +154,8 @@ updated: YYYY-MM-DD
 ### MVE
 | Node | Content | Tag | State | Sources | Verified | Next |
 |---|---|---|---|---|---|---|
-| va | <values held at this layer> | MODEL | W | S001, J002 | no | SK-GRILL: Confirm these |
-| hu | UNANSWERED | - | N | - | no | SK-JOURNAL: <prompt> |
+| va | <values held at this layer> | MODEL | W | S001, J002 | no | dex-grill: Are these the values you hold here? |
+| hu | UNANSWERED | - | N | - | no | dex-grill: <prompt> |
 | llm | <your reading> | MODEL | C | S004 | no | - |
 
 ### Plan
@@ -163,11 +167,114 @@ updated: YYYY-MM-DD
 ### Execute
 | Point | Answer | Tag | State | Sources | Verified | Next |
 |---|---|---|---|---|---|---|
-| 01 Approach | Not observable. | - | N | - | no | SK-GRILL: <question> |
+| 01 Approach | Not observable. | - | N | - | no | dex-grill: <question> |
 (eight rows, 01 Approach to 08 Improvement)
 ```
 
 Keep each answer to one or two plain sentences. `Verified` is `no` until a human checks it; then it holds their name and date, written by you only from their decision.
+
+The layer files above are **generated** by `vault.mjs fold` from the node folders. You write the node folders and never the layer files.
+
+`03_spine/L<n>_<name>/<phase>/<node>/contextual.md` (one per node, 114 in all). The tool writes the first version of every one; you fill them in:
+
+```
+---
+node: L3.P05
+layer: 3
+phase: plan
+point: 5
+title: Success Criteria
+state: C
+tag: DOCUMENT
+sources: S001, J002
+verified: no
+next: -
+wire: dex(sample-matter, @layer:policy,phase:plan,point:5)["How would anyone know this is settled? (L3 Policy)"]
+updated: YYYY-MM-DD
+---
+# L3.P05 Success Criteria
+
+## Answer
+One or two plain sentences. This is the cell the layer file shows. Never blank.
+
+## Open questions
+- The slanted question still open here. Remove it once the owner has answered it.
+
+## Owner's words (verbatim)
+The owner's own words, spelling-checked (rule 12), with the journal ID (J002); the original, exactly as typed, stays in the journal. `-` if none yet. `UNANSWERED` for an empty `hu` node.
+
+## Needs
+The owner's musts (requirements) from the why-ladder, in their words with the journal ID. `-` if none.
+
+## Wants
+The owner's nice-to-haves (desirables) from the why-ladder, in their words with the journal ID. `-` if none.
+
+## Agent reading
+Your reading, each statement tagged DOCUMENT, CITED, MODEL or UNSURE. In a regulated matter, each rule here ends with `Point to adviser: <who>` and the flag UNVERIFIED.
+
+## Defined actions
+- Actions the sources define clearly.
+
+## Undefined actions
+- Actions the sources imply but do not define. Each one is also a proposed issue in `05_actions/actions.md`.
+```
+
+The front matter keys `state`, `tag`, `sources`, `verified` and `next` feed the layer file's columns. Keep them exact: `state` is `C`, `W`, `N` or `NA`; `next` is `<route>: <one specific question or action>` or `-`, where the route is `dex-grill`, `task`, `research` or `dex-spec` (section 5).
+
+`03_spine/L<n>_<name>/<phase>/<node>/sources/<file>.md` (the source `.md`, one beside every placed copy; the tool writes the skeleton and you fill the `<agent: ...>` parts):
+
+```
+---
+id: S004
+original: notes/quote.pdf
+copied: true
+bytes: 20481
+sha256: <hash of the original>
+placed: YYYY-MM-DD
+node: L1.P01
+---
+# quote.pdf
+## Details
+What this is, who wrote it, when. Each statement tagged.
+## For humans
+Why it sits at this node and what to look at.
+## For agents
+Read the placed copy beside this file, not the original.
+```
+
+A file that would normally be gitignored is listed instead: `copied: false` and `reason: gitignore-class` in the front matter, no copy beside it, and an `## Advice` section holding the provider's advice for keeping that kind of file out of a repo, tagged UNVERIFIED.
+
+`dex-vault/.dex/questions.json` (written once, when the slant is confirmed; `adapt` reads it):
+
+```
+{ "L1.P01": "Which outcome would the owner be happy to see at the end?", "L1.P02": "..." }
+```
+
+`06_journal/changes.md` (written by `fold --checkpoint`; the Folio shows it as a note):
+
+```
+---
+type: change-log
+---
+| Date | Node | From | To |
+|---|---|---|---|
+| YYYY-MM-DD | L1.P02 | N | C |
+```
+
+`06_journal/slant-history.md`: one entry per slant change, newest last: `## YYYY-MM-DD`, the old slant, the new slant, the information that shifted it, and who accepted it.
+
+`HANDOFF.md` (written once at the end of Stage 4, short; this is what an agent pointed at the project folder reads first):
+
+```
+# Hand-off: how to work this project with its Dex vault
+You are pointed at the project folder. The vault is `dex-vault/`, a sandbox beside the project's own files.
+1. Read `dex-vault/00_index.md`, then `dex-vault/08_story.md`.
+2. To work an issue, open the nodes it names: `dex-vault/03_spine/L<n>_<name>/<phase>/<node>/contextual.md`, then its `sources/`.
+3. `Owner's words (verbatim)` is the owner's intent: never reword it. `Agent reading` is a reading, not a fact: check it against the sources.
+4. Before you change a file outside `dex-vault/`, say what you will change and why, wait for the owner's yes, and make sure a backup exists (a clean git state or a copy). Change only what was approved.
+5. Never open a file listed with `copied: false`. Never touch `dex-vault/.shadowos/` or `dex-vault/.dex/`. Push nothing without the owner's yes.
+6. When done, say what changed and which nodes it touches, so the owner can update them: `dex grill` or `dex-vault` update mode.
+```
 
 `04_claims/ledger.md`
 
@@ -183,22 +290,24 @@ Keep each answer to one or two plain sentences. `Verified` is `no` until a human
 ---
 type: onboarding
 ---
-| # | Skill | Why this matter needs it | Feeds | Status |
+| # | Item | Found | Choice | Status |
 |---|---|---|---|---|
-| 1 | Inventory (SK-INVENTORY) | <one line> | L4.P03, L6.P08 | proposed |
+| 1 | mof/ (an older vault) | flat layer files from 0.8, 114 rows | bring in: migrate to node folders, then the fit pass | open |
+| 2 | MoF.md | the 0.6 installer | archive: stays where it is, not used | done |
 ```
 
-Status moves through `proposed`, `approved`, `running` and `done` (or `skipped`).
+`Choice` is the human's: keep as material, bring in (and where), archive or leave out. `Status` is from the set above. Choices about the human's own files become one clean-up issue in `actions.md`.
 
 `05_actions/actions.md`
 
 ```
 | ID | Node | Kind | Action | Skill | Status |
 |---|---|---|---|---|---|
-| D001 | - | decision | <decision the human needs to make> | SK-GRILL | open |
+| D001 | - | decision | <decision the human needs to make> | dex-grill | open |
+| P001 | L5.P07 | issue | List every dated letter with its source | task | proposed |
 ```
 
-Node actions are derived from the spine automatically. Add a row with a node ID only to override its text, skill or status.
+Node actions are derived from the spine automatically. Add a row with a node ID only to override its text, route or status. The `Skill` column holds a route (section 5); `Status` is from the set above.
 
 `06_journal/answers/<date>-<skill>-<n>.md` and `06_journal/raw/<date>-raw-<n>.md`
 
@@ -207,7 +316,7 @@ Node actions are derived from the spine automatically. Add a row with a node ID 
 id: J001
 date: YYYY-MM-DD
 channel: answer | raw
-skill: SK-GRILL
+skill: dex-grill
 question: <the question asked, for answers only>
 provenance: PHC
 nodes: [L1.P02, L1.hu]

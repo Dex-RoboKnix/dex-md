@@ -5,9 +5,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let v = fs.readFileSync(path.join(ROOT, 'base/src/vault.mjs'), 'utf8').replace(/\r\n/g, '\n');
-const add = fs.readFileSync(path.join(ROOT, 'src/vault-additions.js'), 'utf8').replace(/\r\n/g, '\n');
+// The tool reports the version it was built at: one source, the repo's package.json.
+const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, '../../package.json'), 'utf8')).version;
+const add = fs.readFileSync(path.join(ROOT, 'src/vault-additions.js'), 'utf8').replace(/\r\n/g, '\n').split('__DEX_VERSION__').join(VERSION);
 
 const swap = (a, b, all = true) => { if (!v.includes(a)) console.log('not found:', a.slice(0, 50)); v = all ? v.split(a).join(b) : v.replace(a, b); };
+// 0.11.0: one way to ask (dex-grill) instead of the SK skill library; older SK- values are still read
+swap("const nextCol = next ?? (nd.key === 'llm' ? '-' : nd.key === 'hu' ? `SK-JOURNAL: ${question}` : `SK-GRILL: ${question}`);", "const nextCol = next ?? (nd.key === 'llm' ? '-' : `dex-grill: ${question}`);", false);
+swap(".replace(/^next: (SK-[A-Z]+): .*$/m, (_, sk) => `next: ${sk}: ${question}`)", ".replace(/^next: (SK-[A-Z]+|dex-grill): .*$/m, () => `next: dex-grill: ${question}`)", false);
+// 0.11.0: scaffold adds sections a newer node template has to nodes that lack them, and changes nothing else
+swap('let made = 0, kept = 0;', 'let made = 0, kept = 0, filled = 0;', false);
+swap('if (fs.existsSync(file)) { kept++; continue; }', 'if (fs.existsSync(file)) { kept++; if (backfillSections(file)) filled++; continue; }', false);
+swap('${kept} already there (left as they are). ${nodes().length} nodes in all.`);', '${kept} already there (left as they are). ${nodes().length} nodes in all.${filled ? ` Needs and Wants sections added to ${filled} existing node(s); nothing else in them changed.` : \'\'}`);', false);
 swap('Dex MoF vault tool', 'Dex vault tool');
 swap('MoF.md', 'dex.md');
 swap('mof/.dex', 'dex-vault/.dex');
@@ -26,6 +35,9 @@ swap('// Paths come from this file\'s location', [
   '//        list a folder\'s top level (names only) and classify it: blank, blank-with-context or in-flight; lists secret-class files.',
   '//   node dex-vault/.dex/vault.mjs checkpoint [--skill <name>] [--summary "<text>"] [--chapter "<text>"] [--now <ISO>]',
   '//        close a skill: fold, coverage, RUNLOG row, story chapter, then the vault check. Never applies a node change.',
+  '//   node dex-vault/.dex/vault.mjs audit [--all] [--json] [--strict] | audit --output <draft.md> [--strict]',
+  '//        the meaning check (check tests the shape): nodes that do not fit their question, open nodes with no route or a generic one,',
+  '//        missing Needs and Wants, entry points older than this tool, action statuses. --output checks a draft\'s audience and trace list. Read-only.',
   '//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]',
   '//        hold where a skill stopped in .dex/state/<skill>.json so a later session can come back to the same question.',
   '//   node dex-vault/.dex/vault.mjs resume [--skill <name>]',
@@ -37,8 +49,8 @@ swap('// Paths come from this file\'s location', [
 const mainAt = v.indexOf('// ---- main');
 if (mainAt < 0) throw new Error('main section not found');
 v = v.slice(0, mainAt) + add + '\n' + v.slice(mainAt);
-swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd };', false);
-swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|migrate|modules|run|classify|checkpoint|park|resume>", false);
+swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, audit: auditCmd };', false);
+swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume>", false);
 swap('commands[cmd](a);', 'Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));', false);
 fs.writeFileSync(path.join(ROOT, 'src/vault.mjs'), v);
 console.log('wrote src/vault.mjs', v.split('\n').length, 'lines; remaining "mof" mentions:', (v.match(/\bmof\b/gi) || []).length);

@@ -24,7 +24,7 @@ The spine has six levels. They are called **rungs** here so they are not confuse
 1. **Start with what has happened.** Ask what they have seen happen: results, actions, or things outside the plan. This is rung 6. Keep it verbatim.
 2. **Then what they want.** Ask what they want done (the what) and what good looks like (the outcome). This is rung 5. Keep it verbatim.
 3. **Ask why, one rung up at a time.** One question per turn. Keep each answer verbatim, in the person's words.
-4. **Needs and wants.** After each why answer from rung 4 up to rung 1, ask: "Is that a must or a nice-to-have?" A must is a requirement (a need), a nice-to-have is a desirable (a want). Save it on that rung's node under `## Needs` or `## Wants`, in the person's words.
+4. **Needs and wants.** After each why answer from rung 4 up to rung 1, ask: "Is that a must or a nice-to-have?" A must is a requirement (a need), a nice-to-have is a desirable (a want). Save it on that rung's `hu` node (L4.hu for Process up to L1.hu for Values) under `## Needs` or `## Wants`, in the person's words.
 5. **Stop** when any of these is true: the person reaches Values; the person says that's it; an answer repeats the one below.
 6. **Write the slant from the highest rung the person confirms.** Propose it as `proposed`. Only the person makes it `confirmed`.
 7. **Come back down.** Read the nodes through the slant, rung by rung, so the sixteen Plan and Execute points (the lens) match the person's reasons.

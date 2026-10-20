@@ -27,9 +27,9 @@ This is a generic pattern. It is not anyone's own legal matter, and it holds no 
 
 Dispute or defence, regulated. Evidence: dated correspondence, demands, a decision-maker. Wrong if the matter is advice only with no contested step. The lens reads Success Criteria as "what the decision-maker must find".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-TIMELINE`, `SK-PEOPLE`, `SK-RULES`, `SK-GOALS`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the timeline, people, rules and done angles (method section 5).
 
 ## Privacy notes
 

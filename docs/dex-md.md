@@ -12,7 +12,7 @@ dex.md is one short file you drop into a project folder. You tell your agent: "R
 1. Reads the folder and tells you what it sees (it changes nothing).
 2. Asks you why you want the work done, step by step (the slant flow).
 3. Builds a vault called `dex-vault/` next to the file. This is a shared second brain for you and the agent.
-4. Grills you with five skills, one question at a time, and keeps your answers word for word.
+4. Sorts anything from an older version or another system by asking you what to keep, where it goes and what to archive, then grills you one question at a time and keeps your words twice: exactly as typed, and spelling-checked.
 5. Writes a short story of the matter, builds a folio (a one-page view of the vault) and turns open work into issues.
 
 It asks before every action. A yes to one thing is not a yes to the next. It never edits your own files.

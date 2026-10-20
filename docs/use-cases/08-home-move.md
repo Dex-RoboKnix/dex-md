@@ -25,9 +25,9 @@ provenance: AAC
 
 Personal decision: pros, cons and a choice to make. Wrong if the decision is already made and only planning is left (then switch to Planner at a checkpoint). The lens reads Success Criteria as "what makes us say yes".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-GOALS`, `SK-RULES`, `SK-PEOPLE`, `SK-INVENTORY`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the done, rules, people and inventory angles (method section 5).
 
 ## Privacy notes
 

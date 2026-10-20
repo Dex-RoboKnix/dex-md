@@ -29,7 +29,7 @@ This is your first action. Say in one line what you are about to read and that n
 - Then run the **slant flow**, the six-rung why-ladder (`docs/slant-flow.md`). One question per turn, each answer kept word for word:
   1. **6 Pattern:** "What have you seen happen: results, actions, or things outside the plan?"
   2. **5 Procedure:** what they want done, and what the outcome looks like.
-  3. **4 Process, 3 Policy, 2 Principles, 1 Values:** ask *why*, one rung up at a time. After each why answer, ask "Is that a must or a nice-to-have?" A must is a requirement (a need) and a nice-to-have is a desirable (a want). In Stage 4 it is saved on that rung's node under `## Needs` or `## Wants`, in their words.
+  3. **4 Process, 3 Policy, 2 Principles, 1 Values:** ask *why*, one rung up at a time. After each why answer, ask "Is that a must or a nice-to-have?" A must is a requirement (a need) and a nice-to-have is a desirable (a want). In Stage 4 it is saved on that rung's `hu` node (L4.hu for Process, L3.hu Policy, L2.hu Principles, L1.hu Values) under `## Needs` or `## Wants`, in their words.
   4. Stop when they reach Values, say that's it, or an answer repeats the one below. Write the slant from the highest rung they confirm, then come back down through the nodes.
 
 ### Stage 1a. Where the vault lives
@@ -52,12 +52,12 @@ After the overview and before any writes, settle where the Dex work lives. Ask o
 
 Record the choice in `00_index.md` as `home: local | github`. The repo commands run only after `dex-vault/` exists, at the end of Stage 2, each shown first and each after its own yes (rule 3). The repo is always private. If the owner later shares it with another person, that person is treated as public access, so nothing private belongs in it. Never change a repo's visibility.
 
-### Stage 2. Onboarding: suggest five skills
+### Stage 2. Onboarding
 
 1. Make a quick **coverage forecast**: for each of the six layers, is the material for Plan and for Execute rich, thin or absent? Which parts can only the human answer? Show it as a small table.
-2. Choose **five skills** from the library in section 5 that cover the thinnest areas and the places that need human input. `dex grill` (the skill `SK-GRILL`) is always one of the five. If nothing in the library fits a gap, write a custom skill with the template in section 5.
-3. Present the five as a numbered list. For each: name and ID, why this matter needs it (one line), the nodes it feeds, whether it needs the human.
-4. Ask the human to approve, swap or reorder. In the same message ask which **voice** the story should be told in: `plain` (the default), `storybook`, or a voice they describe. Wait for the answer.
+2. Say in two lines what Stage 3 will sort: the items you saw in Stage 1 that belong to an older version or another system (none, for a blank folder).
+3. Ask which **voice** the story should be told in: `plain` (the default), `storybook`, or a voice they describe. Wait for the answer.
+4. Nothing else is chosen here: the human's needs and wants come from the why-ladder (Stage 1) and the gaps are worked by `dex-grill` (Stage 3).
 5. On approval, ask for consent to create `dex-vault/`. **Consent is per action** (rule 17): this yes covers creating the folder only. Then ask separately whether you may fetch the DexSpine reference. It is **pinned**: show the owner the repository, the exact ref and the destination first, for example:
 
    > Fetch `<repo>` at `<ref>` into `dex-vault/.dex/dexspine/` (about a megabyte)? It supplies the standard's own base questions and the DEX838 notation. Without it the vault tool uses a built-in copy of the same questions.
@@ -70,132 +70,48 @@ Record the choice in `00_index.md` as `home: local | github`. The repo commands 
    5. Fold and build the Folio (section 9) so the human can watch progress. The Folio shows the onboarding state and an unlit spine.
    6. If the owner chose a private GitHub repo (Stage 1b): write `dex-vault/.gitignore` with the lines `.shadowos/`, `.dex/dexspine/`, `.dex/backup/` and `.dex/state/`, then show each command and run it only after a yes to that command: `git -C dex-vault init -b main`, `gh repo create <name> --private --source dex-vault --remote origin`, `git -C dex-vault add -A`, `git -C dex-vault commit -m "DEX: starter vault"`, and, as its own yes, `git -C dex-vault push -u origin main`. Say what the push sends before you ask.
 
-### Stage 3. Run the five skills
+### Stage 3. Sort what is here, then grill the gaps
 
-- Set `stage: skills` in `00_index.md`. Run the skills one at a time in the agreed order. Set each one's status to `running` in `05_actions/onboarding.md` and to `done` when it finishes.
-- Follow the skill's procedure in section 5. Ask one question at a time, give your suggested answer from the files and wait.
+Most of Step 1 is asking. Set `stage: setup` in `00_index.md`.
+
+**1. Sort.** List everything in the folder that belongs to an older version of Dex or to another system. Look for:
+- an old vault (`mof/`, flat layer files, an earlier `dex-vault/`);
+- installer files (MoF.md, an older dex.md);
+- skills under `.claude/skills/` that are not the seven dex skills;
+- action lists or Next values that name `SK-` skills;
+- stale hand-offs and CLAUDE.md blocks;
+- duplicate copies of the same material;
+- handover notes and archives.
+
+Write each item as a row in `05_actions/onboarding.md` (the setup list, section 7). Then, for each item, ask the human one question (up to three independent ones in one popup), with your recommendation first:
+- **Keep as material:** it is read as a source and placed at the node it bears on.
+- **Bring it in:** its content moves into the vault, at the node or section the human names (an old action becomes a routed action; an old node answer goes to the node whose question it answers).
+- **Archive:** it stays where it is and is listed as not used. Inside `dex-vault/`, it is copied to `dex-vault/.dex/backup/<date>/` first.
+- **Leave out:** listed, not read again.
+
+Apply each choice inside `dex-vault/` on its own yes. A choice that touches the human's own files (move, rename, delete) is never done by Dex: it becomes one clean-up issue in `05_actions/actions.md` (rule 16), worked later by an agent pointed at the project. Record every choice and its status in the setup list.
+
+**2. Grill the gaps.** Set `stage: grill`. Run `dex-grill` on the weakest nodes, using the question angles in section 5. Ask one question at a time, give your suggested answer from the files and wait.
 - **Two channels.** An answer to a question you asked is co-produced: save it verbatim in `06_journal/answers/` with the question (channel `answer`). Anything the human says that was not an answer to your question is raw human input: save it verbatim in `06_journal/raw/` (channel `raw`, provenance `PHC`) and run it through the spine at build time. You make the call on which is which. If you are unsure, ask.
-- Skill outputs (inventories, timelines, maps) go in `05_actions/work/<SKILL-ID>.md`.
-- After each skill give a three-line summary: what was learned, what is still open, what comes next. Fold and rebuild the Folio.
+- Angle outputs (inventories, timelines, maps) go in `05_actions/work/`.
+- After each round give a three-line summary: what was learned, what is still open, what comes next. Fold and rebuild the Folio.
 - The human can stop at any point. The vault stays in progress and the Folio shows exactly where it stopped.
 
 ### Stage 4. Build the vault
 
-First re-read sections 5 and 7 of this file: the formats matter and long sessions lose them. The vault is the **node folders**. The flat layer files are generated from them.
+First re-read sections 5 and 7: the formats matter and long sessions lose them. The vault is the **node folders**. The flat layer files are generated from them.
 
 1. **Confirm the slant, then adapt the questions.** The slant is confirmed when the human has said what the matter is and what they want done with it. If it is not confirmed yet, ask now: adaptation waits for it. Then write a file `dex-vault/.dex/questions.json` of node id to question for every node that is still open, each question reworded for this matter through the slant's lens (section 4). Keep each to one plain sentence. Run `node dex-vault/.dex/vault.mjs adapt dex-vault/.dex/questions.json`.
 2. **Sources.** Write `02_sources/sources.md`: every file read, listed or cited, with ID, path, type, date, status and a one-line note. Gitignore-class files get the status `listed, not copied`.
 3. **Place the sources.** For each source that bears on a node, run `node dex-vault/.dex/vault.mjs place <path> --node <node id> --id <S id>`. The tool copies it into the node's `sources/` folder next to a source `.md`, or lists it without copying if it is gitignore-class. The original is never changed. Then fill in every `<agent: ...>` placeholder in the source `.md` files: details, instructions for humans and instructions for agents, and the Advice section for a listed file (rule 5).
-4. **Claims.** Write The layer files above are **generated** by `vault.mjs fold` from the node folders. You write the node folders and never the layer files.
-
-`03_spine/L<n>_<name>/<phase>/<node>/contextual.md` (one per node, 114 in all). The tool writes the first version of every one; you fill them in:
-
-```
----
-node: L3.P05
-layer: 3
-phase: plan
-point: 5
-title: Success Criteria
-state: C
-tag: DOCUMENT
-sources: S001, J002
-verified: no
-next: -
-wire: dex(sample-matter, @layer:policy,phase:plan,point:5)["How would anyone know this is settled? (L3 Policy)"]
-updated: YYYY-MM-DD
----
-# L3.P05 Success Criteria
-
-## Answer
-One or two plain sentences. This is the cell the layer file shows. Never blank.
-
-## Open questions
-- The slanted question still open here. Remove it once the owner has answered it.
-
-## Owner's words (verbatim)
-Only the owner's own words, with the journal ID (J002). `-` if none yet. `UNANSWERED` for an empty `hu` node.
-
-## Needs
-The owner's musts (requirements) from the why-ladder, in their words with the journal ID. `-` if none.
-
-## Wants
-The owner's nice-to-haves (desirables) from the why-ladder, in their words with the journal ID. `-` if none.
-
-## Agent reading
-Your reading, each statement tagged DOCUMENT, CITED, MODEL or UNSURE. In a regulated matter, each rule here ends with `Point to adviser: <who>` and the flag UNVERIFIED.
-
-## Defined actions
-- Actions the sources define clearly.
-
-## Undefined actions
-- Actions the sources imply but do not define. Each one is also a proposed issue in `05_actions/actions.md`.
-```
-
-The front matter keys `state`, `tag`, `sources`, `verified` and `next` feed the layer file's columns. Keep them exact: `state` is `C`, `W`, `N` or `NA`; `next` is `SK-<NAME>: <action>` or `-`.
-
-`03_spine/L<n>_<name>/<phase>/<node>/sources/<file>.md` (the source `.md`, one beside every placed copy; the tool writes the skeleton and you fill the `<agent: ...>` parts):
-
-```
----
-id: S004
-original: notes/quote.pdf
-copied: true
-bytes: 20481
-sha256: <hash of the original>
-placed: YYYY-MM-DD
-node: L1.P01
----
-# quote.pdf
-## Details
-What this is, who wrote it, when. Each statement tagged.
-## For humans
-Why it sits at this node and what to look at.
-## For agents
-Read the placed copy beside this file, not the original.
-```
-
-A file that would normally be gitignored is listed instead: `copied: false` and `reason: gitignore-class` in the front matter, no copy beside it, and an `## Advice` section holding the provider's advice for keeping that kind of file out of a repo, tagged UNVERIFIED.
-
-`dex-vault/.dex/questions.json` (written once, when the slant is confirmed; `adapt` reads it):
-
-```
-{ "L1.P01": "Which outcome would the owner be happy to see at the end?", "L1.P02": "..." }
-```
-
-`06_journal/changes.md` (written by `fold --checkpoint`; the Folio shows it as a note):
-
-```
----
-type: change-log
----
-| Date | Node | From | To |
-|---|---|---|---|
-| YYYY-MM-DD | L1.P02 | N | C |
-```
-
-`06_journal/slant-history.md`: one entry per slant change, newest last: `## YYYY-MM-DD`, the old slant, the new slant, the information that shifted it, and who accepted it.
-
-`HANDOFF.md` (written once at the end of Stage 4, short; this is what an agent pointed at the project folder reads first):
-
-```
-# Hand-off: how to work this project with its Dex vault
-You are pointed at the project folder. The vault is `dex-vault/`, a sandbox beside the project's own files.
-1. Read `dex-vault/00_index.md`, then `dex-vault/08_story.md`.
-2. To work an issue, open the nodes it names: `dex-vault/03_spine/L<n>_<name>/<phase>/<node>/contextual.md`, then its `sources/`.
-3. `Owner's words (verbatim)` is the owner's intent: never reword it. `Agent reading` is a reading, not a fact: check it against the sources.
-4. Before you change a file outside `dex-vault/`, say what you will change and why, wait for the owner's yes, and make sure a backup exists (a clean git state or a copy). Change only what was approved.
-5. Never open a file listed with `copied: false`. Never touch `dex-vault/.shadowos/` or `dex-vault/.dex/`. Push nothing without the owner's yes.
-6. When done, say what changed and which nodes it touches, so the owner can update them: `dex grill` or `dex-vault` update mode.
-```
-
-`04_claims/ledger.md`: one statement per row, tagged, with its sources and the nodes it supports. Claims from the human carry the journal ID and channel `answer` or `raw`. Your own readings carry channel `agent` and tag `MODEL` or `UNSURE`. Every claim starts `UNVERIFIED`. A stated deadline is a claim: the owner's words, the source, and a verified-by name and date, or `UNVERIFIED`.
+4. **Claims.** Write `04_claims/ledger.md`: one statement per row, tagged, with its sources and the nodes it supports. Claims from the human carry the journal ID and channel `answer` or `raw`. Your own readings carry channel `agent` and tag `MODEL` or `UNSURE`. Every claim starts `UNVERIFIED`. A stated deadline is a claim: the owner's words, the source, and a verified-by name and date, or `UNVERIFIED`.
 5. **Nodes.** Open each node's `contextual.md` and fill it in (formats in section 7). Use the slant's lens to decide what each point means for this matter.
    - **MVE nodes per layer:** `va` holds the values held at this layer; `hu` holds the human's own words only, verbatim with the journal ID, or `UNANSWERED`; `llm` holds your reading, tagged `MODEL`.
    - **Plan and Execute points:** sixteen per layer, defined in section 7.
-   - **Empty nodes stay as questions.** A node with nothing behind it keeps state `N`, the answer `Not observable.` and its Next value `SK-GRILL: <the slanted question>`. A thin node gets state `W` and a strengthen action. An empty `hu` keeps `UNANSWERED` and `SK-JOURNAL`. A node that does not apply gets `NA` and `Not applicable: <why>`.
+   - **Empty nodes stay as questions.** A node with nothing behind it keeps state `N`, the answer `Not observable.` and its Next value `dex-grill: <the slanted question>`. A thin node gets state `W` and a Next that names the route and the one specific question or action that would make it covered, for example `task: List the dated letters and their sources.` or `dex-grill: Which date did the second letter arrive?` (routes: section 5). Never a generic line such as "strengthen this node": a loop cannot ask it. An empty `hu` keeps `UNANSWERED` and `dex-grill: <its question>`. A node that does not apply gets `NA` and `Not applicable: <why>`.
+   - **Each node answers its own question.** Read the node's question (its `wire` string) before writing its Answer. Material that answers another node's question goes to that node. A list (parties, rules, events) is never split one item per node across a layer's points: put it in the node that asks about it, with a heading per item, and give the other nodes their own answers or their open questions.
    - **Actions in the node.** List each action the sources define under `Defined actions`, and each one they imply but do not define under `Undefined actions`. Every undefined action becomes a proposed issue: a row in `05_actions/actions.md`.
-6. **Fold and check.** Run `node dex-vault/.dex/vault.mjs fold --checkpoint`, then `node dex-vault/.dex/vault.mjs check`. Fix every problem it names before moving on. The first checkpoint records the baseline.
+6. **Fold, check and audit.** Run `node dex-vault/.dex/vault.mjs fold --checkpoint`, then `node dex-vault/.dex/vault.mjs check`. Fix every problem it names before moving on. The first checkpoint records the baseline. Then run `node dex-vault/.dex/vault.mjs audit`: `check` tests the shape, `audit` tests the meaning (each node answers its own question, every open node names a skill and a specific question, Needs and Wants, entry points, action statuses). It never fails the run: fix what it finds, or tell the human why a finding stays.
 7. **Actions.** Write `05_actions/actions.md` with the decisions waiting for the human (IDs `D001` onward), the proposed issues from the undefined actions and any override to a node's action.
 8. **Index.** Update `00_index.md`: stage `built`, the matter in five lines (tagged, with claim IDs), decisions waiting, links.
 9. **Hand-off.** Write `dex-vault/HANDOFF.md` from the template in section 7. It tells an agent pointed at the project folder how to read this vault and how to work an issue.
@@ -215,14 +131,13 @@ A project needs more than a `CLAUDE.md`. This stage fills the gaps, using what A
 | `.gitignore` | `./.gitignore` | propose `CLAUDE.local.md` and `.claude/settings.local.json`; check they are not already tracked | `p2/gitignore-lines` |
 | Settings | `.claude/settings.json` | blank: minimal (a schema line and a verify allow rule). Existing: **merge, never overwrite**, show the permissions and hooks diff | `p2/settings-merge` |
 | Hooks | `.claude/hooks/dex-*` registered in settings | propose only: a Stop hook that runs the verify command, a PreToolUse guard for paths, a SessionStart status line. A rule in `CLAUDE.md` that says "must" is a hook candidate (instructions are advisory, hooks are deterministic) | `p3/hooks-plan` |
-| Subagent | `.claude/agents/dex-reviewer.md` | propose a read-only reviewer with a fresh context | `p3/subagent-plan` |
 | MCP | `.mcp.json` | propose only, never silently. Tokens as `${VAR}` placeholders, flag a literal secret in an existing file, warn that non-interactive runs load project servers without asking | `p2/mcp-propose` |
 | The seven dex skills | `.claude/skills/dex-<name>/SKILL.md` | copy `dex-grill`, `dex-spec`, `dex-implement`, `dex-review`, `dex-checkpoint`, `dex-loop` and `dex-sprint` from `dex-vault/.dex/skills/`, one yes per skill. Check the path and the frontmatter first | `p2/skill-path`, `p2/skill-frontmatter`, `p3/skill-registry` |
 | Auto memory | `~/.claude/projects/<project>/memory/` | Dex does **not** write here. It may suggest lines for the owner to keep | none |
 
 **What is not confirmed.** The research behind this table could not confirm from a primary page: the file-by-file contents of the `.claude` directory page, the exact key shapes of `permissions` and `env` in settings, any size guidance for settings, and the `.claude/output-styles`, `.worktreeinclude` and README conventions. Check the current Claude Code documentation before writing any of those, and say so to the human.
 
-**By folder kind.** A *blank* folder gets a minimal `CLAUDE.md`, the gitignore lines and one verify skill. A *blank-with-context* folder (notes, exports) gets a `CLAUDE.md` that explains the folder layout and imports its index file. An *in-flight* folder gets the marked blocks and **proposals only** (hooks, rules, subagent): nothing structural is added unasked.
+**By folder kind.** A *blank* folder gets a minimal `CLAUDE.md`, the gitignore lines and one verify skill. A *blank-with-context* folder (notes, exports) gets a `CLAUDE.md` that explains the folder layout and imports its index file. An *in-flight* folder gets the marked blocks and **proposals only** (hooks, rules): nothing structural is added unasked. No reviewer or other subagent is proposed: one agent does the work (rule 20).
 
 Sources (fetched 2026-10-09): code.claude.com/docs/en/memory, skills, settings, hooks, sub-agents, mcp, best-practices; agents.md; agentskills.io/specification.
 

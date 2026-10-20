@@ -25,9 +25,9 @@ provenance: AAC
 
 Planner: bookings, lists and dates for an event. Wrong if the real problem is funding. The lens reads Constraints as "venue hours and helper numbers".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-PEOPLE`, `SK-TIMELINE`, `SK-GOALS`, `SK-INVENTORY`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the people, timeline, done and inventory angles (method section 5).
 
 ## Privacy notes
 

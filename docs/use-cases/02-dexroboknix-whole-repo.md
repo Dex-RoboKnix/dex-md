@@ -25,9 +25,9 @@ provenance: AAC
 
 Technical audit: specs and code of unclear status. Evidence: many products started, none shipped. Wrong if the real aim is to ship one product. The lens reads Success Criteria as "which pieces are verified".
 
-## Five skills
+## Sort and first grill angles
 
-`SK-GRILL`, `SK-INVENTORY`, `SK-STALL`, `SK-RULES`, `SK-GOALS`.
+Stage 3 first sorts anything from an older version or another system (keep, where, archive). Then `dex-grill` works the gaps through the inventory, stall, rules and done angles (method section 5).
 
 ## Privacy notes
 

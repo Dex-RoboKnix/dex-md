@@ -18,7 +18,7 @@ Readable: name the vault, the skill and the issue, and roughly how many question
 
 1. Journal the session with its source. The human's words are kept twice (rule 12), separate from your reading.
 2. Propose node changes; never apply them. Each is inert until the human says yes. The replaced rows are kept in `05_actions/work/checkpoint-<date>.md`.
-3. Report what shipped since the last checkpoint, not only coverage.
+3. Report what shipped since the last checkpoint, not only coverage. The tool prints how many nodes were edited and how many changed state: if nodes were edited but no state moved, propose the state changes those edits earn (coverage only moves when a state moves). Report the audit findings it prints and propose a fix for each, or say why it stays.
 4. Say whether a good reason exists to file an issue unasked: it blocks the outcome, coverage dropped, a contradiction was found, or there is a safety or data risk. Otherwise only suggest.
 
 ## Vault tool does (mechanics)

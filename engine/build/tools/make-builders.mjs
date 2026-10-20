@@ -24,6 +24,20 @@ for (const f of files) {
     need('    pat = re.compile(', '    if TEMPLATE.is_file():\n        return TEMPLATE.read_text(encoding="utf-8")\n    pat = re.compile(');
     need("Folio template not found. Keep dex.md in the folder that holds dex-vault/.", "Folio template not found in dex-vault/.dex/. Run the installer again (dex.md section 3).");
   }
+  // 0.11.0: Next values route to dex-grill, task, research or dex-spec (older SK- values still read); the onboarding list is the setup list
+  if (f === 'dex-folio.template.html') {
+    need('const m = String(v).match(/^\\s*(SK-[A-Z0-9-]+)\\s*[:·]\\s*(.+)$/i);', 'const m = String(v).match(/^\\s*(SK-[A-Z0-9-]+|dex-grill|dex-spec|task|research)\\s*[:·]\\s*(.+)$/i);');
+    need('return m ? { skill: m[1].toUpperCase(), text: m[2].trim() }', 'return m ? { skill: /^SK-/i.test(m[1]) ? m[1].toUpperCase() : m[1].toLowerCase(), text: m[2].trim() }');
+    need("const defaultSkill = n => n.key === 'hu' ? 'SK-JOURNAL' : 'SK-GRILL';", "const defaultSkill = () => 'dex-grill';");
+    need("a.skill || 'SK-GRILL'", "a.skill || 'dex-grill'");
+    need(": `Strengthen the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.`", ": `Ask the one question that would cover the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.`");
+    need("if (col(t, 'skill') < 0) continue;", "if (col(t, 'skill') < 0 && col(t, 'item') < 0) continue;");
+    need("{ n: ['#', 'no', 'n'], skill: ['skill'], why: ['why'], feeds: ['feeds', 'nodes'], status: ['status'] }", "{ n: ['#', 'no', 'n'], skill: ['skill', 'item'], why: ['why', 'found'], feeds: ['feeds', 'nodes', 'choice'], status: ['status'] }");
+    need("'Onboarding: five skills', hint: 'Run before the vault is built. Grilling is always one of them.'", "'Setup: what to keep and where', hint: 'Items from older versions or other systems, and the owner\\'s choice for each.'");
+    need('${M.skills.length || 5}</b> skills done.', '${M.skills.length || 0}</b> setup items done.');
+    need('Onboarding skill ${esc(k.n || i + 1)} of', 'Setup item ${esc(k.n || i + 1)} of');
+    need('run onboarding skill', 'settle setup item');
+  }
   fs.mkdirSync(path.join(ROOT, 'src'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'src', f), t);
   console.log(f, 'remaining mof:', (t.match(/\bmof\b/gi) || []).length, 'MOF_DATA kept:', (t.match(/MOF_/g) || []).length);

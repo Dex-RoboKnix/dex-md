@@ -859,8 +859,8 @@ function normState(s, text) {
 const blank = v => !v || /^(-|\u2013|\u2014|none|no|n\/a|false)$/i.test(String(v).trim());
 function parseNext(v) {
   if (blank(v)) return { skill: '', text: '' };
-  const m = String(v).match(/^\s*(SK-[A-Z0-9-]+)\s*[:·]\s*(.+)$/i);
-  return m ? { skill: m[1].toUpperCase(), text: m[2].trim() } : { skill: '', text: String(v).trim() };
+  const m = String(v).match(/^\s*(SK-[A-Z0-9-]+|dex-grill|dex-spec|task|research)\s*[:·]\s*(.+)$/i);
+  return m ? { skill: /^SK-/i.test(m[1]) ? m[1].toUpperCase() : m[1].toLowerCase(), text: m[2].trim() } : { skill: '', text: String(v).trim() };
 }
 function rowKey(point, g) {
   const p = String(point || '').replace(/\bL[1-6]\s*\.\s*/i, '');
@@ -872,10 +872,10 @@ function rowKey(point, g) {
   return i >= 0 ? (g === 'plan' ? 'P0' : 'E0') + (i + 1) : null;
 }
 function normKind(k) { const s = String(k || '').toLowerCase(); if (s.includes('owner') || s.includes('words')) return 'owner-words'; if (s.includes('evid') || s.includes('request')) return 'evidence'; if (s.includes('streng') || s.includes('remed') || s.includes('weak')) return 'strengthen'; if (s.includes('decis')) return 'decision'; return ''; }
-const defaultSkill = n => n.key === 'hu' ? 'SK-JOURNAL' : 'SK-GRILL';
+const defaultSkill = () => 'dex-grill';
 function defaultAction(n) {
   if (n.key === 'hu') return `The owner says what matters at the ${layerName(n.layer)} layer, in their own words.`;
-  return n.state === 'N' ? `Find or ask for the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.` : `Strengthen the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.`;
+  return n.state === 'N' ? `Find or ask for the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.` : `Ask the one question that would cover the ${n.label.toLowerCase()} at the ${layerName(n.layer)} layer.`;
 }
 
 /* ---------------- model ---------------- */
@@ -970,7 +970,7 @@ function buildModel(files, meta) {
   const ob = get('05_actions/onboarding.md');
   if (ob) {
     const { fm, body } = frontMatter(ob); M.stage = String(M.index.fm.stage || fm.stage || '');
-    for (const t of tables(body)) { if (col(t, 'skill') < 0) continue; for (const r of t.rows) { const o = rowObj(t, r, { n: ['#', 'no', 'n'], skill: ['skill'], why: ['why'], feeds: ['feeds', 'nodes'], status: ['status'] }); o.status = (o.status || 'proposed').toLowerCase(); o.feedsIds = nodeIds(o.feeds); M.skills.push(o); } }
+    for (const t of tables(body)) { if (col(t, 'skill') < 0 && col(t, 'item') < 0) continue; for (const r of t.rows) { const o = rowObj(t, r, { n: ['#', 'no', 'n'], skill: ['skill', 'item'], why: ['why', 'found'], feeds: ['feeds', 'nodes', 'choice'], status: ['status'] }); o.status = (o.status || 'proposed').toLowerCase(); o.feedsIds = nodeIds(o.feeds); M.skills.push(o); } }
   }
   if (!M.stage) M.stage = String(M.index.fm.stage || '');
   for (const n of M.nodes) {
@@ -1515,7 +1515,7 @@ function renderStats() {
 function renderBanner() {
   const b = $('#spineBanner');
   if (M.empty) { b.innerHTML = 'No vault data is embedded. Use <b>Link folder</b> to load the <code>dex-vault</code> folder of a project.'; b.classList.remove('hidden'); return; }
-  if (!M.built) { const done = M.skills.filter(k => stClass(k.status) === 'done').length; b.innerHTML = `The spine is not built yet. Onboarding is in progress: <b>${done} of ${M.skills.length || 5}</b> skills done. Nodes light up when the agent builds the vault.`; b.classList.remove('hidden'); return; }
+  if (!M.built) { const done = M.skills.filter(k => stClass(k.status) === 'done').length; b.innerHTML = `The spine is not built yet. Onboarding is in progress: <b>${done} of ${M.skills.length || 0}</b> setup items done. Nodes light up when the agent builds the vault.`; b.classList.remove('hidden'); return; }
   b.classList.add('hidden');
 }
 function renderFacets() {
@@ -1542,19 +1542,19 @@ function setView(v) {
 }
 function promptFor(a) {
   const n = M.nodeById.get(a.node);
-  return `Using dex.md, run ${a.skill || 'SK-GRILL'} for ${n ? `node ${n.id} (${layerName(n.layer)}, ${n.label})` : 'this action'}.\nAction: ${a.text}\nRecord the result with its channel and tag, update the node, then rebuild the Folio (dex-vault folio).`;
+  return `Using dex.md, run ${a.skill || 'dex-grill'} for ${n ? `node ${n.id} (${layerName(n.layer)}, ${n.label})` : 'this action'}.\nAction: ${a.text}\nRecord the result with its channel and tag, update the node, then rebuild the Folio (dex-vault folio).`;
 }
 function cardHtml(it) {
   if (it.type === 'skill') { const k = it.k; return `<article class="card L1" data-open="skill:${it.i}"><div class="c-top"><span class="cid">SKILL ${esc(k.n || it.i + 1)}</span><span class="st st-${stClass(k.status)}">${esc(k.status)}</span></div><h4>${esc(k.skill)}</h4><p>${inline(k.why || '')}</p>${k.feeds ? `<div class="feeds">feeds ${inline(k.feeds)}</div>` : ''}</article>`; }
   if (it.type === 'claim') { const c = it.c; return `<article class="card L5" data-open="claim:${esc(c.id)}"><div class="c-top"><span class="cid">${esc(c.id)}</span>${tagPill(c.tag)}<span class="st st-prop">unchecked</span></div><p>${inline(c.text)}</p></article>`; }
   const a = it.a, n = M.nodeById.get(a.node);
-  return `<article class="card L${a.layer || 0}" data-open="${n ? 'node:' + esc(n.id) : 'action:' + esc(a.id)}"><div class="c-top"><span class="cid">${esc(a.node || a.id)}</span>${n ? `<span class="muted">${esc(layerName(n.layer))} &middot; ${esc(n.label)}</span>` : ''}</div><p>${inline(a.text)}</p><div class="c-foot"><span class="skill">${esc(a.skill || 'SK-GRILL')}</span><button class="mini" data-copy-action="${esc(a.id)}">Copy prompt</button></div></article>`;
+  return `<article class="card L${a.layer || 0}" data-open="${n ? 'node:' + esc(n.id) : 'action:' + esc(a.id)}"><div class="c-top"><span class="cid">${esc(a.node || a.id)}</span>${n ? `<span class="muted">${esc(layerName(n.layer))} &middot; ${esc(n.label)}</span>` : ''}</div><p>${inline(a.text)}</p><div class="c-foot"><span class="skill">${esc(a.skill || 'dex-grill')}</span><button class="mini" data-copy-action="${esc(a.id)}">Copy prompt</button></div></article>`;
 }
 function renderBoard() {
   const open = M.actions.filter(a => !/done|closed/.test(a.status));
   const byLayer = (x, y) => (x.a.layer || 9) - (y.a.layer || 9);
   const cols = [
-    { title: 'Onboarding: five skills', hint: 'Run before the vault is built. Grilling is always one of them.', items: M.skills.map((k, i) => ({ type: 'skill', i, k })) },
+    { title: 'Setup: what to keep and where', hint: 'Items from older versions or other systems, and the owner\'s choice for each.', items: M.skills.map((k, i) => ({ type: 'skill', i, k })) },
     { title: 'Evidence requests', hint: 'Not observable yet. Each empty node is an action.', items: open.filter(a => a.kind === 'evidence' || a.kind === 'owner-words').map(a => ({ type: 'action', a })).sort(byLayer) },
     { title: 'Strengthen the record', hint: 'Weak nodes. Something is there but it is thin.', items: open.filter(a => a.kind === 'strengthen').map(a => ({ type: 'action', a })).sort(byLayer) },
     { title: 'Waiting on the owner', hint: 'Decisions and claims nobody has checked yet.', items: [...open.filter(a => a.kind === 'decision').map(a => ({ type: 'action', a })), ...M.claims.filter(c => c.status === 'UNVERIFIED').map(c => ({ type: 'claim', c }))] }
@@ -1777,8 +1777,8 @@ function showJournal(id) {
 function showSkill(i) {
   const k = M.skills[i]; if (!k) return;
   const feeds = k.feedsIds.map(x => M.nodeById.get(x)).filter(Boolean);
-  openPanel(`<div class="p-eyebrow">Onboarding skill ${esc(k.n || i + 1)} of ${M.skills.length}</div><h2>${esc(k.skill)}</h2><div class="badges"><span class="st st-${stClass(k.status)}">${esc(k.status)}</span></div><div class="md"><p>${inline(k.why)}</p></div><h3>Feeds</h3>${rlist(feeds, n => `<button class="ritem" data-open="node:${esc(n.id)}"><span class="rid">${esc(n.id)}</span><span class="rtx">${esc(layerName(n.layer))} &middot; ${esc(n.label)} &middot; ${esc(STATE[n.state].label)}</span></button>`)}
-    ${decideBlock('skill:' + (k.n || i + 1), [['approve', 'Approve', 'ok'], ['swap', 'Swap for another', 'bad'], ['defer', 'Defer'], ['note', 'Note only']])}<div class="p-foot"><button class="mini" data-copy="${esc(`Using dex.md, run onboarding skill ${k.n || i + 1}: ${k.skill}.`)}">Copy agent prompt</button></div>`);
+  openPanel(`<div class="p-eyebrow">Setup item ${esc(k.n || i + 1)} of ${M.skills.length}</div><h2>${esc(k.skill)}</h2><div class="badges"><span class="st st-${stClass(k.status)}">${esc(k.status)}</span></div><div class="md"><p>${inline(k.why)}</p></div><h3>Feeds</h3>${rlist(feeds, n => `<button class="ritem" data-open="node:${esc(n.id)}"><span class="rid">${esc(n.id)}</span><span class="rtx">${esc(layerName(n.layer))} &middot; ${esc(n.label)} &middot; ${esc(STATE[n.state].label)}</span></button>`)}
+    ${decideBlock('skill:' + (k.n || i + 1), [['approve', 'Approve', 'ok'], ['swap', 'Swap for another', 'bad'], ['defer', 'Defer'], ['note', 'Note only']])}<div class="p-foot"><button class="mini" data-copy="${esc(`Using dex.md, settle setup item ${k.n || i + 1}: ${k.skill}.`)}">Copy agent prompt</button></div>`);
 }
 function showAction(id) { const a = M.actions.find(x => x.id === id); if (!a) return; openPanel(`<div class="p-eyebrow">Action &middot; ${esc(a.kind)}</div><h2><span class="nid">${esc(a.id)}</span></h2><div class="md"><p>${inline(a.text)}</p></div><div class="c-foot"><span class="skill">${esc(a.skill || '')}</span><button class="mini" data-copy-action="${esc(a.id)}">Copy agent prompt</button></div>${decideBlock(a.id, [['approve', 'Approve', 'ok'], ['reject', 'Reject', 'bad'], ['defer', 'Defer'], ['note', 'Note only']])}`); }
 function showSlant() {

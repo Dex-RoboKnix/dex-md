@@ -4,7 +4,7 @@ provenance: AAC
 
 # Use cases
 
-Eight worked examples of dex.md. Each gives the profile, the folder kind, the why-ladder filled in (see `../slant-flow.md`), the slant, five skills, privacy notes and what done looks like. Skill IDs are from `method/05-skill-library.md`.
+Eight worked examples of dex.md. Each gives the profile, the folder kind, the why-ladder filled in (see `../slant-flow.md`), the slant, what Stage 3 sorts and the first grill angles, privacy notes and what done looks like. The angles are in `method/05-question-angles.md`.
 
 | # | Case | Folder kind | Slant | Kind |
 |---|---|---|---|---|
