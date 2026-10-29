@@ -85,6 +85,41 @@ def changes():
             print(f"  {kind:8} {k}")
 
 
+STATIC = "<!--__STATIC__-->"
+
+
+def static_html(files, stamp):
+    """Plain view for viewers that never run scripts. Same sections as build_folio.mjs; notes show as plain text."""
+    esc = lambda s: str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    groups = {}
+    for p in sorted(files):
+        top = p.split("/")[0] if "/" in p else ""
+        if p == "00_index.md" or top == "01_matter":
+            key, label = "brief", "Brief"
+        elif p == "08_story.md":
+            key, label = "story", "Story"
+        elif top:
+            key, label = top, re.sub(r"^\d+_", "", top).replace("-", " ").replace("_", " ").capitalize()
+        else:
+            key, label = "files", "Vault files"
+        groups.setdefault(key, (label, []))[1].append(p)
+    first = [k for k in ("brief", "story") if k in groups]
+    keys = first + [k for k in groups if k not in first and k != "files"] + (["files"] if "files" in groups else [])
+    m = re.search(r"^#\s+(.+)$", files.get("00_index.md", ""), re.M)
+    nav = "".join(f'<a href="#sv-{esc(k)}">{esc(groups[k][0])}</a>' for k in keys)
+    secs = []
+    for k in keys:
+        label, paths = groups[k]
+        notes = "".join(
+            f'<details class="sv-note"{" open" if (k == "brief" and i < 2) or k == "story" else ""}><summary>{esc(p.split("/")[-1][:-3])}<small>{esc(p)}</small></summary><div class="sv-md"><pre>{esc(files[p])}</pre></div></details>'
+            for i, p in enumerate(paths))
+        secs.append(f'<section id="sv-{esc(k)}" class="sv-sec"><h2>{esc(label)} <small>{len(paths)}</small></h2>{notes}<a class="sv-up" href="#sv">Back to top</a></section>')
+    title = esc(m.group(1)) if m else "Matter of Fact"
+    return (f'<header class="sv-head"><div class="sv-brand"><i></i>Dex Folio</div><h1>{title}</h1>'
+            f'<p class="sv-fine">Plain view, built {esc(stamp)}. Tap a note to open it. For the node map, timeline and decisions, open this file in Safari or Chrome.</p></header>'
+            f'<nav class="sv-nav">{nav}</nav>\n' + "\n".join(secs))
+
+
 def build():
     html = template()
     files = {}
@@ -102,7 +137,10 @@ def build():
             .replace("\u2028", "\\u2028").replace("\u2029", "\\u2029"))
     if html.count(MARKER) != 1:
         sys.exit("Template marker not found exactly once. Check that MoF.md is the full, unedited file.")
-    OUT.write_text(html.replace(MARKER, data, 1), encoding="utf-8")
+    page = html.replace(MARKER, data, 1)
+    if page.count(STATIC) == 1:
+        page = page.replace(STATIC, static_html(files, stamp), 1)
+    OUT.write_text(page, encoding="utf-8")
     SNAP.write_text(json.dumps({"taken": stamp, "version": VERSION, "files": scan()}), encoding="utf-8")
     print(f"Dex Folio written: {OUT} ({len(files)} markdown files, {OUT.stat().st_size // 1024} KB). Snapshot taken.")
 

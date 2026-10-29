@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="Dex MoF L1 / Dex Folio 0.4 (dark)">
 <title>Dex Folio</title>
+<script>document.documentElement.classList.add('js')</script>
 <style>
 :root{
   --bg:#000;--ink:#f5f5f7;--ink2:#a1a1a6;--ink3:#6e6e73;
@@ -606,10 +607,98 @@ table.grid tbody tr:hover{background:rgba(255,255,255,.05)}table.grid tr.sel{bac
 .hrow kbd{border:0;background:rgba(255,255,255,.1);color:var(--ink);border-radius:6px;font:500 11px/1 var(--sans);padding:3px 7px}
 #help h2{font:650 22px/1.2 var(--sans);letter-spacing:-.02em}
 #toast{background:rgba(58,58,60,.92);border:0;border-radius:999px;padding:11px 18px;font:500 13px/1 var(--sans);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:all .4s var(--ease)}
+/* ---- plain view: shown when scripts never run (iPhone file previews, in-app browsers); the head script hides it ---- */
+html:not(.js),html:not(.js) body{height:auto}
+html:not(.js) body{overflow:auto;min-width:0}
+html:not(.js) body>:not(#sv){display:none!important}
+html.js #sv{display:none}
+#sv{max-width:760px;margin:0 auto;padding:0 16px 48px;font:15px/1.6 var(--sans);color:var(--ink)}
+.sv-head{padding:24px 0 12px}
+.sv-brand{display:flex;align-items:center;gap:8px;font:600 13px/1 var(--sans);color:var(--ink2)}
+.sv-brand i{width:18px;height:18px;border-radius:6px;background:linear-gradient(145deg,#409cff,#bf5af2)}
+.sv-head h1{font:700 28px/1.15 var(--sans);letter-spacing:-.02em;margin:14px 0 6px}
+.sv-head p{margin:0 0 6px;color:var(--ink2)}
+#sv .sv-fine{font-size:12.5px;color:var(--ink3)}
+.sv-nav{position:sticky;top:0;z-index:2;display:flex;gap:6px;overflow-x:auto;padding:10px 0;background:var(--bg);border-bottom:.5px solid var(--line2);scrollbar-width:none}
+.sv-nav a{flex:none;padding:8px 13px;border-radius:999px;background:var(--fill);color:var(--ink);text-decoration:none;font:500 13.5px/1 var(--sans)}
+.sv-sec{padding-top:22px;scroll-margin-top:56px}
+.sv-sec h2{font:650 22px/1.2 var(--sans);margin:0 0 12px}
+.sv-sec h2 small{font:500 13px/1 var(--sans);color:var(--ink3)}
+.sv-note{border-radius:14px;background:rgba(255,255,255,.05);margin:0 0 8px;overflow:hidden}
+.sv-note summary{padding:13px 14px;font:600 15px/1.35 var(--sans);cursor:pointer}
+.sv-note summary small{display:block;font:400 11.5px/1.4 var(--mono);color:var(--ink3);margin-top:3px;word-break:break-all}
+.sv-props{display:grid;grid-template-columns:minmax(80px,32%) 1fr;gap:4px 12px;margin:0;padding:0 14px 10px;font-size:13px}
+.sv-props dt{color:var(--ink3);overflow-wrap:anywhere}
+.sv-props dd{margin:0;overflow-wrap:anywhere}
+.sv-md{padding:0 14px 14px;overflow-wrap:anywhere}
+.sv-md h2,.sv-md h3{font:650 17px/1.3 var(--sans);margin:18px 0 6px}
+.sv-md h4,.sv-md h5,.sv-md h6{font:650 15px/1.3 var(--sans);margin:14px 0 6px;color:var(--ink2)}
+.sv-md p{margin:0 0 10px}
+.sv-md ul,.sv-md ol{margin:0 0 10px;padding-left:20px}
+.sv-md pre{white-space:pre-wrap;font:12.5px/1.5 var(--mono);background:rgba(0,0,0,.35);padding:10px;border-radius:10px;margin:0 0 10px}
+.sv-md code{font:12.5px/1.4 var(--mono);background:rgba(255,255,255,.09);padding:1px 4px;border-radius:4px}
+.sv-tw{overflow-x:auto;margin:0 0 12px}
+.sv-md table{border-collapse:collapse;font-size:13px;min-width:100%}
+.sv-md th,.sv-md td{border-bottom:.5px solid var(--line2);padding:6px 8px;text-align:left;vertical-align:top}
+.sv-md td{min-width:90px}
+.sv-md blockquote{margin:0 0 12px;padding:6px 12px;border-left:3px solid rgba(64,156,255,.7);color:var(--ink2)}
+.sv-md a,.sv-up{color:#6cb4ff}
+.sv-up{display:inline-block;margin:6px 0 0;font-size:13px}
+.m-only{display:none!important}
+
+/* ---- phone: portrait, one section at a time (desktop above 900px is unchanged) ---- */
+@media (max-width:900px){
+  :root{--mtop:96px}
+  body{min-width:0;font-size:14px}
+  .m-only{display:flex!important}
+  #top{height:var(--mtop);flex-wrap:wrap;align-content:center;gap:6px 10px;padding:6px 12px}
+  #top .vsep,#btnPalette,#btnLive,#btnDiag,#btnHelp{display:none}
+  .brand span{display:none}
+  .matter{flex:1 1 0}
+  .msub{margin-top:3px}
+  #views{order:5;flex:1 0 100%;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #views::-webkit-scrollbar{display:none}
+  #views button{flex:1 0 auto;justify-content:center;padding:9px 12px;font-size:13px}
+  .tool{height:32px}
+  body:not(.hud-closed) #btnBrief{background:rgba(64,156,255,.22);color:#8cc4ff}
+  #stage{top:var(--mtop);bottom:0}
+  #timeline,.hint-keys,#tooltip{display:none!important}
+  body.kb:not(.hud-closed) #hud{display:block}
+  #hud{top:var(--mtop);left:0;bottom:0;width:auto;right:0;border-radius:0!important;z-index:25;padding:18px 16px 40px}
+  #panel{top:var(--mtop);left:0;right:0;bottom:0;width:auto;border-radius:0!important;z-index:35;padding:16px 16px 48px;transform:translateY(100%)}
+  #panelClose{width:34px;height:34px;font-size:20px}
+  #drawer{top:calc(var(--mtop) + 8px);left:8px;right:8px;width:auto;max-height:calc(100vh - var(--mtop) - 16px)}
+  #facets{left:8px!important;right:8px;max-width:none!important;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  #spineBanner{bottom:12px;max-width:calc(100% - 24px);width:max-content}
+  .scroll,.filesWrap{padding:18px 16px 40px!important}
+  .vhead{flex-wrap:wrap}
+  .vhead h2{font-size:22px}
+  #board{grid-template-columns:1fr}
+  .col{min-height:0}
+  .search{width:100%}
+  table.grid td:nth-child(2){min-width:220px}
+  #sourceGrid,#mediaGrid{grid-template-columns:1fr}
+  .vis-strip{grid-template-columns:1fr}
+  .vis.hero{grid-row:auto}
+  .story h1{font-size:30px}
+  .storybody{font-size:17px;line-height:1.7}
+  .storybody > p:first-of-type::first-letter{font-size:50px}
+  .kb{display:block;overflow:auto;-webkit-overflow-scrolling:touch}
+  #kbSide{max-height:34vh;border-right:0;border-bottom:.5px solid rgba(255,255,255,.1)}
+  #kbMain{overflow:visible}
+  #kbAside{border-left:0;border-top:.5px solid rgba(255,255,255,.1);padding:14px 16px 40px}
+  .note{padding:20px 16px 40px}
+  .ntitle{font-size:26px}
+  .prop{grid-template-columns:110px 1fr;gap:10px}
+  .note .md{font-size:15.5px}
+  .hgrid,.legend{grid-template-columns:1fr}
+  #toast{bottom:20px;max-width:calc(100% - 32px)}
+}
 
 </style>
 </head>
 <body>
+<div id="sv"><!--__STATIC__--></div>
 <canvas id="bgfx" aria-hidden="true"></canvas>
 
 <header id="top">
@@ -631,6 +720,7 @@ table.grid tbody tr:hover{background:rgba(255,255,255,.05)}table.grid tr.sel{bac
   <div class="tools">
     <button id="btnPalette" class="tool" title="Command palette">&#8984;K</button>
     <button id="btnLive" class="tool" title="Link the vault folder for a live view"><span class="dot"></span><span id="liveLabel">Snapshot</span></button>
+    <button id="btnBrief" class="tool m-only" title="Briefing (B)">Brief</button>
     <button id="btnDecisions" class="tool" title="Decisions waiting to export (D)">Decisions <b id="decCount">0</b></button>
     <button id="btnDiag" class="tool" title="Folio checks">Checks <b id="diagCount">0</b></button>
     <button id="btnHelp" class="tool" title="Shortcuts (?)">?</button>
@@ -753,6 +843,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const rad = d => d * Math.PI / 180;
 const strip = s => String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/[*_`>#\[\]]/g, '').replace(/\s+/g, ' ').trim();
 const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const PHONE = window.matchMedia ? window.matchMedia('(max-width: 900px)') : { matches: false };
 const SANS = getComputedStyle(document.documentElement).getPropertyValue('--sans') || 'sans-serif';
 const MONO = SANS;
 const store = {
@@ -1145,6 +1236,7 @@ const SPS = id => morphed(SP.spos, SP.prevS, id);
 const w2s = (x, y) => ({ x: SP.W / 2 + (x - SP.cam.x) * SP.cam.z, y: SP.H / 2 + (y - SP.cam.y) * SP.cam.z });
 const s2w = (x, y) => ({ x: SP.cam.x + (x - SP.W / 2) / SP.cam.z, y: SP.cam.y + (y - SP.H / 2) / SP.cam.z });
 function viewport() {
+  if (PHONE.matches) return { l: 84, r: SP.W - 12, t: 64, b: SP.H - 16 };
   const hud = !document.body.classList.contains('hud-closed'), pan = document.body.classList.contains('panel-open');
   return { l: hud ? 16 + 330 + 24 : 24, r: SP.W - (pan ? 16 + 430 + 24 : 24), t: 64, b: SP.H - 20 };
 }
@@ -1527,6 +1619,7 @@ function renderFacets() {
 /* ---------------- views ---------------- */
 function setView(v) {
   view = v;
+  if (PHONE.matches) document.body.classList.add('hud-closed');
   $$('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
   $$('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
   document.body.classList.toggle('kb', v === 'notes');
@@ -1675,7 +1768,7 @@ function openFile(p, fromHist) {
   if (!fromHist && UI.hist[UI.hi] !== p) { UI.hist = UI.hist.slice(0, UI.hi + 1); UI.hist.push(p); UI.hi = UI.hist.length - 1; }
   UI.openFile = p; closePanel();
   if (view !== 'notes') setView('notes'); else { renderPinned(); renderNote(p); }
-  const m = $('#kbMain'); if (m) m.scrollTop = 0;
+  const m = $('#kbMain'); if (m) { m.scrollTop = 0; if (PHONE.matches) m.scrollIntoView({ block: 'start' }); }
 }
 function navNote(d) { const i = UI.hi + d; if (i < 0 || i >= UI.hist.length) return; UI.hi = i; openFile(UI.hist[i], true); }
 function renderMedia() {
@@ -2012,6 +2105,7 @@ function load(files, meta, keepView) {
 }
 function wire() {
   $$('#views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  $('#btnBrief').addEventListener('click', toggleHud);
   $('#btnPalette').addEventListener('click', openPalette);
   $('#btnLive').addEventListener('click', linkFolder);
   $('#btnDecisions').addEventListener('click', () => $('#drawer').classList.contains('hidden') ? openDrawer() : closeDrawer());

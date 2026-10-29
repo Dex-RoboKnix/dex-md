@@ -51,6 +51,81 @@ function scan() {
 }
 const sig = e => e.sha256 || `${e.size}:${e.mtime}`;
 
+// ---- plain view: every note as static HTML, for viewers that never run scripts (iPhone file previews, in-app browsers) ----
+const STATIC = '<!--__STATIC__-->';
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function inlineMd(s) {
+  const codes = [];
+  const t = escH(s).replace(/`([^`]+)`/g, (_, c) => `\u0000${codes.push(c) - 1}\u0000`)
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, a, b) => `<b>${b || a}</b>`)
+    .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/(^|[^*\w])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>');
+  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[+i]}</code>`);
+}
+function tableHtml(rows) {
+  const cells = r => r.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+  const [head, ...rest] = rows.filter(r => !/^\s*\|[\s:|-]*-[\s:|-]*\|\s*$/.test(r));
+  if (!head) return '';
+  const row = (r, tag) => `<tr>${cells(r).map(c => `<${tag}>${inlineMd(c)}</${tag}>`).join('')}</tr>`;
+  return `<div class="sv-tw"><table><thead>${row(head, 'th')}</thead><tbody>${rest.map(r => row(r, 'td')).join('')}</tbody></table></div>`;
+}
+function mdHtml(src) {
+  const out = [], lines = src.replace(/\r\n/g, '\n').split('\n');
+  const LIST = /^\s*([-*+]|\d+[.)])\s+/, ROW = /^\s*\|.*\|\s*$/;
+  let i = 0, para = [];
+  const flush = () => { if (para.length) { out.push(`<p>${inlineMd(para.join(' '))}</p>`); para = []; } };
+  while (i < lines.length) {
+    const l = lines[i]; let m;
+    if (/^(```|~~~)/.test(l)) { flush(); const fence = l.slice(0, 3), buf = []; i++; while (i < lines.length && !lines[i].startsWith(fence)) buf.push(lines[i++]); i++; out.push(`<pre>${escH(buf.join('\n'))}</pre>`); continue; }
+    if ((m = l.match(/^(#{1,6})\s+(.*)/))) { flush(); const n = Math.min(m[1].length + 1, 6); out.push(`<h${n}>${inlineMd(m[2])}</h${n}>`); i++; continue; }
+    if (ROW.test(l)) { flush(); const rows = []; while (i < lines.length && ROW.test(lines[i])) rows.push(lines[i++]); out.push(tableHtml(rows)); continue; }
+    if (LIST.test(l)) { flush(); const tag = /^\s*\d/.test(l) ? 'ol' : 'ul', items = []; while (i < lines.length && LIST.test(lines[i])) items.push(lines[i++].replace(LIST, '')); out.push(`<${tag}>${items.map(x => `<li>${inlineMd(x)}</li>`).join('')}</${tag}>`); continue; }
+    if (/^>\s?/.test(l)) { flush(); const buf = []; while (i < lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/, '')); out.push(`<blockquote>${inlineMd(buf.join(' '))}</blockquote>`); continue; }
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(l)) { flush(); out.push('<hr>'); i++; continue; }
+    if (!l.trim()) { flush(); i++; continue; }
+    para.push(l.trim()); i++;
+  }
+  flush();
+  return out.join('\n');
+}
+function splitFm(src) {
+  const m = src.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (!m) return [[], src];
+  const props = m[1].split(/\r?\n/).map(l => l.match(/^([\w .-]+):\s*(.*)$/)).filter(Boolean).map(x => [x[1], x[2].replace(/^["']|["']$/g, '')]);
+  return [props, src.slice(m[0].length)];
+}
+function noteHtml(p, src, open) {
+  const [props, body] = splitFm(src);
+  const h = body.match(/^#\s+(.+)$/m), t = props.find(x => x[0] === 'title');
+  const title = t ? t[1] : h ? h[1] : path.basename(p, '.md');
+  const dl = props.length ? `<dl class="sv-props">${props.map(([k, v]) => `<dt>${escH(k)}</dt><dd>${inlineMd(v)}</dd>`).join('')}</dl>` : '';
+  return `<details class="sv-note"${open ? ' open' : ''}><summary>${inlineMd(title)}<small>${escH(p)}</small></summary>${dl}<div class="sv-md">${mdHtml(h ? body.replace(h[0], '') : body)}</div></details>`;
+}
+function staticHtml(files, stamp) {
+  const [ip, ib] = splitFm(files['00_index.md'] || '');
+  const get = k => (ip.find(x => x[0] === k) || [])[1] || '';
+  const ih = ib.match(/^#\s+(.+)$/m);
+  const groups = new Map();
+  const put = (k, label, p) => { if (!groups.has(k)) groups.set(k, { label, paths: [] }); groups.get(k).paths.push(p); };
+  for (const p of Object.keys(files).sort()) {
+    const top = p.includes('/') ? p.split('/')[0] : '';
+    if (p === '00_index.md' || top === '01_matter') put('brief', 'Brief', p);
+    else if (p === '08_story.md') put('story', 'Story', p);
+    else if (top) put(top, top.replace(/^\d+_/, '').replace(/[-_]/g, ' ').replace(/^./, c => c.toUpperCase()), p);
+    else put('files', 'Vault files', p);
+  }
+  const first = ['brief', 'story'].filter(k => groups.has(k));
+  const keys = [...first, ...[...groups.keys()].filter(k => !first.includes(k) && k !== 'files'), ...(groups.has('files') ? ['files'] : [])];
+  const nav = keys.map(k => `<a href="#sv-${escH(k)}">${escH(groups.get(k).label)}</a>`).join('');
+  const secs = keys.map(k => {
+    const g = groups.get(k);
+    return `<section id="sv-${escH(k)}" class="sv-sec"><h2>${escH(g.label)} <small>${g.paths.length}</small></h2>${g.paths.map((p, i) => noteHtml(p, files[p], (k === 'brief' && i < 2) || k === 'story')).join('')}<a class="sv-up" href="#sv">Back to top</a></section>`;
+  }).join('\n');
+  return `<header class="sv-head"><div class="sv-brand"><i></i>Dex Folio</div><h1>${inlineMd(get('title') || (ih ? ih[1] : 'Matter of Fact'))}</h1>${get('slant') ? `<p>Slant: ${inlineMd(get('slant'))}</p>` : ''}<p class="sv-fine">Plain view, built ${escH(stamp)}. Tap a note to open it. For the node map, timeline and decisions, open this file in Safari or Chrome.</p></header><nav class="sv-nav">${nav}</nav>\n${secs}`;
+}
+
 function changes() {
   if (!fs.existsSync(SNAP)) { console.log('No snapshot yet. Build the Folio once to take one.'); return; }
   const old = JSON.parse(fs.readFileSync(SNAP, 'utf8')); const before = old.files || {}, now = scan();
@@ -83,7 +158,9 @@ function build() {
   const LS = String.fromCharCode(0x2028), PS = String.fromCharCode(0x2029);
   const data = JSON.stringify(payload).replace(/<\//g, '<\\/').replace(/<!--/g, '<\\u0021--').split(LS).join('\\u2028').split(PS).join('\\u2029');
   if (html.split(MARKER).length !== 2) { console.error('Template marker not found exactly once. Check that dex.md is the full, unedited file.'); process.exit(1); }
-  fs.writeFileSync(OUT, html.replace(MARKER, () => data));
+  let page = html.replace(MARKER, () => data);
+  if (page.split(STATIC).length === 2) page = page.replace(STATIC, () => staticHtml(files, stamp));
+  fs.writeFileSync(OUT, page);
   fs.writeFileSync(SNAP, JSON.stringify({ taken: stamp, version: VERSION, files: scan() }));
   console.log(`Dex Folio written: ${OUT} (${Object.keys(files).length} markdown files, ${Math.round(fs.statSync(OUT).size / 1024)} KB). Snapshot taken.`);
 }
