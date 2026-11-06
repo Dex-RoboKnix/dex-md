@@ -17,6 +17,7 @@ Read the version in the last row of `RUNLOG.md` and `dex_version` in `00_index.m
    | 0.10 | two steps; the why-ladder with `## Needs` and `## Wants` on each rung's `hu` node; words kept twice; `dex-loop` and `dex-sprint` | `scaffold` adds the empty Needs and Wants sections to every node that lacks them. Offer the why-ladder (Stage 1) on the current slant, from rung 6, for the human to answer: never fill it from earlier answers. Place the two new skills (Stage 4b) |
    | 0.10.1 | one agent; the six-part promote | withdraw any subagent proposal. If the vault is already used as the working record, offer `dex promote` |
    | 0.11.0 | no SK skill library: Next values route to `dex-grill`, `task`, `research` or `dex-spec`; Stage 3 sorts older versions and other systems; `audit`; document mode; a fixed action Status set | the sort (Stage 3) for every older item; each `SK-` Next value and action converted to a route, shown as a list and applied on a yes; then `audit`, each finding a proposal (sections 5 and 6 below) |
+   | 0.11.1 | the Folio plain view: every note also written as static HTML, for viewers that never run scripts (iPhone file previews, in-app browsers) | rebuild the Folio; nothing in the vault changes |
 
 2. **Refresh the entry points**, each shown as a diff, each on its own yes:
    - `00_index.md`: `dex_version`, `updated` and the matter in five lines;

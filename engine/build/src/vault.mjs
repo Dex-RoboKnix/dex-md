@@ -479,7 +479,7 @@ function splitRow(line) {
 
 // ---- Dex additions: bundled modules, classify and checkpoint ---------------------------------------
 // The modules in dex-lib.mjs are pure: they return what must be written; this tool does the writing.
-const DEX_VERSION = '0.11.0'; // set from package.json by make-vault.mjs
+const DEX_VERSION = '0.11.1'; // set from package.json by make-vault.mjs
 async function lib() {
   const f = path.join(HERE, 'dex-lib.mjs');
   if (!fs.existsSync(f)) die('dex-lib.mjs is missing next to vault.mjs. Run the installer again (dex.md section 3).');

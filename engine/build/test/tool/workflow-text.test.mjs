@@ -83,7 +83,7 @@ test('Step 1 sorts older versions and other systems by asking (dex.md and method
 test('the upgrade backfills what each newer version added (02b section 0, dex.md section 2)', () => {
   const w = read('method/02b-existing-vault.md');
   assert.ok(w.indexOf('### 0. Upgrade') >= 0 && w.indexOf('### 0. Upgrade') < w.indexOf('### The walk'), 'section 0 comes before the walk');
-  for (const v of ['| 0.9 |', '| 0.10 |', '| 0.10.1 |', '| 0.11.0 |']) assert.ok(w.includes(v), `delta row ${v}`);
+  for (const v of ['| 0.9 |', '| 0.10 |', '| 0.10.1 |', '| 0.11.0 |', '| 0.11.1 |']) assert.ok(w.includes(v), `delta row ${v}`);
   assert.match(w, /scaffold`? \(it adds missing sections and never changes a line already written\)/);
   assert.match(read('dex.md'), /the walk starts with the \*\*upgrade\*\* \(02b section 0\)/);
 });

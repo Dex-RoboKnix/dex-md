@@ -1,0 +1,2 @@
+# Keep LF everywhere: the build tools match exact text, and CRLF checkouts on Windows break them.
+* text=auto eol=lf
