@@ -17,7 +17,7 @@ dex.md is one short file you drop into a project folder. You tell your agent: "R
 
 It asks before every action. A yes to one thing is not a yes to the next. It never edits your own files.
 
-The file is short because the detail lives in this repo. dex.md clones the parts it needs, at a fixed tag, when a stage needs them. The repo is private, so you must be signed in to GitHub with access. See `implement-human.md`.
+The file is short because the detail lives in this repo. dex.md clones the parts it needs, at a fixed tag, when a stage needs them. The repo is public, so no GitHub sign-in is needed to install; a sign-in is needed only to keep the work in a private GitHub repo. See `implement-human.md`.
 
 Dex is L2 and pre-1.0. It is a working prototype.
 

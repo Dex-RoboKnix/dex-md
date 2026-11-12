@@ -56,8 +56,8 @@ Read only; nothing is installed or changed.
 
 1. Can you read and write files? If you cannot write files (a chat window, NotebookLM), you are in **single-document mode**: run Stages 1 to 3 in the conversation and stop before Stage 2's clone; tell the human that mode needs the method docs pasted in.
 2. `node --version` (18 or later). `git --version`.
-3. **`gh auth status`.** The dex-md repo is private: only a person signed in to GitHub with access to it can install Dex. If `gh` is missing or not signed in, stop and tell the human, in plain words:
-   > Dex installs its tools from a private GitHub repo. Install the GitHub CLI from https://cli.github.com, then run `gh auth login` in this terminal and follow the prompts. You need access to `Dex-RoboKnix/dex-md`; ask its owner if you do not have it. Then tell me to carry on.
+3. **`gh auth status`.** The dex-md and dexspine-core repos are public, so the Stage 2 clones need no sign-in. A GitHub sign-in is needed only for the repo steps (Stage 1b) and for ShadowOS (Stage 6b, a private repo for now). If `gh` is missing or not signed in, say so in plain words and carry on locally:
+   > Dex can also keep its work in a private GitHub repo. For that, install the GitHub CLI from https://cli.github.com, then run `gh auth login` in this terminal and follow the prompts. You can skip this and keep everything on this computer.
 
    Do not sign in for them.
 4. Look for `dex-vault/RUNLOG.md`. None: a **new vault**, go to section 4. Present: an **existing vault**; once the clone is present, follow `method/02b-existing-vault.md`. If the last version in its `RUNLOG.md` is older than this file's, the walk starts with the **upgrade** (02b section 0): what each newer version added is brought into the vault, each change on its own yes.

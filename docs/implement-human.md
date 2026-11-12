@@ -6,9 +6,9 @@ provenance: AAC
 
 You need: a computer with Node 18 or later, `git`, and an agent that can read and write files (such as Claude Code).
 
-1. **Install the GitHub CLI.** Get it from https://cli.github.com.
-2. **Sign in.** Run `gh auth login` and follow the prompts. Check with `gh auth status`.
-3. **Get access.** The `Dex-RoboKnix/dex-md` repo is private. Ask its owner (Dan) to add you.
+1. **Optional: the GitHub CLI.** Only needed if you want the work kept in a private GitHub repo. Get it from https://cli.github.com.
+2. **Optional: sign in.** Run `gh auth login` and follow the prompts. Check with `gh auth status`.
+3. **Access.** The `Dex-RoboKnix/dex-md` repo is public: nothing to ask for.
 4. **Pick a folder.** It can be empty, hold a few notes, or be a live project. Dex does not mind which.
 5. **Copy `dex.md` into it.**
 6. **Tell your agent:** `Read dex.md and follow it.`
