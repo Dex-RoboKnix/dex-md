@@ -1,6 +1,6 @@
 ---
 name: dex-md
-description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It is universal: it holds nothing about any particular matter and takes its slant from the folder it lands in, confirmed by the human. The agent reads the folder, builds a DexSpine vault of node folders in a dex-vault folder next to it, places the Claude project files and the seven dex skills (each with the human's yes), retells the matter as a short story, renders it as a Dex Folio, closes every skill with a checkpoint, and turns open work into issues an agent can implement.
+description: Dex, the installer and entry point into Dex. Put this one file in any project folder (blank, context-only or in-flight) and point an agent at it. It is universal: it holds nothing about any particular matter and takes its slant from the folder it lands in, confirmed by the human. The agent reads the folder, builds a DexSpine vault of node folders in a dex-vault folder next to it, places the Claude project files and the seven dex skills (each with the human's yes), retells the matter as a short story, renders it as a DexFolio, closes every skill with a checkpoint, and turns open work into issues an agent can implement.
 version: 0.9
 tier: L2 (universal installer; DEX838 and DexSpine, L1, define it)
 author: Dex-RoboKnix
@@ -16,7 +16,7 @@ provenance: AAC
 
 A **Matter of Fact** is a plain, objective description of what a matter is: what exists, what state it is in, what is claimed, what is actually known and what nobody knows yet. A matter can be anything a folder is about: a half-built product, a research pile, a plan, a recipe collection, a dispute, a job search, a codebase.
 
-**Dex is the entry point into Dex: one file you attach to a live or blank project that acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM), and turns the work into issues.** Dex is a workspace for adding the owner's own thoughts to actions and issues in a project before an agent reasons about them and fixes them. Dex builds the DexSpine, DEX838 gives every node one universal wire form, the Dex Folio and ShadowOS are the human interface, and an agent working at project level implements the issues or passes them on.
+**Dex is the entry point into Dex: one file you attach to a live or blank project that acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM), and turns the work into issues.** Dex is a workspace for adding the owner's own thoughts to actions and issues in a project before an agent reasons about them and fixes them. Dex builds the DexSpine, DEX838 gives every node one universal wire form, the DexFolio and ShadowOS are the human interface, and an agent working at project level implements the issues or passes them on.
 
 It is not a hosted service, not a model or a fine-tune, not a prompt library and not a replacement for a task tracker or GitHub. It works with those and helps improve them.
 
@@ -347,13 +347,13 @@ Write `dex-vault/08_story.md`: a short story of what has happened, told from the
 - **Footnotes:** put claim IDs in square brackets after the sentences they support. Finish with a section headed `## What this rests on` that lists every claim and journal ID used.
 - **Voice** comes from `story_voice` in `00_index.md`. `plain` is clear and neutral. `storybook` is a warm narrative written to be read aloud. Any other value is a voice the human described. A named author or narrator is a style to echo, never a source to copy: no lines, characters, places or catchphrases from anyone's work. For legal or other regulated matters the story still says plainly what is fact and what is not. The voice never changes a fact.
 
-### Stage 6. Build the Dex Folio
+### Stage 6. Build the DexFolio
 
 Run `node dex-vault/.dex/vault.mjs fold`, then the builder (section 9), and confirm `dex-vault/dex-folio.html` exists. The Folio reads the flat layer files that `fold` generates from the node folders, so always fold first. The builder also takes a snapshot of the folder, which the next run uses to see what changed. Tell the human to open it by double-clicking. It works offline in any modern browser.
 
 ### Stage 6b. Install ShadowOS (optional)
 
-ShadowOS is a native desktop that opens on this folder only (a "fractional desktop"): Finder, the Dex Folio, Notes and tickets, Surf and a Claude window. Nothing outside the folder is visible to it. It is optional and **only on the owner's explicit yes**. It needs the Folio from Stage 6, so it always comes after it. If the owner asked for it earlier ("launch ShadowOS"), that is the yes: do not ask again, but still do it here, in order. Otherwise ask once: "Install ShadowOS? It is built from the `Dex-RoboKnix/shadowos` repo (private while it is pre-1.0, so `gh` must be signed in to an account that can see it), takes 5 to 10 minutes and a few GB of disk the first time, and everything stays in `dex-vault/.shadowos/`." If the answer is no, note it in `RUNLOG.md` and go to Stage 7.
+ShadowOS is a native desktop that opens on this folder only (a "fractional desktop"): Finder, the DexFolio, Notes and tickets, Surf and a Claude window. Nothing outside the folder is visible to it. It is optional and **only on the owner's explicit yes**. It needs the Folio from Stage 6, so it always comes after it. If the owner asked for it earlier ("launch ShadowOS"), that is the yes: do not ask again, but still do it here, in order. Otherwise ask once: "Install ShadowOS? It is built from the `Dex-RoboKnix/shadowos` repo (private while it is pre-1.0, so `gh` must be signed in to an account that can see it), takes 5 to 10 minutes and a few GB of disk the first time, and everything stays in `dex-vault/.shadowos/`." If the answer is no, note it in `RUNLOG.md` and go to Stage 7.
 
 **`dex-vault/.shadowos/` is tooling, never material.** Never read it, ingest it, cite it or count it in any stage, now or on later runs.
 

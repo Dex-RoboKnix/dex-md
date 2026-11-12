@@ -52,4 +52,4 @@ dex.md pins a tag (`vX.Y.Z`). A new release is a new tag and a new dex.md; an ol
 
 ## Licence
 
-OpenCore: this Core edition is AGPL-3.0. No Enterprise edition exists.
+OpenCore: this Core edition is AGPL-3.0-or-later. No Enterprise edition exists.

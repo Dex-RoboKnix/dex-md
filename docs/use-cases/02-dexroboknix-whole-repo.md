@@ -4,7 +4,7 @@ provenance: AAC
 
 # Use case 2: DexRoboKnix, one Folio for the whole repo
 
-**Profile.** Dan, owner of DexRoboKnix, a monorepo that holds L1 governance, DexSpine and several L2 products, all pre-1.0. Directory paths do not encode layers, so the repo is hard to read from its folders.
+**Profile.** The owner of DexRoboKnix, a monorepo that holds L1 governance, DexSpine and several L2 products, all pre-1.0. Directory paths do not encode layers, so the repo is hard to read from its folders.
 
 **Folder kind.** In-flight: `.git` and `.scratch` are present.
 
@@ -38,4 +38,4 @@ Stage 3 first sorts anything from an older version or another system (keep, wher
 
 ## What done looks like
 
-One vault with an inventory of every product and its real state, a stall review, one folio, and an issue list. Dan has confirmed the slant. No L2 product is described as shipped.
+One vault with an inventory of every product and its real state, a stall review, one folio, and an issue list. The owner has confirmed the slant. No L2 product is described as shipped.

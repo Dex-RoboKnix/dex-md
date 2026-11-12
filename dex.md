@@ -71,7 +71,7 @@ Each clone is shallow, at the ref below, into the path below. Show the exact com
 |---|---|---|---|---|
 | Stage 2 (always) | `https://github.com/Dex-RoboKnix/dex-md` | `v0.11.1` | `dex-vault/.dex/dex-md/` | `git clone --depth 1 --branch v0.11.1 https://github.com/Dex-RoboKnix/dex-md dex-vault/.dex/dex-md` |
 | Stage 2 (own yes) | `https://github.com/Dex-RoboKnix/dexspine-core` | `fbcd0a89008e87416c5a0bfe6b56524b584b49a8` | `dex-vault/.dex/dexspine/` | `git clone https://github.com/Dex-RoboKnix/dexspine-core dex-vault/.dex/dexspine` then `git -C dex-vault/.dex/dexspine checkout fbcd0a89008e87416c5a0bfe6b56524b584b49a8` |
-| Stage 6b (own yes, only if wanted) | `https://github.com/Dex-RoboKnix/shadowos` | `v0.2.0` | `dex-vault/.shadowos/src/` | `git clone --depth 1 --branch v0.2.0 https://github.com/Dex-RoboKnix/shadowos dex-vault/.shadowos/src` |
+| Stage 6b (own yes, only if wanted) | `https://github.com/Dex-RoboKnix/shadowos` | `v0.2.0` | `dex-vault/.shadowos/src/` | `git clone --depth 1 --branch v0.2.0 https://github.com/Dex-RoboKnix/shadowos dex-vault/.shadowos/src` (private for now; needs a GitHub sign-in with access) |
 
 The Folio files come from dexfolio v0.1.0, vendored inside dex-md (no separate clone).
 

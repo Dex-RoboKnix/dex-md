@@ -13,6 +13,6 @@ Every Dex repo that dex.md uses meets this. It applies to dex-md first, then to 
 5. **Release tags.** `vX.Y.Z`. dex.md pins a tag or a full commit, never a branch.
 6. **No personal or sensitive data.** No personal email, legal matter, journals or chat contents. Run the scan before every push. Commit as the GitHub no-reply address.
 7. **CLAUDE.md.** Short project rules for the agent.
-8. **Licence line.** OpenCore: AGPL-3.0 Core. No Enterprise edition exists.
+8. **Licence line.** OpenCore: AGPL-3.0-or-later Core. No Enterprise edition exists.
 
 Pre-1.0 status is stated where it applies. Human authority (Layer 8) overrides any check here.
