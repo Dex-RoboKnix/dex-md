@@ -1,6 +1,7 @@
 ---
 name: dex-review
 description: Review built work against its FINAL spec, with machine checks and a written verdict that the human agrees or overrules. Use for "dex review", "review the phase", "check the build".
+provenance: AAC
 ---
 
 **Dex review** checks the build against the FINAL spec and its deltas. The vault agent that built the work also reviews it (rule 20), so it says so in the verdict, and the human's verdict is the independent check.

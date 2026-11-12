@@ -1,6 +1,7 @@
 ---
 name: dex-checkpoint
 description: End-of-skill write-back to the vault. The skill does the judgement (the journal, node proposals for the human's yes); the vault tool does the mechanics (coverage, actions, RUNLOG, story chapter, Folio, validation). Called at the end of every dex skill.
+provenance: AAC
 ---
 
 **Dex checkpoint** closes every dex skill, so the vault never goes stale.

@@ -1,6 +1,7 @@
 ---
 name: dex-implement
 description: Build a dex-spec phase by phase, one phase at a time (default) or all phases with one review, finalising the spec after the first slice. Use for "dex implement", "build the spec", "run the phase".
+provenance: AAC
 ---
 
 **Dex implement** builds the spec phase by phase. The vault agent builds alone (rule 20).

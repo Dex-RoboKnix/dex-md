@@ -1,6 +1,7 @@
 ---
 name: dex-loop
 description: Dex loop, step 2 of dex.md. Picks the next logical batch of issues and works it through the skills (grill, spec, implement, review), with a checkpoint after each skill and next actions suggested after each issue closes, until the batch's success criteria are met or the human stops it. Use for "dex loop", "run the loop", or one workload at a time (several at once is dex-sprint).
+provenance: AAC
 ---
 
 **Dex loop** runs step 2 of dex.md: keeping the work going until the slant is achieved. It does not replace the other dex skills. It runs them in order and keeps the human in the loop between them.

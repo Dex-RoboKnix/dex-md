@@ -1,6 +1,7 @@
 ---
 name: dex-sprint
 description: Dex sprint. Runs two or more batches of issues (dex loops) in the same project at once. Each round puts the next questions of every live batch into one popup, up to its limit of four, so several workloads move together. Use for "dex sprint", "run these batches together", or several workloads in one project at the same time.
+provenance: AAC
 ---
 
 **Dex sprint** runs several dex loops side by side. Each batch runs its own loop (pick, grill, spec, implement, review). The sprint gathers their open questions into one popup per round.

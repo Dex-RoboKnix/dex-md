@@ -1,6 +1,7 @@
 ---
 name: dex-spec
 description: Turn settled grill answers into a spec of 5 phases of tracer bullets, as a DRAFT that is finalised after the first implemented slice. Use after dex-grill, or for "dex spec", "write the spec", "turn the grill into tasks".
+provenance: AAC
 ---
 
 **Dex spec** turns the human's settled answers into a spec. Nothing is built here. The vault agent writes it alone.

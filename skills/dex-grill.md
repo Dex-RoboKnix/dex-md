@@ -1,6 +1,7 @@
 ---
 name: dex-grill
 description: Grill the human on one issue or node at a time until it is settled, up to three independent questions per native popup, the human's words kept twice, then (on their yes) post, close and file follow-up issues. By default it picks the most logical open issue itself. Use for "dex grill", "grill me", "work the next issue", or whenever a grilling issue or a node needs the human's answers.
+provenance: AAC
 ---
 
 **Dex grill** works **one issue or node** from the first question to closure, in a live exchange with the human. The vault agent runs it alone: no subagent answers or resolves a grilling.
