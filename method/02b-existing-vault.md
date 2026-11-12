@@ -18,6 +18,7 @@ Read the version in the last row of `RUNLOG.md` and `dex_version` in `00_index.m
    | 0.10.1 | one agent; the six-part promote | withdraw any subagent proposal. If the vault is already used as the working record, offer `dex promote` |
    | 0.11.0 | no SK skill library: Next values route to `dex-grill`, `task`, `research` or `dex-spec`; Stage 3 sorts older versions and other systems; `audit`; document mode; a fixed action Status set | the sort (Stage 3) for every older item; each `SK-` Next value and action converted to a route, shown as a list and applied on a yes; then `audit`, each finding a proposal (sections 5 and 6 below) |
    | 0.11.1 | the Folio plain view: every note also written as static HTML, for viewers that never run scripts (iPhone file previews, in-app browsers) | rebuild the Folio; nothing in the vault changes |
+| 0.11.2 | install needs no GitHub sign-in (dex-md is public); README header; the AGPL-3.0 licence text; provenance on the seven skills | nothing in the vault changes |
 
 2. **Refresh the entry points**, each shown as a diff, each on its own yes:
    - `00_index.md`: `dex_version`, `updated` and the matter in five lines;
