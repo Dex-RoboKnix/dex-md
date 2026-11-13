@@ -13,6 +13,14 @@ The method, engine and skills behind **dex.md**, the one-file installer for Dex.
 
 dex.md holds only the rules, the consent steps and the stage list; at Stage 2 it clones this repo at a pinned tag into `dex-vault/.dex/dex-md/` and installs the engine from it.
 
+## Start
+
+1. Download [`dex.md`](https://raw.githubusercontent.com/Dex-RoboKnix/dex-md/main/dex.md) (one file).
+2. Put it in the project folder you want Dex to work in. An empty folder works too.
+3. Open your coding agent (for example Claude Code) in that folder and say: "Read dex.md and follow it."
+
+The agent asks before every step that changes anything. You need Git and Node.js 18 or later; no GitHub sign-in.
+
 ## Which document do I read?
 
 | You are | Read |
