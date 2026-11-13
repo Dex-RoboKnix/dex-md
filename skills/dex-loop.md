@@ -61,6 +61,8 @@ Offer up to three in one popup, the recommended one first: the next issue in the
 
 ## 4b. A new thought mid-loop
 
+A stopped or closed popup is not a new thought: stop, say in one line which question is held, and wait for the human's word (rule 22).
+
 When the human raises something that is not an answer to the open question:
 
 1. **Hold the place.** Write down the skill, the issue and the open question, and save them:

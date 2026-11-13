@@ -88,7 +88,7 @@ type: dex-index
 title: <short title of the matter>
 matter: <one line>
 slant: <slant name>
-stage: onboarding | skills | built
+stage: <the last stage finished: 2, 3, 4, 4b, 5, 6 or 6b> | built
 mode: vault | single-document
 material: . | ../ | <path relative to this folder>
 home: local | github

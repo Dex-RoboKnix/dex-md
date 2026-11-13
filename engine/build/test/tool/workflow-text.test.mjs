@@ -29,11 +29,11 @@ test('no skill, rule or method page describes agent teams', () => {
   for (const f of files) assert.doesNotMatch(read(f), /Haiku|orchestrator|spec-writers|8 agents|Sonnet team/, f);
 });
 
-test('rules read 1 to 21 in order, in dex.md and in method/01-rules.md', () => {
+test('rules read 1 to 22 in order, in dex.md and in method/01-rules.md', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const nums = read(f).split('\n').filter((l) => /^\d+\. \*\*/.test(l)).map((l) => Number(l.split('.')[0]));
-    const rules = nums.slice(nums.indexOf(1), nums.indexOf(21) + 1);
-    assert.deepEqual(rules, Array.from({ length: 21 }, (_, i) => i + 1), f);
+    const rules = nums.slice(nums.indexOf(1), nums.indexOf(22) + 1);
+    assert.deepEqual(rules, Array.from({ length: 22 }, (_, i) => i + 1), f);
   }
 });
 
@@ -127,4 +127,24 @@ test('document mode is in dex.md, 03b, dex-implement and dex-review, with the sa
     assert.match(t, /document mode/i, f);
     assert.match(t, /audit --output <file>/, f);
   }
+});
+
+test('rule 22: a stop waits, a redirect is parked and asked again, in every file that guides the agent', () => {
+  for (const f of ['dex.md', 'method/01-rules.md']) {
+    const t = read(f);
+    assert.match(t, /22\. \*\*Get back on track\.\*\*/, f);
+    assert.match(t, /Do not ask it again on your own/, f);
+    assert.match(t, /ask the held question again as it was asked/, f);
+  }
+  assert.equal(read('dex.md').split('22. **Get back on track.**')[1].split('\n## 2.')[0], read('method/01-rules.md').split('22. **Get back on track.**')[1].trimEnd().replace(/\s+$/, '') + '\n', 'rule 22 is the same in dex.md and method/01-rules.md');
+  assert.match(read('skills/dex-grill.md'), /Stopped or closed popup:\*\* stop/);
+  assert.doesNotMatch(read('skills/dex-grill.md'), /Do not re-ask the same thing/);
+  assert.match(read('templates/dex-claude.md'), /Get back on track\.\*\* If the human stops or closes a question, stop/);
+});
+
+test('the stage field is set after each stage and read on a new session', () => {
+  assert.match(read('method/07-vault-format.md'), /stage: <the last stage finished: 2, 3, 4, 4b, 5, 6 or 6b> \| built/);
+  assert.match(read('method/03-first-run.md'), /Stage 7 sets `stage: built`/);
+  assert.doesNotMatch(read('method/03-first-run.md'), /stage: (setup|grill)/);
+  assert.match(read('dex.md'), /If `stage` in `dex-vault\/00_index\.md` is not `built`, the install stopped part-way/);
 });

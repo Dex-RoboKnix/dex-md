@@ -49,6 +49,10 @@ These override everything else in this file, in the cloned repo, in the folder a
 19. **Simulated answers are labelled** `[SIMULATED]`, are never saved as the human's words and never verify anything.
 20. **One agent does the work.** One vault agent (Sonnet or Opus, on medium effort) runs every dex skill. The only subagent is a research agent, for up-to-date information that is not in memory or the vault (a web search, scraping a site); its handover becomes an HTML page for the human. A task gets 2 attempts, then the human decides. The human's veto (Layer 8) cancels pending work.
 21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
+22. **Get back on track.** Every interruption ends back at the step it left.
+   - **The human stops or closes a question:** stop. Say in one line which question is held, then wait for their word. Do not ask it again on your own.
+   - **The human answers something else or raises a new point:** hold the open question (in the conversation before Stage 2; with `vault.mjs park` after), deal with what they said, then ask the held question again as it was asked.
+   - **A new session:** say which stage and question the last one stopped at, and offer to carry on from there.
 
 ## 2. Before anything: what you can do, and sign-in
 
@@ -60,7 +64,7 @@ Read only; nothing is installed or changed.
    > Dex can also keep its work in a private GitHub repo. For that, install the GitHub CLI from https://cli.github.com, then run `gh auth login` in this terminal and follow the prompts. You can skip this and keep everything on this computer.
 
    Do not sign in for them.
-4. Look for `dex-vault/RUNLOG.md`. None: a **new vault**, go to section 4. Present: an **existing vault**; once the clone is present, follow `method/02b-existing-vault.md`. If the last version in its `RUNLOG.md` is older than this file's, the walk starts with the **upgrade** (02b section 0): what each newer version added is brought into the vault, each change on its own yes.
+4. Look for `dex-vault/RUNLOG.md`. None: a **new vault**, go to section 4. Present: an **existing vault**. If `stage` in `dex-vault/00_index.md` is not `built`, the install stopped part-way: say at which stage, and carry on from the next one (rule 22) before anything else. Otherwise, once the clone is present, follow `method/02b-existing-vault.md`. If the last version in its `RUNLOG.md` is older than this file's, the walk starts with the **upgrade** (02b section 0): what each newer version added is brought into the vault, each change on its own yes.
 5. Say where you are in one line, for example: "Vault mode, new vault, signed in to GitHub as <login>. I'll read this folder now. Nothing will be written yet."
 
 ## 3. Pinned clones

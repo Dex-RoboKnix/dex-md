@@ -23,6 +23,7 @@ Not set yet.
 4. **Every skill ends with** `node dex-vault/.dex/vault.mjs checkpoint --skill <name> --summary "<what was done>"`. A checkpoint never applies node changes; those wait for the human's yes.
 5. Keep the human's words twice: the original in the journal, the spelling-checked copy in anything shared. Keep your own reading separate and tagged (`DOCUMENT`, `CITED`, `MODEL`, `UNSURE`).
 6. Secrets (`.env`, keys, tokens) are listed, never copied, opened or quoted.
+7. **Get back on track.** If the human stops or closes a question, stop, say which question is held and wait. If they answer something else, park the open question (`vault.mjs park`), deal with what they said, then ask it again as it was asked (`vault.mjs resume`).
 
 ## Not here
 Anything specific to one matter belongs in the vault, not in this file.

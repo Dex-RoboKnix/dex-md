@@ -4,6 +4,13 @@ provenance: AAC
 
 # Changelog
 
+## Unreleased (0.11.3)
+
+- **Get back on track (rule 22).** A stopped or closed question means stop, say what is held and wait. An answer to something else parks the open question, deals with the new point, then asks the held question again as it was asked. The rule is in dex.md, `method/01-rules.md`, dex-grill, dex-loop and the CLAUDE.md template.
+- **An install that stopped part-way carries on.** `stage` in `00_index.md` records the last stage finished (`2` to `6b`, then `built`). A new session reads it and offers to carry on from the next stage.
+- **Rules mirror.** `method/01-rules.md` rules 2 and 3 now match dex.md (the Stage 4b exception and the pinned clones).
+- **README.** A Start section: the download link, where to put the file, what to say, and what is needed.
+
 ## 0.11.2 (2026-11-12)
 
 - **Install needs no GitHub sign-in.** dex-md is public, so the pinned clones in dex.md section 3 need no sign-in. A sign-in is needed only for the private-repo option (Stage 1b) and for ShadowOS (Stage 6b, a private repo for now).

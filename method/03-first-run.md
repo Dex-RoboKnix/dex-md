@@ -5,7 +5,7 @@ source: dex.md 0.9 section 3
 
 ## 3. First run
 
-Run the stages in order. Nothing is written before Stage 2.
+Run the stages in order. Nothing is written before Stage 2. At the end of each stage from Stage 2 on, set `stage:` in `00_index.md` to that stage (`2`, `3`, `4`, `4b`, `5`, `6`, `6b`); Stage 7 sets `stage: built`. A later session reads it to carry on where this one stopped (rule 22).
 
 ### Stage 1. Review the area and give the overview (read only)
 
@@ -72,7 +72,7 @@ Record the choice in `00_index.md` as `home: local | github`. The repo commands 
 
 ### Stage 3. Sort what is here, then grill the gaps
 
-Most of Step 1 is asking. Set `stage: setup` in `00_index.md`.
+Most of Step 1 is asking.
 
 **1. Sort.** List everything in the folder that belongs to an older version of Dex or to another system. Look for:
 - an old vault (`mof/`, flat layer files, an earlier `dex-vault/`);
@@ -91,7 +91,7 @@ Write each item as a row in `05_actions/onboarding.md` (the setup list, section 
 
 Apply each choice inside `dex-vault/` on its own yes. A choice that touches the human's own files (move, rename, delete) is never done by Dex: it becomes one clean-up issue in `05_actions/actions.md` (rule 16), worked later by an agent pointed at the project. Record every choice and its status in the setup list.
 
-**2. Grill the gaps.** Set `stage: grill`. Run `dex-grill` on the weakest nodes, using the question angles in section 5. Ask one question at a time, give your suggested answer from the files and wait.
+**2. Grill the gaps.** Run `dex-grill` on the weakest nodes, using the question angles in section 5. Ask one question at a time, give your suggested answer from the files and wait.
 - **Two channels.** An answer to a question you asked is co-produced: save it verbatim in `06_journal/answers/` with the question (channel `answer`). Anything the human says that was not an answer to your question is raw human input: save it verbatim in `06_journal/raw/` (channel `raw`, provenance `PHC`) and run it through the spine at build time. You make the call on which is which. If you are unsure, ask.
 - Angle outputs (inventories, timelines, maps) go in `05_actions/work/`.
 - After each round give a three-line summary: what was learned, what is still open, what comes next. Fold and rebuild the Folio.

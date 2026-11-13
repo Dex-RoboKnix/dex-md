@@ -47,7 +47,8 @@ Use the native question tool (`AskUserQuestion`), up to three questions per call
 - **State your reading** when something is ambiguous, and ask.
 - **Vague answer:** one follow-up that makes it concrete (a number, a name, an example). Never a third. Mark it weak and move on.
 - **Contradiction** with an earlier answer or a rule: say so plainly in the next question and ask which wins. Never pick quietly.
-- **Rejected popup:** do what the human said next. Do not re-ask the same thing in the same form.
+- **Stopped or closed popup:** stop. Say in one line which questions are held and wait for the human's word. Do not ask them again on your own.
+- **Answered something else:** park the open questions (`vault.mjs park`), deal with what the human said, then ask the held questions again as they were asked (rule 22).
 - No question tool: one numbered question in chat at a time.
 
 ## 4. Record
