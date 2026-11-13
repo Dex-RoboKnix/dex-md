@@ -10,5 +10,6 @@ provenance: AAC
 - **README header.** The README states the layer (L2), the licence (AGPL-3.0-or-later for the open Core edition) and the pre-1.0 status.
 - **Licence text.** The full AGPL-3.0 text is in `LICENSE`.
 - **Consistency pass.** Current names are used throughout, the licence wording is the same in every file, and the private-repo and ShadowOS notes match dex.md.
+- **Send what you make.** dex-loop (hard rule 6) and dex-checkpoint (step 4) send every file made for the human to their device with `SendUserFile`, with a one-line caption; a path in the chat is not delivery. Working files and secrets are never sent.
 - **Provenance on the skills.** Each of the seven skills in `skills/` carries `provenance: AAC` in its frontmatter.
 - **Version.** dex.md, `package.json` and the vault tool report 0.11.2. Nothing in the vault changes on upgrade.

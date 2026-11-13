@@ -13,6 +13,7 @@ provenance: AAC
 3. **The human's words are kept twice** (rule 12): the original in the journal, the spelling-checked copy in anything shared. Your reading goes on a separate line.
 4. **One agent** (rule 20). You run every skill yourself. A research agent runs only for up-to-date outside information (a web search, scraping a site), and you turn its handover into an HTML page for the human.
 5. **Tag claims** `DOCUMENT`, `CITED`, `MODEL` or `UNSURE`. Only the human verifies.
+6. **Send what you make.** The human may be on a phone and sees only what is sent to them. In every skill the loop runs (dex-grill, dex-spec, dex-implement, dex-review, dex-checkpoint), each file made for the human is sent to their device with the `SendUserFile` tool as soon as it exists, with a one-line caption saying what it is and what to check: a draft, a spec, a review verdict, a research page, an image, audio, video, a build. A path in the chat is not delivery. Do not send working files (scripts, logs, intermediate renders), and send a file again only when it has meaningfully changed. If the tool is not available, say so and give the full path. Sending to the human's own device is not an outward action and needs no yes; secrets and gitignore-class files are still never sent.
 
 ## The loop
 
@@ -52,7 +53,7 @@ With no issue tracker (a private vault), the issues are the rows of `dex-vault/0
 
 ## 3. Checkpoint after every skill
 
-Run dex-checkpoint. Propose node changes; never apply them. Report what shipped since the last checkpoint, not only coverage.
+Run dex-checkpoint. Propose node changes; never apply them. Report what shipped since the last checkpoint, not only coverage. The checkpoint also confirms that everything made since the last one was sent to the human (hard rule 6), and sends what was missed.
 
 ## 4. When an issue closes: next actions
 
