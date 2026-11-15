@@ -101,9 +101,28 @@ Readable: each issue is asked about, planned, built and checked, and every step 
 - Not a swarm of agents: one agent does the work; a research agent fetches only up-to-date outside information.
 - Not professional advice: in legal, medical or financial matters it maps and describes, and points to the adviser.
 
+## Words you will see
+
+| Word | Meaning |
+|---|---|
+| **Vault** | `dex-vault/`: everything Dex knows about the matter, kept as plain files next to this one. |
+| **Node** | One small note in the vault that answers one question, for example "what does success look like?" |
+| **DexSpine** | The shape of the vault: six layers (Values, Principles, Policy, Process, Procedure, Pattern), each with plan and execute nodes. |
+| **DEX838** | The one-line instruction format every node and work file carries, checked before the agent acts on it. |
+| **Slant** | What this vault is for, in one line, confirmed by you. All the work serves it. |
+| **Grill** | Questions to you, a few at a time, until a point is settled. Your answers are the only source of decisions. |
+| **Checkpoint** | The write-back at the end of every skill: journal, coverage, the run log, the story and the Folio. |
+| **Held question** | A question asked and not yet answered, kept in the vault until you answer it. |
+| **Layer 8** | You. Your decision overrides any agent, check or default. |
+
 ## Where it is going
 
-Dex is pre-1.0. Being built now, and not in this version until it is released: questions held in the vault so they outlive a session (built), an answer given later from your phone, as a comment on the issue, picking the work back up (next), and timers for follow-ups with a quiet, one-digest-a-day outbox.
+Dex is pre-1.0. Being built now, and not in this version until it is released, so that the agent keeps working well when you are away and answers reach it from wherever you are:
+
+- **Questions that outlive a session.** A held question is a file in the vault, so it travels with the vault repo (built).
+- **Answers from anywhere.** Answer a held question as a comment on the issue, from your phone; the next session picks the work back up from it (next).
+- **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice.
+- **The away-for-a-week test.** A list of what stalls when you are not there, and how each is fixed.
 
 ## Start
 
