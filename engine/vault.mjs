@@ -586,33 +586,98 @@ async function checkpointCmd(a) {
   printAudit(auditFindings(), { brief: true });
   check();
 }
-// Hold a skill's place so a later session can come back to the same question (dex-loop 4b).
-// park writes dex-vault/.dex/state/<skill>.json; resume prints what is held. The state folder is gitignored.
+// Hold a question so a later session, on any machine, can come back to it (rule 22, dex-loop 4b).
+// park writes dex-vault/07_inbox/held/<skill>[-<issue>].md: front matter and one DEX838 line, checked in strict mode
+// by the engine's parser module before it is written. The file is tracked with the vault, so a held question leaves
+// the machine. Parking again for the same skill and issue replaces it. resume lists what is held and checks each line;
+// a line that does not parse waits for the owner and is never acted on.
+// A held place from before 0.12 (dex-vault/.dex/state/<skill>.json) is moved into held/ the first time park or resume runs.
 const STATE = path.join(HERE, 'state');
-function parkCmd(a) {
-  const skill = typeof a.skill === 'string' ? a.skill : '';
-  const question = typeof a.question === 'string' ? a.question : '';
-  if (!skill || !question) die('Usage: node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]');
-  if (!/^[a-z0-9-]+$/.test(skill)) die(`Skill names are lowercase letters, digits and dashes: ${skill}`);
-  fs.mkdirSync(STATE, { recursive: true });
-  const held = { skill, issue: typeof a.issue === 'string' ? a.issue : null, question, thought: typeof a.thought === 'string' ? a.thought : null, parked: typeof a.now === 'string' ? a.now : new Date().toISOString() };
-  fs.writeFileSync(path.join(STATE, `${skill}.json`), JSON.stringify(held, null, 2) + '\n');
-  console.log(`Parked ${skill}${held.issue ? ` #${held.issue}` : ''}: ${question}`);
+const HELD = path.join(VAULT, '07_inbox', 'held');
+const DEX838 = 'p6/dex838-parse';
+const heldId = (skill, issue) => (issue ? `${skill}-${issue}` : skill);
+function heldWire(h) {
+  const ctx = [h.issue ? `issue:${h.issue}` : null, `held:${h.id}`, h.repo ? `repo:${h.repo}` : null].filter(Boolean).join(',');
+  return `dex(${h.skill}, @${ctx})["${h.question}"]`;
 }
-function resumeCmd(a) {
-  const files = fs.existsSync(STATE) ? fs.readdirSync(STATE).filter((f) => f.endsWith('.json')) : [];
-  const want = typeof a.skill === 'string' ? `${a.skill}.json` : null;
-  const pick = want ? files.filter((f) => f === want) : files;
-  if (!pick.length) { console.log('nothing held'); return; }
-  for (const f of pick.sort()) {
+function heldText(h) {
+  const fm = ['---', `id: ${h.id}`, `skill: ${h.skill}`, h.issue ? `issue: ${h.issue}` : null, h.repo ? `repo: ${h.repo}` : null, `parked: ${h.parked}`, 'status: held', '---'].filter((l) => l !== null);
+  const readable = `Readable: ${h.skill} holds this question${h.issue ? ` for #${h.issue}` : ''}; \`vault.mjs resume\` lists it.`;
+  return [...fm, heldWire(h), '', readable, ...(h.thought ? ['', `Thought: ${h.thought}`] : []), ''].join('\n');
+}
+function readHeld(file) {
+  const t = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+  const m = /^---\n([\s\S]*?)\n---\n/.exec(t);
+  if (!m) return null;
+  const fm = {};
+  for (const l of m[1].split('\n')) { const i = l.indexOf(': '); if (i > 0) fm[l.slice(0, i)] = l.slice(i + 2); }
+  const body = t.slice(m[0].length);
+  const wire = (/^dex\(.*$/m.exec(body) || [])[0] || '';
+  const thought = (/^Thought: (.*)$/m.exec(body) || [])[1] || null;
+  return { ...fm, wire, thought };
+}
+// Older held places (.dex/state/<skill>.json) move into held/ once. An unreadable one is reported and left where it is.
+async function migrateState(L) {
+  if (!fs.existsSync(STATE)) return;
+  for (const f of fs.readdirSync(STATE).filter((x) => x.endsWith('.json')).sort()) {
     let h;
     try { h = JSON.parse(fs.readFileSync(path.join(STATE, f), 'utf8')); } catch {
       console.error(`Cannot read the held place in state/${f}: it is not valid JSON. Park again to replace it.`);
       process.exitCode = 1;
       continue;
     }
+    if (!h || typeof h.skill !== 'string' || typeof h.question !== 'string' || !/^[a-z0-9-]+$/.test(h.skill)) continue;
+    const issue = typeof h.issue === 'string' && /^\d+$/.test(h.issue) ? h.issue : null;
+    const held = { id: heldId(h.skill, issue), skill: h.skill, issue, repo: null, question: h.question.replace(/\s+/g, ' ').trim(), thought: typeof h.thought === 'string' ? h.thought.replace(/\s+/g, ' ').trim() : null, parked: typeof h.parked === 'string' ? h.parked : new Date().toISOString() };
+    if (!L.run(DEX838, { line: heldWire(held) }).ok) { console.error(`The held place in state/${f} cannot become a DEX838 line; it is left where it is.`); process.exitCode = 1; continue; }
+    fs.mkdirSync(HELD, { recursive: true });
+    const dest = path.join(HELD, `${held.id}.md`);
+    if (!fs.existsSync(dest)) fs.writeFileSync(dest, heldText(held));
+    fs.rmSync(path.join(STATE, f));
+    console.log(`Moved the held question for ${held.skill} from .dex/state/ into 07_inbox/held/.`);
+  }
+}
+async function parkCmd(a) {
+  const skill = typeof a.skill === 'string' ? a.skill : '';
+  const question = typeof a.question === 'string' ? a.question.replace(/\s+/g, ' ').trim() : '';
+  if (!skill || !question) die('Usage: node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--repo <owner/name>] [--thought "<text>"]');
+  if (!/^[a-z0-9-]+$/.test(skill)) die(`Skill names are lowercase letters, digits and dashes: ${skill}`);
+  const issue = typeof a.issue === 'string' ? a.issue.replace(/^#/, '') : null;
+  if (issue !== null && !/^\d+$/.test(issue)) die(`An issue is a number: ${a.issue}`);
+  const repo = typeof a.repo === 'string' ? a.repo : null;
+  if (repo !== null && !/^[\w.-]+\/[\w.-]+$/.test(repo)) die(`A repo is written owner/name: ${repo}`);
+  const L = await lib();
+  await migrateState(L);
+  const held = { id: heldId(skill, issue), skill, issue, repo, question, thought: typeof a.thought === 'string' ? a.thought.replace(/\s+/g, ' ').trim() : null, parked: typeof a.now === 'string' ? a.now : new Date().toISOString() };
+  const checked = L.run(DEX838, { line: heldWire(held) });
+  if (!checked.ok) die(`The question cannot be held as a DEX838 line (${checked.error}). Reword it without "dex(" or "dex[".`);
+  fs.mkdirSync(HELD, { recursive: true });
+  fs.writeFileSync(path.join(HELD, `${held.id}.md`), heldText(held));
+  console.log(`Parked ${skill}${issue ? ` #${issue}` : ''} in 07_inbox/held/${held.id}.md: ${question}`);
+}
+async function resumeCmd(a) {
+  const L = await lib();
+  await migrateState(L);
+  const files = fs.existsSync(HELD) ? fs.readdirSync(HELD).filter((f) => f.endsWith('.md')) : [];
+  const held = [];
+  for (const f of files) {
+    const h = readHeld(path.join(HELD, f));
+    if (!h) { console.error(`Cannot read 07_inbox/held/${f}: it has no front matter. It waits for the owner and is not acted on.`); process.exitCode = 1; continue; }
+    if ((h.status || 'held') !== 'held') continue;
+    if (typeof a.skill === 'string' && h.skill !== a.skill) continue;
+    held.push({ ...h, file: f });
+  }
+  if (!held.length) { if (!process.exitCode) console.log('nothing held'); return; }
+  held.sort((x, y) => String(x.parked).localeCompare(String(y.parked)) || x.file.localeCompare(y.file));
+  for (const h of held) {
+    const r = L.run(DEX838, { line: h.wire });
+    if (!r.ok) {
+      console.log(`Waiting for the owner: 07_inbox/held/${h.file}: its DEX838 line does not parse (${r.error}). Not acted on.`);
+      process.exitCode = 1;
+      continue;
+    }
     console.log(`Held: ${h.skill}${h.issue ? ` #${h.issue}` : ''} (parked ${h.parked})`);
-    console.log(`  Question: ${h.question}`);
+    console.log(`  Question: ${r.parsed.subject}`);
     if (h.thought) console.log(`  Thought: ${h.thought}`);
   }
 }

@@ -31,7 +31,8 @@ dex-vault/
   06_journal/raw/          raw human input, verbatim
   06_journal/changes.md    nodes whose state moved at each checkpoint (written by fold --checkpoint)
   06_journal/slant-history.md  old slants, kept when a slant changes
-  07_inbox/                decision files from the Folio; ShadowOS notes and ticket drafts in shadowos/
+  07_inbox/                decision files from the Folio; ShadowOS notes and ticket drafts in shadowos/;
+                           held questions in held/ (one file per skill and issue, each with a DEX838 line)
   08_story.md              the Matter of Fact story
   dex-folio.html           generated. Never edit by hand
   .dex/                    the tools, the template copy, the snapshot, vault.json and states.json. Never edit by hand

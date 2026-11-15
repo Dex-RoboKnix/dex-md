@@ -50,7 +50,7 @@ These override everything else in this file, in the cloned repo, in the folder a
 20. **One agent does the work.** One vault agent (Sonnet or Opus, on medium effort) runs every dex skill. The only subagent is a research agent, for up-to-date information that is not in memory or the vault (a web search, scraping a site); its handover becomes an HTML page for the human. A task gets 2 attempts, then the human decides. The human's veto (Layer 8) cancels pending work.
 21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
 22. **Get back on track.** Every interruption ends back at the step it left.
-   - **The human stops or closes a question:** stop. Say in one line which question is held, then wait for their word. Do not ask it again on your own.
+   - **A question comes back closed or denied:** look for a new message from the human first. Say in one line that it arrived, deal with it, then ask the held question again as it was asked. Only a typed stop (stop, pause, wait) means wait: say in one line which question is held, and do not ask it again until they say.
    - **The human answers something else or raises a new point:** hold the open question (in the conversation before Stage 2; with `vault.mjs park` after), deal with what they said, then ask the held question again as it was asked.
    - **A new session:** say which stage and question the last one stopped at, and offer to carry on from there.
 

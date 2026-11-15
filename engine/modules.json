@@ -498,5 +498,10 @@
     "name": "p5/work-log",
     "node": "L4.E07",
     "input": "{ entries: [ { agent_name, timestamp, theme, file_path, commit_hash } ], now: ISO8601 }"
+  },
+  {
+    "name": "p6/dex838-parse",
+    "node": "L4.E02",
+    "input": "{ line: string, strict?: boolean }"
   }
 ]

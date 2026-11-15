@@ -129,17 +129,26 @@ test('document mode is in dex.md, 03b, dex-implement and dex-review, with the sa
   }
 });
 
-test('rule 22: a stop waits, a redirect is parked and asked again, in every file that guides the agent', () => {
+test('rule 22: a closed question is asked again once the new message is handled; only a typed stop waits, in every file that guides the agent', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const t = read(f);
     assert.match(t, /22\. \*\*Get back on track\.\*\*/, f);
-    assert.match(t, /Do not ask it again on your own/, f);
+    assert.match(t, /A question comes back closed or denied:\*\* look for a new message from the human first/, f);
+    assert.match(t, /Only a typed stop \(stop, pause, wait\) means wait/, f);
     assert.match(t, /ask the held question again as it was asked/, f);
+    assert.doesNotMatch(t, /Do not ask it again on your own/, f);
   }
   assert.equal(read('dex.md').split('22. **Get back on track.**')[1].split('\n## 2.')[0], read('method/01-rules.md').split('22. **Get back on track.**')[1].trimEnd().replace(/\s+$/, '') + '\n', 'rule 22 is the same in dex.md and method/01-rules.md');
-  assert.match(read('skills/dex-grill.md'), /Stopped or closed popup:\*\* stop/);
-  assert.doesNotMatch(read('skills/dex-grill.md'), /Do not re-ask the same thing/);
-  assert.match(read('templates/dex-claude.md'), /Get back on track\.\*\* If the human stops or closes a question, stop/);
+  assert.match(read('skills/dex-grill.md'), /Closed or denied popup:\*\* look for a new message from the human/);
+  assert.match(read('skills/dex-loop.md'), /A closed or denied popup is not a new thought/);
+  assert.doesNotMatch(read('skills/dex-grill.md'), /Do not re-ask the same thing|Do not ask them again on your own/);
+  assert.match(read('templates/dex-claude.md'), /Get back on track\.\*\* If a question comes back closed or denied, deal with any new message from the human/);
+});
+
+test('held questions live in 07_inbox/held, which the vault format and the upgrade table describe', () => {
+  assert.match(read('method/07-vault-format.md'), /held questions in held\/ \(one file per skill and issue, each with a DEX838 line\)/);
+  assert.match(read('method/02b-existing-vault.md'), /held questions are tracked files in `07_inbox\/held\/`/);
+  assert.doesNotMatch(read('dex.md'), /07_inbox\/held\/?[^\n]*gitignore/);
 });
 
 test('the stage field is set after each stage and read on a new session', () => {

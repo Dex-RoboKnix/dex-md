@@ -4,6 +4,12 @@ provenance: AAC
 
 # Changelog
 
+## Unreleased
+
+- **Held questions leave the machine.** `park` writes `07_inbox/held/<skill>[-<issue>].md`, tracked with the vault, with one DEX838 line checked in strict mode before it is written. Several questions can be held at once; `resume` lists them oldest first, and a line that does not parse waits for the owner and is never acted on. An old `.dex/state/<skill>.json` moves across on the first `park` or `resume`.
+- **The DEX838 parser is an engine module** (`p6/dex838-parse`), built by `tools/make-dex838.mjs` from the published dexspine-core parser at a pinned commit; a test checks the copy against that commit.
+- **Rule 22.** A question that comes back closed or denied is asked again once the human's new message is handled. Only a typed stop means wait.
+
 ## 0.11.3 (2026-11-13)
 
 - **Get back on track (rule 22).** A stopped or closed question means stop, say what is held and wait. An answer to something else parks the open question, deals with the new point, then asks the held question again as it was asked. The rule is in dex.md, `method/01-rules.md`, dex-grill, dex-loop and the CLAUDE.md template.
