@@ -8,7 +8,8 @@ provenance: AAC
 
 - **Held questions leave the machine.** `park` writes `07_inbox/held/<skill>[-<issue>].md`, tracked with the vault, with one DEX838 line checked in strict mode before it is written. Several questions can be held at once; `resume` lists them oldest first, and a line that does not parse waits for the owner and is never acted on. An old `.dex/state/<skill>.json` moves across on the first `park` or `resume`.
 - **The DEX838 parser is an engine module** (`p6/dex838-parse`), built by `tools/make-dex838.mjs` from the published dexspine-core parser at a pinned commit; a test checks the copy against that commit.
-- **Rule 22.** A question that comes back closed or denied is asked again once the human's new message is handled. Only a typed stop means wait.
+- **Rule 22.** Every interruption is an addition, never a stop. A question that comes back closed or denied does not stall the work: the agreed work carries on with the recommended option and the question stays held to confirm; outward steps still wait for their own yes. Only a typed stop means wait.
+- **An opening for people.** dex.md now opens with what Dex is, who it is for, the problems it solves, what you get, a first session and how it works best, above the rules.
 
 ## 0.11.3 (2026-11-13)
 

@@ -129,20 +129,34 @@ test('document mode is in dex.md, 03b, dex-implement and dex-review, with the sa
   }
 });
 
-test('rule 22: a closed question is asked again once the new message is handled; only a typed stop waits, in every file that guides the agent', () => {
+test('rule 22: every interruption is an addition; a closed question never stalls the agreed work; only a typed stop waits, in every file that guides the agent', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const t = read(f);
     assert.match(t, /22\. \*\*Get back on track\.\*\*/, f);
-    assert.match(t, /A question comes back closed or denied:\*\* look for a new message from the human first/, f);
+    assert.match(t, /Every interruption is an addition, never a stop/, f);
+    assert.match(t, /A question comes back closed or denied:\*\* deal with any new message from the human, carry on with the recommended option wherever the work is already agreed/, f);
+    assert.match(t, /Anything outward still waits for its own yes \(rule 17\)/, f);
     assert.match(t, /Only a typed stop \(stop, pause, wait\) means wait/, f);
     assert.match(t, /ask the held question again as it was asked/, f);
     assert.doesNotMatch(t, /Do not ask it again on your own/, f);
   }
   assert.equal(read('dex.md').split('22. **Get back on track.**')[1].split('\n## 2.')[0], read('method/01-rules.md').split('22. **Get back on track.**')[1].trimEnd().replace(/\s+$/, '') + '\n', 'rule 22 is the same in dex.md and method/01-rules.md');
-  assert.match(read('skills/dex-grill.md'), /Closed or denied popup:\*\* look for a new message from the human/);
-  assert.match(read('skills/dex-loop.md'), /A closed or denied popup is not a new thought/);
+  assert.match(read('skills/dex-grill.md'), /Closed or denied popup:\*\* an addition, never a stop/);
+  assert.match(read('skills/dex-loop.md'), /A closed or denied popup is an addition, not a stop/);
   assert.doesNotMatch(read('skills/dex-grill.md'), /Do not re-ask the same thing|Do not ask them again on your own/);
-  assert.match(read('templates/dex-claude.md'), /Get back on track\.\*\* If a question comes back closed or denied, deal with any new message from the human/);
+  assert.match(read('templates/dex-claude.md'), /Get back on track\.\*\* Every interruption is an addition\. If a question comes back closed or denied/);
+});
+
+test('dex.md opens with an explanation for people, above the rules, and tells the agent where its instructions start', () => {
+  const d = read('dex.md').replace(/\r\n/g, '\n');
+  const rules = d.indexOf('\n## 1. Rules');
+  assert.ok(rules > 0);
+  const opening = d.slice(0, rules);
+  for (const h of ['## What Dex is', '## Who it is for', '## What problems it solves', '## What you get', '## A first session', '## How it works', '## How it works best', '## What it is not', '## Where it is going', '## Start']) assert.ok(opening.includes('\n' + h + '\n'), h);
+  assert.match(opening, /\*\*Agent:\*\* this opening part explains Dex to people\. Your instructions start at section 1, Rules\./);
+  const lines = opening.split('\n').length;
+  assert.ok(lines >= 100 && lines <= 140, `opening is ${lines} lines`);
+  assert.ok(d.split('\n').length <= 300, 'dex.md stays at or under 300 lines');
 });
 
 test('held questions live in 07_inbox/held, which the vault format and the upgrade table describe', () => {

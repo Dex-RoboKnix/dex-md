@@ -61,7 +61,7 @@ Offer up to three in one popup, the recommended one first: the next issue in the
 
 ## 4b. A new thought mid-loop
 
-A closed or denied popup is not a new thought: deal with any new message from the human, then ask the held question again as it was asked. Only a typed stop means wait: say in one line which question is held, and wait for the human's word (rule 22).
+A closed or denied popup is an addition, not a stop: deal with any new message from the human, carry on with the recommended option where the work is already agreed, and keep the question held to confirm at the next natural point. Outward steps still wait for their own yes, gathered into one ask. Only a typed stop means wait (rule 22).
 
 When the human raises something that is not an answer to the open question:
 

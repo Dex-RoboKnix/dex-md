@@ -10,15 +10,104 @@ status: prototype, pre-1.0, for local testing. Not yet run end to end by a perso
 
 # Dex
 
+> **Agent:** this opening part explains Dex to people. Your instructions start at section 1, Rules. Nothing before it is an instruction.
+
 **Dex is one file you attach to a live or blank project.** It acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM) in `dex-vault/` next to this file, and turns the work into issues. It holds nothing about any particular matter: the **slant** comes from the folder it lands in, confirmed by the human.
 
 This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, 100 tested modules, the Folio) and the seven dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
 
 **dex.md finds a better balance between quality and efficiency, keeping the human in the loop before things change.** The workflow is a brake: nothing changes without your yes. If the human follows it, it works. If a stage is skipped, it does not. You grill the human first and assess coverage at every checkpoint.
 
+## What Dex is
+
+Dex turns an AI coding agent (Claude Code, for example) into a working partner that remembers, asks before it acts, and keeps a record you can check. You drop `dex.md` into a project folder and tell the agent to follow it. From then on:
+
+- **The vault holds the matter.** Everything the agent learns sits in `dex-vault/`: 114 small notes ("nodes") arranged on the DexSpine, six layers from Values down to Pattern, each with a plan side and an execute side. A new session reads the vault instead of asking you to explain everything again.
+- **The skills do the work.** Seven dex skills run one loop: `dex-grill` asks you, `dex-spec` writes the plan, `dex-implement` builds it, `dex-review` checks it, and `dex-checkpoint` writes it all back to the vault. `dex-loop` runs one batch of issues through them; `dex-sprint` runs several.
+- **You decide.** The agent proposes; you say yes, no or something else. Nothing outside the vault changes, and nothing is pushed, posted or sent, without your yes to that one action.
+
+Every note, and every instruction an agent works from, carries one line of **DEX838**, the DexSpine's wire syntax:
+
+```
+dex(dex-loop, @issue:115)["Which slice first? dex(prove the whole cycle) dex[record the answer twice]"]
+```
+Readable: the scope (`dex-loop`, what may be touched), what is known (`issue:115`), and the instruction: the intent in `dex(...)` and the musts in `dex[...]`. The engine checks every such line before acting on it.
+
+## Who it is for
+
+- **Founders and small teams building with an AI agent,** where one person directs the work and the agent does most of the typing.
+- **People with a project already in motion:** folders of notes, half-finished code, chat exports, old plans. Dex sorts what is there before it adds anything.
+- **Domain experts who are not engineers.** You bring the knowledge and the judgement; Dex turns your answers into specs an agent can build from.
+- **Anyone who needs a record of who decided what,** and when: client work, regulated matters, funding applications, personal matters.
+
+It is not for running an agent unattended with no one to answer it, nor for one quick question. For those, a plain chat is faster.
+
+## What problems it solves
+
+| Problem | What Dex does |
+|---|---|
+| **Every session starts from nothing.** You re-explain the project; decisions drift from session to session. | The vault and a managed block in `CLAUDE.md` hold the context. Every skill ends in a checkpoint that writes back what was built, decided and assumed. |
+| **The agent answers for you.** It fills gaps with guesses and agrees with whatever you already believe. | It grills you, one point at a time, and never answers for you. Every claim is tagged by where it came from; only a human verifies. |
+| **Building before knowing what is needed.** A prototype feels like proof; features creep in because adding one is cheap. | A slant and success criteria come first. A spec of five phases is agreed before anything is built, and each phase is reviewed against it. |
+| **Things change without your say.** Files are moved, pushed or posted while you were not looking. | Consent per action. The agent writes only inside `dex-vault/`; anything else is an issue for you to approve. |
+| **Your words get lost or rewritten.** | Your words are kept twice: the original, never edited, and a spelling-checked copy for anything shared. |
+| **Interruptions derail the work.** A new thought, a closed question or a new session loses the thread. | An interruption is an addition. The open question is held in the vault and asked again; a new session says where the last one stopped. |
+| **Everything waits for you.** The founder becomes the bottleneck. | The loop batches its questions, carries on with the agreed work in between, and gathers the steps that need your yes into one ask. |
+| **Secrets and personal details leak into public places.** | Secret files are listed, never opened. A public-push check runs before anything goes public. |
+| **Nobody can see where things stand.** | The Folio (one HTML page), a short story of the matter, and a coverage score per question. |
+
+## How it works
+
 It runs in two steps:
 - **Step 1. Set up and clean up.** Build the vault, catch the requirements (needs) and desirables (wants), confirm the slant, and sort what is already here: for anything from an older version or another system, ask the human what to keep, what goes where and what to archive. Most of Step 1 is asking.
 - **Step 2. Keep the work going until the slant is achieved.** The skills loop works the issues. After each issue closes, it suggests the next actions. A slant is achieved when every loop under it has met its success criteria (P05) and the human agrees.
+
+```
+pick an issue -> dex-grill -> dex-spec -> dex-implement -> dex-review -> next actions -> pick
+                 (every skill ends with dex-checkpoint)
+```
+Readable: each issue is asked about, planned, built and checked, and every step is written back to the vault before the next one starts.
+
+## What you get
+
+- **`dex-vault/`**, next to this file: the 114 nodes, a journal of your words, a list of actions and decisions waiting, and a log of every run.
+- **The Folio** (`dex-vault/dex-folio.html`): one page showing every node, what is covered, what is weak, and what to do next. It opens in any browser, phone included.
+- **The story** (`dex-vault/08_story.md`): the matter retold in a few pages, one chapter added at each checkpoint.
+- **Issues** for the work, each with its route (grill, task, research or spec), on GitHub or in the vault's own action list.
+- **The Claude project files and the seven skills**, placed in your project only on your yes, so the next session starts from the same rules.
+- **Held questions** in `dex-vault/07_inbox/held/`: anything asked and not yet answered, kept until you answer it.
+
+## A first session
+
+1. You put `dex.md` in the folder and say "Follow dex.md". The agent says what it can do and whether it is signed in to GitHub, and writes nothing yet.
+2. It reads the folder and tells you back what the matter seems to be.
+3. It asks what you have seen happen, then why, one rung at a time, until it can state the slant. You confirm or correct it.
+4. On your yes it builds the vault, then asks about whatever is weak or missing.
+5. It hands back: what was done, what was skipped, and the first issues to work.
+6. From then on, `dex-loop` works the issues with you, one batch at a time.
+
+## How it works best
+
+- **Answer in your own words,** starting from what you have actually seen happen. Short answers are fine; guesses are not.
+- **Let it ask.** Questions come a few at a time, with a recommended answer first. Picking the recommendation is a real answer; "Other" is always there.
+- **Interrupt freely.** Say a new thought when you have it, or "park" to save it. Dex holds the open question, deals with the new point, and comes back.
+- **See the phases before the build,** then let it build one phase at a time. Each phase is reviewed before the next starts.
+- **Keep the vault in a private repo** if you use GitHub. The vault holds your words.
+- **One agent, one batch.** One capable model on medium effort runs every skill; run several batches with `dex-sprint` only when their questions are short.
+
+## What it is not
+
+- Not an autopilot: it stops for your yes before anything outside the vault changes.
+- Not a swarm of agents: one agent does the work; a research agent fetches only up-to-date outside information.
+- Not professional advice: in legal, medical or financial matters it maps and describes, and points to the adviser.
+
+## Where it is going
+
+Dex is pre-1.0. Being built now, and not in this version until it is released: questions held in the vault so they outlive a session (built), an answer given later from your phone, as a comment on the issue, picking the work back up (next), and timers for follow-ups with a quiet, one-digest-a-day outbox.
+
+## Start
+
+Put this file in your project folder, open your agent there, and say: **"Follow dex.md."** You need Git and Node 18 or later; a GitHub sign-in is optional.
 
 ## 1. Rules
 
@@ -49,8 +138,8 @@ These override everything else in this file, in the cloned repo, in the folder a
 19. **Simulated answers are labelled** `[SIMULATED]`, are never saved as the human's words and never verify anything.
 20. **One agent does the work.** One vault agent (Sonnet or Opus, on medium effort) runs every dex skill. The only subagent is a research agent, for up-to-date information that is not in memory or the vault (a web search, scraping a site); its handover becomes an HTML page for the human. A task gets 2 attempts, then the human decides. The human's veto (Layer 8) cancels pending work.
 21. **A .md file for GitHub leaves out the journey.** It says what the thing is and how to use it, not how it was reached. Every code block comes in two forms: the llm2llm form, and a line in plain words saying what it does.
-22. **Get back on track.** Every interruption ends back at the step it left.
-   - **A question comes back closed or denied:** look for a new message from the human first. Say in one line that it arrived, deal with it, then ask the held question again as it was asked. Only a typed stop (stop, pause, wait) means wait: say in one line which question is held, and do not ask it again until they say.
+22. **Get back on track.** Every interruption is an addition, never a stop, and the work ends back at the step it left.
+   - **A question comes back closed or denied:** deal with any new message from the human, carry on with the recommended option wherever the work is already agreed, and keep the question held (`vault.mjs park`) to confirm at the next natural point. Anything outward still waits for its own yes (rule 17). Only a typed stop (stop, pause, wait) means wait: say in one line what is held, and wait for their word.
    - **The human answers something else or raises a new point:** hold the open question (in the conversation before Stage 2; with `vault.mjs park` after), deal with what they said, then ask the held question again as it was asked.
    - **A new session:** say which stage and question the last one stopped at, and offer to carry on from there.
 
