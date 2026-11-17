@@ -3,6 +3,7 @@
 // Usage: node engine/build/tools/testdrive.mjs <sandbox-dir> [<dex-md remote>]
 //   The remote defaults to this repo on disk (file://), so the drive runs before anything is pushed. The clone uses the tag dex.md pins.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -69,7 +70,12 @@ step('skill files install with their frontmatter intact', () => {
 });
 
 // 3. the vault tool
-step('modules lists 100 bundled modules', () => { const r = vault('modules'); const n = r.stdout.trim().split('\n').filter(Boolean).length; return { pass: n === 100, detail: `${n} modules` }; });
+step('modules lists every bundled module the clone ships (100 or more)', () => {
+  const r = vault('modules');
+  const n = r.stdout.trim().split('\n').filter(Boolean).length;
+  const shipped = J(fs.readFileSync(path.join(sandbox, 'dex-vault', '.dex', 'dex-md', 'engine', 'modules.json'), 'utf8'));
+  return { pass: n >= 100 && Array.isArray(shipped) && n === shipped.length, detail: `${n} listed, ${shipped ? shipped.length : '?'} shipped` };
+});
 step('classify: shed + chat export is blank-with-context, .env listed as a secret, nothing opened', () => {
   const o = J(vault('classify').stdout);
   const kind = o && o.classification && (o.classification.state || o.classification.classification || o.classification.kind);
@@ -160,6 +166,46 @@ step('the Folio builds from the vault', () => {
   const f = path.join(sandbox, 'dex-vault', 'dex-folio.html');
   return { pass: r.status === 0 && fs.existsSync(f) && fs.statSync(f).size > 100000, detail: (r.stdout + r.stderr).trim().slice(0, 200) + ` | ${fs.existsSync(f) ? fs.statSync(f).size : 0} bytes` };
 });
+// 6. a late answer: park a question on an issue, a comment arrives on GitHub (stubbed), the next run resumes it
+const ghDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dex-drive-gh-'));
+fs.writeFileSync(path.join(ghDir, 'gh.mjs'), [
+  "const a = process.argv.slice(2);",
+  "if (a[0] === 'api' && a[1] === 'user') { console.log('owner'); process.exit(0); }",
+  "if (a[0] === 'issue' && a[1] === 'view') { console.log(JSON.stringify({ comments: [",
+  "  { id: 'IC_1', url: 'https://github.com/acme/shed/issues/7#issuecomment-901', author: { login: 'owner' }, body: 'timber, not steel', createdAt: '2026-11-17T12:00:00Z' },",
+  "  { id: 'IC_2', url: 'https://github.com/acme/shed/issues/7#issuecomment-902', author: { login: 'someone' }, body: 'steel!', createdAt: '2026-11-17T12:05:00Z' },",
+  "] })); process.exit(0); }",
+  "process.exit(1);",
+].join('\n'));
+const late = (...a) => node([path.join('dex-vault', '.dex', 'vault.mjs'), ...a], { env: { ...process.env, DEX_GH: path.join(ghDir, 'gh.mjs') } });
+step('park holds a question on an issue as a tracked file with a DEX838 line', () => {
+  const r = late('park', '--skill', 'dex-grill', '--issue', '7', '--repo', 'acme/shed', '--question', 'Timber or steel frame?', '--now', '2026-11-17T10:00:00.000Z');
+  const f = path.join(sandbox, 'dex-vault', '07_inbox', 'held', 'dex-grill-7.md');
+  return { pass: r.status === 0 && fs.existsSync(f) && /^dex\(dex-grill, @issue:7,held:dex-grill-7,repo:acme\/shed\)\["Timber or steel frame\?"\]$/m.test(fs.readFileSync(f, 'utf8')), detail: r.stdout + r.stderr };
+});
+step('inbox turns the owner\'s comment into one event and lists the other account', () => {
+  const r = late('inbox');
+  const ev = path.join(sandbox, 'dex-vault', '07_inbox', 'events');
+  const files = fs.existsSync(ev) ? fs.readdirSync(ev) : [];
+  return { pass: r.status === 0 && files.join() === '901.md' && /1 comment\(s\) by other accounts \(someone\)/.test(r.stdout), detail: r.stdout + r.stderr };
+});
+step('resume shows the answer under its held question', () => {
+  const r = late('resume');
+  return { pass: r.status === 0 && /Question: Timber or steel frame\?\n {2}Answered on GitHub by owner \(comment 901, [^)]+\): timber, not steel/.test(r.stdout), detail: r.stdout + r.stderr };
+});
+step('answer records it twice in the journal and says where to resume', () => {
+  const r = late('answer', '--event', '901', '--checked', 'Timber, not steel.');
+  const dir = path.join(sandbox, 'dex-vault', '06_journal', 'answers');
+  const j = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /dex-grill/.test(f)).map((f) => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n') : '';
+  return { pass: r.status === 0 && /Resume dex-grill #7 at: Timber or steel frame\?/.test(r.stdout) && /source: GitHub comment 901 /.test(j) && /```text\ntimber, not steel\n```/.test(j) && /## Checked copy\nTimber, not steel\./.test(j), detail: r.stdout + r.stderr };
+});
+step('the next session start resumes nothing', () => {
+  const i = late('inbox');
+  const r = late('resume');
+  return { pass: i.status === 0 && r.status === 0 && r.stdout.trim() === 'nothing held', detail: i.stdout + r.stdout + r.stderr };
+});
+fs.rmSync(ghDir, { recursive: true, force: true });
+
 step('the original shed files are untouched (read only)', () => {
   const same = fs.readdirSync(shed).every((f) => fs.readFileSync(path.join(shed, f), 'utf8') === fs.readFileSync(path.join(sandbox, f), 'utf8'));
   return { pass: same, detail: 'README.md, notes.txt, materials.csv identical to the fixture shed' };

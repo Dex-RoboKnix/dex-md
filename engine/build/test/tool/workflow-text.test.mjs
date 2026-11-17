@@ -39,6 +39,18 @@ test('rule 17 and dex-grill mark what the agent posts, so inbox never reads it a
   assert.match(read('engine/build/lib/p6/inbox-events.mjs'), /export const AGENT_MARK = '<!-- dex:agent -->';/);
 });
 
+test('a session reads late answers first: dex.md, the CLAUDE.md template and dex-loop say inbox, then resume, then answer', () => {
+  assert.match(read('dex.md'), /In a built vault, read late answers first: `vault\.mjs inbox`, then `vault\.mjs resume`; record each answer it lists with `vault\.mjs answer`/);
+  const t = read('templates/dex-claude.md');
+  assert.match(t, /^8\. \*\*Late answers first\.\*\* At the start of a session, and on each `\/loop` tick, run `node dex-vault\/\.dex\/vault\.mjs inbox` then `vault\.mjs resume` before anything else\./m);
+  assert.match(t, /^1\. \*\*The human decides\.\*\*[^\n]*`<!-- dex:agent -->`/m);
+  assert.match(t, /commands: [^)]*\bpark, resume, inbox, answer\b/);
+  const loop = read('skills/dex-loop.md');
+  assert.ok(loop.indexOf('## 0b. Late answers first') > 0 && loop.indexOf('## 0b. Late answers first') < loop.indexOf('## 1. Pick the issue'), 'dex-loop reads late answers before it picks');
+  assert.match(loop, /node dex-vault\/\.dex\/vault\.mjs inbox\nnode dex-vault\/\.dex\/vault\.mjs resume\n/);
+  assert.match(loop, /Each run ends one way: send the human one message, decide there is nothing to send, or park a new question/);
+});
+
 test('rules read 1 to 22 in order, in dex.md and in method/01-rules.md', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const nums = read(f).split('\n').filter((l) => /^\d+\. \*\*/.test(l)).map((l) => Number(l.split('.')[0]));

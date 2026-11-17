@@ -120,7 +120,7 @@ Readable: each issue is asked about, planned, built and checked, and every step 
 Dex is pre-1.0. Being built now, and not in this version until it is released, so that the agent keeps working well when you are away and answers reach it from wherever you are:
 
 - **Questions that outlive a session.** A held question is a file in the vault, so it travels with the vault repo (built).
-- **Answers from anywhere.** Answer a held question as a comment on the issue, from your phone; the next session picks the work back up from it (next).
+- **Answers from anywhere.** Answer a held question as a comment on the issue, from your phone; the next session picks the work back up from it (built).
 - **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice.
 - **The away-for-a-week test.** A list of what stalls when you are not there, and how each is fixed.
 
@@ -172,7 +172,7 @@ Read only; nothing is installed or changed.
    > Dex can also keep its work in a private GitHub repo. For that, install the GitHub CLI from https://cli.github.com, then run `gh auth login` in this terminal and follow the prompts. You can skip this and keep everything on this computer.
 
    Do not sign in for them.
-4. Look for `dex-vault/RUNLOG.md`. None: a **new vault**, go to section 4. Present: an **existing vault**. If `stage` in `dex-vault/00_index.md` is not `built`, the install stopped part-way: say at which stage, and carry on from the next one (rule 22) before anything else. Otherwise, once the clone is present, follow `method/02b-existing-vault.md`. If the last version in its `RUNLOG.md` is older than this file's, the walk starts with the **upgrade** (02b section 0): what each newer version added is brought into the vault, each change on its own yes.
+4. Look for `dex-vault/RUNLOG.md`. None: a **new vault**, go to section 4. Present: an **existing vault**. If `stage` in `dex-vault/00_index.md` is not `built`, the install stopped part-way: say at which stage, and carry on from the next one (rule 22) before anything else. Otherwise, once the clone is present, follow `method/02b-existing-vault.md`. If the last version in its `RUNLOG.md` is older than this file's, the walk starts with the **upgrade** (02b section 0): what each newer version added is brought into the vault, each change on its own yes. In a built vault, read late answers first: `vault.mjs inbox`, then `vault.mjs resume`; record each answer it lists with `vault.mjs answer` and carry on from that question.
 5. Say where you are in one line, for example: "Vault mode, new vault, signed in to GitHub as <login>. I'll read this folder now. Nothing will be written yet."
 
 ## 3. Pinned clones

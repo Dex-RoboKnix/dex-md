@@ -30,9 +30,11 @@
 //   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--repo <owner/name>] [--thought "<text>"]
 //        hold a question in dex-vault/07_inbox/held/<skill>[-<issue>].md, with a DEX838 line, so a later session on any machine comes back to it.
 //   node dex-vault/.dex/vault.mjs resume [--skill <name>]
-//        list every held question, oldest first, each line checked in strict mode, or "nothing held".
+//        list every held question, oldest first, each line checked in strict mode, with any answer that came in on GitHub.
 //   node dex-vault/.dex/vault.mjs inbox [--dry-run]
 //        read the owner's new comments on each held question's issue (GitHub CLI) into 07_inbox/events/, once each.
+//   node dex-vault/.dex/vault.mjs answer --event <comment-id> --checked "<text>"
+//        record a late answer twice in the journal, mark it done and its question answered, and print where to resume.
 //
 // Paths come from this file's location (dex-vault/.dex/), so it works from any folder. The node folders are the vault;
 // the flat layer files are generated from them. Never edit a flat layer file by hand.
@@ -658,6 +660,18 @@ async function parkCmd(a) {
   fs.writeFileSync(path.join(HELD, `${held.id}.md`), heldText(held));
   console.log(`Parked ${skill}${issue ? ` #${issue}` : ''} in 07_inbox/held/${held.id}.md: ${question}`);
 }
+// Pending late answers (07_inbox/events/, written by inbox), each checked in strict mode and matched to its held question.
+function pendingEvents(L) {
+  const dir = path.join(VAULT, '07_inbox', 'events');
+  const out = [];
+  for (const f of (fs.existsSync(dir) ? fs.readdirSync(dir).filter((x) => x.endsWith('.md')).sort() : [])) {
+    const e = readHeld(path.join(dir, f));
+    if (!e || (e.status || 'pending') !== 'pending') continue;
+    const r = L.run(DEX838, { line: e.wire });
+    out.push({ ...e, file: f, parsed: r.ok ? r.parsed : null, error: r.ok ? null : r.error });
+  }
+  return out.sort((x, y) => String(x.commented).localeCompare(String(y.commented)) || x.file.localeCompare(y.file));
+}
 async function resumeCmd(a) {
   const L = await lib();
   await migrateState(L);
@@ -670,7 +684,8 @@ async function resumeCmd(a) {
     if (typeof a.skill === 'string' && h.skill !== a.skill) continue;
     held.push({ ...h, file: f });
   }
-  if (!held.length) { if (!process.exitCode) console.log('nothing held'); return; }
+  const events = pendingEvents(L);
+  const usable = new Set();
   held.sort((x, y) => String(x.parked).localeCompare(String(y.parked)) || x.file.localeCompare(y.file));
   for (const h of held) {
     const r = L.run(DEX838, { line: h.wire });
@@ -679,10 +694,87 @@ async function resumeCmd(a) {
       process.exitCode = 1;
       continue;
     }
+    usable.add(h.id);
     console.log(`Held: ${h.skill}${h.issue ? ` #${h.issue}` : ''} (parked ${h.parked})`);
     console.log(`  Question: ${r.parsed.subject}`);
     if (h.thought) console.log(`  Thought: ${h.thought}`);
+    for (const e of events.filter((x) => x.held === h.id && x.parsed && x.parsed.context.resumes === h.id)) {
+      console.log(`  Answered on GitHub by ${e.author} (comment ${e.id}, ${e.commented}): ${e.parsed.subject}`);
+      console.log(`    Record it twice, then resume here: node dex-vault/.dex/vault.mjs answer --event ${e.id} --checked "<the spelling-checked copy>"`);
+    }
   }
+  // An answer that matches no usable held question, or whose line does not parse, is listed for the owner and never acted on.
+  let waiting = 0;
+  for (const e of events) {
+    if (typeof a.skill === 'string' && e.skill !== a.skill) continue;
+    if (!e.parsed) { console.log(`Waiting for the owner: 07_inbox/events/${e.file}: its DEX838 line does not parse (${e.error}). Not acted on.`); waiting++; continue; }
+    if (!usable.has(e.held) || e.parsed.context.resumes !== e.held) { console.log(`Waiting for the owner: 07_inbox/events/${e.file}: an answer on GitHub for ${e.held || 'no held question'}, which is not held. Not acted on.`); waiting++; }
+  }
+  if (!usable.size && !waiting && !process.exitCode) console.log('nothing held');
+}
+
+// ---- answer: the next run resumes it ------------------------------------------------------------
+// Records a late answer twice (the comment verbatim and the agent's spelling-checked copy) as a journal entry naming the
+// comment id, marks the event done and the held question answered, and prints the question to resume at.
+const JOURNAL = path.join(VAULT, '06_journal');
+function journalIds() {
+  const ids = [];
+  const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (e.name.endsWith('.md')) for (const m of fs.readFileSync(p, 'utf8').matchAll(/^id: J(\d+)\s*$/gm)) ids.push(Number(m[1])); } };
+  if (fs.existsSync(JOURNAL)) walk(JOURNAL);
+  return ids;
+}
+// Set front-matter fields in place: an existing key is replaced, a new one goes before the closing ---.
+function setFront(file, fields) {
+  const t = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+  const m = /^---\n([\s\S]*?)\n---\n/.exec(t);
+  if (!m) throw new Error(`${file} has no front matter`);
+  let fm = m[1];
+  for (const [k, v] of Object.entries(fields)) {
+    const re = new RegExp(`^${k}: .*$`, 'm');
+    fm = re.test(fm) ? fm.replace(re, `${k}: ${v}`) : `${fm}\n${k}: ${v}`;
+  }
+  fs.writeFileSync(file, `---\n${fm}\n---\n${t.slice(m[0].length)}`);
+}
+async function answerCmd(a) {
+  const id = typeof a.event === 'string' ? a.event : '';
+  const checked = typeof a.checked === 'string' ? a.checked.trim() : '';
+  if (!id || !checked) die('Usage: node dex-vault/.dex/vault.mjs answer --event <comment-id> --checked "<the spelling-checked copy of the answer>"');
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) die(`An event id is letters, digits, dashes or underscores: ${id}`);
+  const L = await lib();
+  const evFile = path.join(VAULT, '07_inbox', 'events', `${id}.md`);
+  if (!fs.existsSync(evFile)) die(`No event 07_inbox/events/${id}.md. Run inbox first.`);
+  const e = readHeld(evFile);
+  if (!e) die(`07_inbox/events/${id}.md has no front matter. It waits for the owner.`);
+  if ((e.status || 'pending') !== 'pending') die(`07_inbox/events/${id}.md is ${e.status}, not pending: it was already recorded. Nothing done.`);
+  const ep = L.run(DEX838, { line: e.wire });
+  if (!ep.ok) die(`Waiting for the owner: 07_inbox/events/${id}.md: its DEX838 line does not parse (${ep.error}). Not acted on.`);
+  if (!/^[A-Za-z0-9_-]+$/.test(e.held || '') || ep.parsed.context.resumes !== e.held) die(`Waiting for the owner: 07_inbox/events/${id}.md does not say which held question it answers. Not acted on.`);
+  const hFile = path.join(HELD, `${e.held}.md`);
+  const h = fs.existsSync(hFile) ? readHeld(hFile) : null;
+  if (!h || (h.status || 'held') !== 'held') die(`Waiting for the owner: 07_inbox/events/${id}.md answers ${e.held}, which is not held. Not acted on.`);
+  const hp = L.run(DEX838, { line: h.wire });
+  if (!hp.ok) die(`Waiting for the owner: 07_inbox/held/${e.held}.md: its DEX838 line does not parse (${hp.error}). Not acted on.`);
+  const raw = fs.readFileSync(evFile, 'utf8').replace(/\r\n/g, '\n');
+  const at = raw.indexOf('\n## The comment, verbatim\n\n');
+  if (at < 0) die(`07_inbox/events/${id}.md has no "## The comment, verbatim" section. It waits for the owner.`);
+  const body = raw.slice(at + '\n## The comment, verbatim\n\n'.length).replace(/\n$/, '');
+  const now = typeof a.now === 'string' ? a.now : new Date().toISOString();
+  const alloc = L.run('p1/id-allocator', { existingIds: journalIds(), now });
+  const journalId = `J${String(alloc.ok ? alloc.nextId : journalIds().length + 1).padStart(3, '0')}`; // J001, as the journal numbers them
+  const rec = L.run('p6/late-answer', { event: { ...e, body }, held: { id: h.id, skill: h.skill, issue: h.issue, question: hp.parsed.subject }, checked, journalId, now });
+  if (!rec.ok) die(`The answer cannot be recorded: ${rec.error}`);
+  const dir = path.join(JOURNAL, 'answers');
+  fs.mkdirSync(dir, { recursive: true });
+  const day = now.slice(0, 10);
+  let n = 1;
+  while (fs.existsSync(path.join(dir, `${day}-${h.skill}-${n}.md`))) n++;
+  const jFile = path.join(dir, `${day}-${h.skill}-${n}.md`);
+  fs.writeFileSync(jFile, rec.journal.text, { flag: 'wx' });
+  setFront(evFile, { status: 'done', journal: journalId });
+  setFront(hFile, { status: 'answered', answered: id, journal: journalId });
+  console.log(`Recorded ${journalId} in 06_journal/answers/${path.basename(jFile)}: the original and the checked copy, source GitHub comment ${id}.`);
+  console.log(`Resume ${h.skill}${h.issue ? ` #${h.issue}` : ''} at: ${hp.parsed.subject}`);
+  console.log(`  The answer (checked copy): ${checked}`);
 }
 
 // ---- inbox: a late answer arrives ---------------------------------------------------------------
@@ -943,6 +1035,6 @@ function auditCmd(a) {
 // ---- main -------------------------------------------------------------------------
 const a = args(process.argv.slice(2));
 const cmd = a._[0];
-const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, audit: auditCmd };
-if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox> ...');
+const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, answer: answerCmd, audit: auditCmd };
+if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox|answer> ...');
 Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));

@@ -41,9 +41,11 @@ swap('// Paths come from this file\'s location', [
   '//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--repo <owner/name>] [--thought "<text>"]',
   '//        hold a question in dex-vault/07_inbox/held/<skill>[-<issue>].md, with a DEX838 line, so a later session on any machine comes back to it.',
   '//   node dex-vault/.dex/vault.mjs resume [--skill <name>]',
-  '//        list every held question, oldest first, each line checked in strict mode, or "nothing held".',
+  '//        list every held question, oldest first, each line checked in strict mode, with any answer that came in on GitHub.',
   '//   node dex-vault/.dex/vault.mjs inbox [--dry-run]',
   '//        read the owner\'s new comments on each held question\'s issue (GitHub CLI) into 07_inbox/events/, once each.',
+  '//   node dex-vault/.dex/vault.mjs answer --event <comment-id> --checked "<text>"',
+  '//        record a late answer twice in the journal, mark it done and its question answered, and print where to resume.',
   '//',
   '// Paths come from this file\'s location',
 ].join('\n'), false);
@@ -51,8 +53,8 @@ swap('// Paths come from this file\'s location', [
 const mainAt = v.indexOf('// ---- main');
 if (mainAt < 0) throw new Error('main section not found');
 v = v.slice(0, mainAt) + add + '\n' + v.slice(mainAt);
-swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, audit: auditCmd };', false);
-swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox>", false);
+swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, answer: answerCmd, audit: auditCmd };', false);
+swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox|answer>", false);
 swap('commands[cmd](a);', 'Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));', false);
 fs.writeFileSync(path.join(ROOT, 'src/vault.mjs'), v);
 console.log('wrote src/vault.mjs', v.split('\n').length, 'lines; remaining "mof" mentions:', (v.match(/\bmof\b/gi) || []).length);
