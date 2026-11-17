@@ -503,5 +503,10 @@
     "name": "p6/dex838-parse",
     "node": "L4.E02",
     "input": "{ line: string, strict?: boolean }"
+  },
+  {
+    "name": "p6/inbox-events",
+    "node": "L4.E03",
+    "input": "{ held: [{ id, skill, issue, parked: ISO8601 }], comments: [{ id, url?, author, body, createdAt: ISO8601 }], login: string, repo: \"owner/name\", known?: [string], received: ISO8601 }"
   }
 ]

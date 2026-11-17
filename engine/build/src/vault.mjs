@@ -27,10 +27,12 @@
 //   node dex-vault/.dex/vault.mjs audit [--all] [--json] [--strict] | audit --output <draft.md> [--strict]
 //        the meaning check (check tests the shape): nodes that do not fit their question, open nodes with no route or a generic one,
 //        missing Needs and Wants, entry points older than this tool, action statuses. --output checks a draft's audience and trace list. Read-only.
-//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]
-//        hold where a skill stopped in .dex/state/<skill>.json so a later session can come back to the same question.
+//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--repo <owner/name>] [--thought "<text>"]
+//        hold a question in dex-vault/07_inbox/held/<skill>[-<issue>].md, with a DEX838 line, so a later session on any machine comes back to it.
 //   node dex-vault/.dex/vault.mjs resume [--skill <name>]
-//        print the held skill, issue and question, or "nothing held".
+//        list every held question, oldest first, each line checked in strict mode, or "nothing held".
+//   node dex-vault/.dex/vault.mjs inbox [--dry-run]
+//        read the owner's new comments on each held question's issue (GitHub CLI) into 07_inbox/events/, once each.
 //
 // Paths come from this file's location (dex-vault/.dex/), so it works from any folder. The node folders are the vault;
 // the flat layer files are generated from them. Never edit a flat layer file by hand.
@@ -38,6 +40,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url)); // dex-vault/.dex
 const VAULT = path.dirname(HERE); // dex-vault
@@ -682,6 +685,116 @@ async function resumeCmd(a) {
   }
 }
 
+// ---- inbox: a late answer arrives ---------------------------------------------------------------
+// The owner answers a held question as a comment on its issue, from any device. inbox reads those comments with the
+// GitHub CLI and writes each new one as 07_inbox/events/<comment-id>.md: front matter, one DEX838 line checked in strict
+// mode, and the comment verbatim, status pending. The comment id is the key, so a second pull adds nothing. Only the
+// signed-in account's comments count; comments from other accounts are listed in one line and never acted on, and a
+// comment the agent posted carries <!-- dex:agent --> and is skipped. One worker at a time: a lock in .dex/state/.
+// No gh, or not signed in: one plain line, exit 0, nothing written. --dry-run lists what would be added and writes nothing.
+// DEX_GH names the GitHub CLI to run (default gh); a path ending .mjs runs with node, which is how the tests stub GitHub.
+const EVENTS = path.join(VAULT, '07_inbox', 'events');
+const LOCK = path.join(STATE, 'inbox.lock');
+const LOCK_STALE_MS = 15 * 60 * 1000;
+function gh(argv) {
+  const bin = process.env.DEX_GH || 'gh';
+  const [cmd, list] = /\.mjs$/i.test(bin) ? [process.execPath, [bin, ...argv]] : [bin, argv];
+  return spawnSync(cmd, list, { cwd: ROOT, encoding: 'utf8', timeout: 60000, windowsHide: true });
+}
+const firstLine = (s) => String(s || '').trim().split(/\r?\n/)[0].slice(0, 160);
+function pidAlive(pid) { try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } }
+// Take the lock, or say who holds it. A lock whose process has gone, or older than 15 minutes, is cleared with a note.
+function takeLock() {
+  fs.mkdirSync(STATE, { recursive: true });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      fs.writeFileSync(LOCK, JSON.stringify({ pid: process.pid, started: new Date().toISOString() }), { flag: 'wx' });
+      return true;
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+    }
+    let held = null;
+    try { held = JSON.parse(fs.readFileSync(LOCK, 'utf8')); } catch { /* unreadable: treated as stale */ }
+    const since = held && typeof held.started === 'string' ? Date.parse(held.started) : NaN;
+    if (held && Number.isInteger(held.pid) && pidAlive(held.pid) && Date.now() - since < LOCK_STALE_MS) {
+      console.log(`Inbox: another run holds the lock (process ${held.pid}, since ${held.started}). Stopped; nothing written.`);
+      return false;
+    }
+    fs.rmSync(LOCK, { force: true });
+    console.log(`Inbox: cleared a stale lock${held && held.pid ? ` (process ${held.pid}, since ${held.started})` : ''}.`);
+  }
+  console.log('Inbox: could not take the lock. Stopped; nothing written.');
+  return false;
+}
+async function inboxCmd(a) {
+  const L = await lib();
+  const dry = !!a['dry-run'];
+  const listHeld = () => (fs.existsSync(HELD) ? fs.readdirSync(HELD).filter((f) => f.endsWith('.md')).sort() : [])
+    .map((f) => ({ ...readHeld(path.join(HELD, f)), file: f })).filter((h) => h.id && (h.status || 'held') === 'held' && /^\d+$/.test(h.issue || ''));
+  const hasState = fs.existsSync(STATE) && fs.readdirSync(STATE).some((f) => f.endsWith('.json'));
+  if (!listHeld().length && !hasState) { console.log('Inbox: no held question names an issue, so no late answer can arrive. Nothing read.'); return; }
+  const who = gh(['api', 'user', '--jq', '.login']);
+  if (who.error && who.error.code === 'ENOENT') { console.log('Inbox: the GitHub CLI (gh) is not installed here, so late answers were not read. Nothing written.'); return; }
+  const login = !who.error && who.status === 0 ? who.stdout.trim() : '';
+  if (!login) { console.log('Inbox: gh is not signed in, or GitHub could not be reached (gh auth status), so late answers were not read. Nothing written.'); return; }
+  if (!dry) await migrateState(L);
+  // A held line that does not parse waits for the owner and is not acted on, here as in resume.
+  const held = listHeld().filter((h) => {
+    const r = L.run(DEX838, { line: h.wire });
+    if (!r.ok) console.log(`Waiting for the owner: 07_inbox/held/${h.file}: its DEX838 line does not parse (${r.error}). Its comments are not read.`);
+    return r.ok;
+  });
+  if (!held.length) { console.log('Inbox: no held question can be read. Nothing written.'); return; }
+  let fallbackRepo = null;
+  if (held.some((h) => !h.repo)) {
+    const r = gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']);
+    if (r.status === 0 && /^[\w.-]+\/[\w.-]+$/.test(r.stdout.trim())) fallbackRepo = r.stdout.trim();
+  }
+  const groups = new Map();
+  let noRepo = 0;
+  for (const h of held) {
+    const repo = h.repo || fallbackRepo;
+    if (!repo) { noRepo++; continue; }
+    const k = `${repo}#${h.issue}`;
+    if (!groups.has(k)) groups.set(k, { repo, issue: h.issue, held: [] });
+    groups.get(k).held.push({ id: h.id, skill: h.skill, issue: h.issue, parked: h.parked });
+  }
+  if (noRepo) console.log(`Inbox: ${noRepo} held question(s) name no repo and this folder has no GitHub remote: park them again with --repo <owner/name>.`);
+  if (!dry && !takeLock()) return;
+  let added = 0;
+  try {
+    const known = fs.existsSync(EVENTS) ? fs.readdirSync(EVENTS).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)) : [];
+    const received = new Date().toISOString();
+    for (const g of groups.values()) {
+      const where = `#${g.issue} (${g.repo})`;
+      const r = gh(['issue', 'view', g.issue, '-R', g.repo, '--json', 'comments']);
+      let data = null;
+      if (r.status === 0) { try { data = JSON.parse(r.stdout); } catch { /* reported below */ } }
+      if (!data || !Array.isArray(data.comments)) { console.log(`Inbox: ${where}: its comments could not be read (${firstLine(r.stderr) || 'no JSON from gh'}). Skipped.`); continue; }
+      const comments = data.comments.map((c) => ({ id: c && c.id, url: c && c.url, author: c && c.author && c.author.login, body: c && c.body, createdAt: c && c.createdAt }));
+      const res = L.run('p6/inbox-events', { held: g.held, comments, login, repo: g.repo, known, received });
+      if (!res.ok) { console.log(`Inbox: ${where}: ${res.error}. Skipped.`); process.exitCode = 1; continue; }
+      for (const ev of res.events) {
+        const p = L.run(DEX838, { line: ev.line });
+        if (!p.ok) { console.log(`Inbox: ${where}: comment ${ev.id} cannot become a DEX838 line (${p.error}); it waits for the owner and is not written.`); continue; }
+        if (dry) { console.log(`Would add 07_inbox/events/${ev.file}: ${where} answers ${ev.resumes}: ${p.parsed.subject}`); continue; }
+        fs.mkdirSync(EVENTS, { recursive: true });
+        try { fs.writeFileSync(path.join(EVENTS, ev.file), ev.text, { flag: 'wx' }); } catch (e) { if (e.code === 'EEXIST') continue; throw e; }
+        known.push(ev.id);
+        added++;
+        console.log(`New event 07_inbox/events/${ev.file}: ${where} answers ${ev.resumes}: ${p.parsed.subject}`);
+      }
+      const s = res.skipped;
+      if (s.othersCount) console.log(`Inbox: ${where}: ${s.othersCount} comment(s) by other accounts (${s.others.join(', ')}): listed, never acted on.`);
+      if (s.agent) console.log(`Inbox: ${where}: ${s.agent} comment(s) the agent posted (marked <!-- dex:agent -->): skipped.`);
+      if (s.unreadable) console.log(`Inbox: ${where}: ${s.unreadable} comment(s) could not be read: skipped.`);
+    }
+  } finally {
+    if (!dry) fs.rmSync(LOCK, { force: true });
+  }
+  console.log(dry ? 'Inbox: dry run; nothing written.' : `Inbox: ${added} new event(s) in 07_inbox/events/.`);
+}
+
 // ---- scaffold backfill: sections a newer version added to the node template ----------------------
 // An existing node keeps every line it has. Only a missing "## Needs" or "## Wants" section is added, before the agent reading.
 function backfillSections(file) {
@@ -830,6 +943,6 @@ function auditCmd(a) {
 // ---- main -------------------------------------------------------------------------
 const a = args(process.argv.slice(2));
 const cmd = a._[0];
-const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, audit: auditCmd };
-if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume> ...');
+const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, audit: auditCmd };
+if (!commands[cmd]) die('Usage: node dex-vault/.dex/vault.mjs <scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox> ...');
 Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));

@@ -29,6 +29,16 @@ test('no skill, rule or method page describes agent teams', () => {
   for (const f of files) assert.doesNotMatch(read(f), /Haiku|orchestrator|spec-writers|8 agents|Sonnet team/, f);
 });
 
+test('rule 17 and dex-grill mark what the agent posts, so inbox never reads it as the owner\'s answer', () => {
+  for (const f of ['dex.md', 'method/01-rules.md']) {
+    const rule = read(f).split('\n').find((l) => l.startsWith('17. **Consent is per action.**'));
+    assert.ok(rule, `${f}: no rule 17`);
+    assert.match(rule, /End anything you post on GitHub with the hidden line `<!-- dex:agent -->`, so it is never read back as the owner's answer\.$/, f);
+  }
+  assert.match(read('skills/dex-grill.md'), /- \*\*Post the answers\*\*[^\n]*`<!-- dex:agent -->`/);
+  assert.match(read('engine/build/lib/p6/inbox-events.mjs'), /export const AGENT_MARK = '<!-- dex:agent -->';/);
+});
+
 test('rules read 1 to 22 in order, in dex.md and in method/01-rules.md', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const nums = read(f).split('\n').filter((l) => /^\d+\. \*\*/.test(l)).map((l) => Number(l.split('.')[0]));

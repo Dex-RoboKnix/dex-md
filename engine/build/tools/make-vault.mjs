@@ -24,7 +24,7 @@ swap('inside mof/.', 'inside dex-vault/.');
 swap('// mof\n', '// dex-vault\n');
 swap(' mof/.dex/backup', ' dex-vault/.dex/backup');
 v = v.replace(/\bmof\/(?!\.dex)/g, 'dex-vault/');
-swap("import { fileURLToPath } from 'node:url';", "import { fileURLToPath, pathToFileURL } from 'node:url';", false);
+swap("import { fileURLToPath } from 'node:url';", "import { fileURLToPath, pathToFileURL } from 'node:url';\nimport { spawnSync } from 'node:child_process';", false);
 // header: document the new commands
 swap('// Paths come from this file\'s location', [
   '//   node dex-vault/.dex/vault.mjs modules',
@@ -38,10 +38,12 @@ swap('// Paths come from this file\'s location', [
   '//   node dex-vault/.dex/vault.mjs audit [--all] [--json] [--strict] | audit --output <draft.md> [--strict]',
   '//        the meaning check (check tests the shape): nodes that do not fit their question, open nodes with no route or a generic one,',
   '//        missing Needs and Wants, entry points older than this tool, action statuses. --output checks a draft\'s audience and trace list. Read-only.',
-  '//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--thought "<text>"]',
-  '//        hold where a skill stopped in .dex/state/<skill>.json so a later session can come back to the same question.',
+  '//   node dex-vault/.dex/vault.mjs park --skill <name> --question "<text>" [--issue <n>] [--repo <owner/name>] [--thought "<text>"]',
+  '//        hold a question in dex-vault/07_inbox/held/<skill>[-<issue>].md, with a DEX838 line, so a later session on any machine comes back to it.',
   '//   node dex-vault/.dex/vault.mjs resume [--skill <name>]',
-  '//        print the held skill, issue and question, or "nothing held".',
+  '//        list every held question, oldest first, each line checked in strict mode, or "nothing held".',
+  '//   node dex-vault/.dex/vault.mjs inbox [--dry-run]',
+  '//        read the owner\'s new comments on each held question\'s issue (GitHub CLI) into 07_inbox/events/, once each.',
   '//',
   '// Paths come from this file\'s location',
 ].join('\n'), false);
@@ -49,8 +51,8 @@ swap('// Paths come from this file\'s location', [
 const mainAt = v.indexOf('// ---- main');
 if (mainAt < 0) throw new Error('main section not found');
 v = v.slice(0, mainAt) + add + '\n' + v.slice(mainAt);
-swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, audit: auditCmd };', false);
-swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume>", false);
+swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, audit: auditCmd };', false);
+swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox>", false);
 swap('commands[cmd](a);', 'Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));', false);
 fs.writeFileSync(path.join(ROOT, 'src/vault.mjs'), v);
 console.log('wrote src/vault.mjs', v.split('\n').length, 'lines; remaining "mof" mentions:', (v.match(/\bmof\b/gi) || []).length);

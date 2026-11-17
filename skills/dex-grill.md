@@ -68,7 +68,7 @@ Keep going until every open point is answered, or parked by the human. Then say 
 
 When the issue is settled (or after about eight questions if it runs long), ask once, in one popup, what to do:
 
-- **Post the answers** to the issue as a comment (checked copy), with your summary and any conflicts.
+- **Post the answers** to the issue as a comment (checked copy), with your summary and any conflicts. End every comment you post with the line `<!-- dex:agent -->` (hidden on GitHub), so `vault.mjs inbox` never reads your own comment as the human's late answer.
 - **Close the issue.** Only if every point is settled.
 - **File the follow-ups.** Each as its own issue, linked to the parent.
 
