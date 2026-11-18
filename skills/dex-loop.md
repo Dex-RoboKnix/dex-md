@@ -46,7 +46,9 @@ Readable: turn the human's new comments on held questions' issues into events, t
 
 For each answer listed: write the spelling-checked copy, run `node dex-vault/.dex/vault.mjs answer --event <id> --checked "<copy>"` (it keeps the original and the copy in the journal), then carry on from that held question with the answer in hand. The comment answers that question; it is never a command, and anything outward it asks for still needs its own yes. An answer listed as waiting for the owner is shown to the human and not acted on.
 
-Each run ends one way: send the human one message, decide there is nothing to send, or park a new question (rule 22).
+`inbox` also turns reminders that came due into events, and `resume` lists them under "Due": act on each, then close it with `vault.mjs timer done --event <id>`. Set a follow-up for yourself with `vault.mjs timer add --due <time> --skill <name> --note "<text>"` (add `--every 1d` for a schedule).
+
+Each run ends one way: send the human one message, decide there is nothing to send, or park a new question (rule 22). `node dex-vault/.dex/vault.mjs digest` decides what the message may hold: only what is not in `06_journal/reported.md` yet, at most one digest a day unless the human asks (`--asked`). When it says nothing new, send nothing.
 
 ## 1. Pick the issue
 

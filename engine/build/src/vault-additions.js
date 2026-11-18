@@ -220,13 +220,19 @@ async function resumeCmd(a) {
     }
   }
   // An answer that matches no usable held question, or whose line does not parse, is listed for the owner and never acted on.
-  let waiting = 0;
+  let waiting = 0, dueShown = 0;
   for (const e of events) {
     if (typeof a.skill === 'string' && e.skill !== a.skill) continue;
     if (!e.parsed) { console.log(`Waiting for the owner: 07_inbox/events/${e.file}: its DEX838 line does not parse (${e.error}). Not acted on.`); waiting++; continue; }
+    if (e.source === 'timer' && e.parsed.context.source === 'timer') {
+      console.log(`Due: ${e.skill}${e.issue ? ` #${e.issue}` : ''} (timer ${e.timer}, due ${e.due}): ${e.parsed.subject}`);
+      console.log(`    When it is done: node dex-vault/.dex/vault.mjs timer done --event ${e.id}`);
+      dueShown++;
+      continue;
+    }
     if (!usable.has(e.held) || e.parsed.context.resumes !== e.held) { console.log(`Waiting for the owner: 07_inbox/events/${e.file}: an answer on GitHub for ${e.held || 'no held question'}, which is not held. Not acted on.`); waiting++; }
   }
-  if (!usable.size && !waiting && !process.exitCode) console.log('nothing held');
+  if (!usable.size && !waiting && !dueShown && !process.exitCode) console.log('nothing held');
 }
 
 // ---- answer: the next run resumes it ------------------------------------------------------------
@@ -337,22 +343,39 @@ function takeLock() {
 async function inboxCmd(a) {
   const L = await lib();
   const dry = !!a['dry-run'];
+  const now = typeof a.now === 'string' ? a.now : new Date().toISOString();
+  // Timers first: they need no GitHub. A due timer becomes an event even when gh cannot be read.
+  const due = L.run('p6/timer-due', { timers: readTimers(), now });
+  if (!due.ok) { console.log(`Inbox: timers could not be read (${due.error}).`); process.exitCode = 1; }
+  else for (const s of due.skipped) console.log(`Waiting for the owner: 07_inbox/timers/${s.id || '(a file with no id)'}.md: ${s.why}. Not fired.`);
+  const dueCount = due.ok ? due.fire.length : 0;
+  const tail = dueCount ? '' : ' Nothing written.';
   const listHeld = () => (fs.existsSync(HELD) ? fs.readdirSync(HELD).filter((f) => f.endsWith('.md')).sort() : [])
     .map((f) => ({ ...readHeld(path.join(HELD, f)), file: f })).filter((h) => h.id && (h.status || 'held') === 'held' && /^\d+$/.test(h.issue || ''));
   const hasState = fs.existsSync(STATE) && fs.readdirSync(STATE).some((f) => f.endsWith('.json'));
-  if (!listHeld().length && !hasState) { console.log('Inbox: no held question names an issue, so no late answer can arrive. Nothing read.'); return; }
-  const who = gh(['api', 'user', '--jq', '.login']);
-  if (who.error && who.error.code === 'ENOENT') { console.log('Inbox: the GitHub CLI (gh) is not installed here, so late answers were not read. Nothing written.'); return; }
-  const login = !who.error && who.status === 0 ? who.stdout.trim() : '';
-  if (!login) { console.log('Inbox: gh is not signed in, or GitHub could not be reached (gh auth status), so late answers were not read. Nothing written.'); return; }
-  if (!dry) await migrateState(L);
-  // A held line that does not parse waits for the owner and is not acted on, here as in resume.
-  const held = listHeld().filter((h) => {
-    const r = L.run(DEX838, { line: h.wire });
-    if (!r.ok) console.log(`Waiting for the owner: 07_inbox/held/${h.file}: its DEX838 line does not parse (${r.error}). Its comments are not read.`);
-    return r.ok;
-  });
-  if (!held.length) { console.log('Inbox: no held question can be read. Nothing written.'); return; }
+  let login = '';
+  let held = [];
+  if (!listHeld().length && !hasState) {
+    if (!dueCount) { console.log('Inbox: no held question names an issue, so no late answer can arrive. Nothing read.'); return; }
+  } else {
+    const who = gh(['api', 'user', '--jq', '.login']);
+    if (who.error && who.error.code === 'ENOENT') console.log(`Inbox: the GitHub CLI (gh) is not installed here, so late answers were not read.${tail}`);
+    else {
+      login = !who.error && who.status === 0 ? who.stdout.trim() : '';
+      if (!login) console.log(`Inbox: gh is not signed in, or GitHub could not be reached (gh auth status), so late answers were not read.${tail}`);
+    }
+    if (login) {
+      if (!dry) await migrateState(L);
+      // A held line that does not parse waits for the owner and is not acted on, here as in resume.
+      held = listHeld().filter((h) => {
+        const r = L.run(DEX838, { line: h.wire });
+        if (!r.ok) console.log(`Waiting for the owner: 07_inbox/held/${h.file}: its DEX838 line does not parse (${r.error}). Its comments are not read.`);
+        return r.ok;
+      });
+      if (!held.length) console.log(`Inbox: no held question can be read.${tail}`);
+    }
+  }
+  if (!held.length && !dueCount) return;
   let fallbackRepo = null;
   if (held.some((h) => !h.repo)) {
     const r = gh(['repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner']);
@@ -369,11 +392,25 @@ async function inboxCmd(a) {
   }
   if (noRepo) console.log(`Inbox: ${noRepo} held question(s) name no repo and this folder has no GitHub remote: park them again with --repo <owner/name>.`);
   if (!dry && !takeLock()) return;
-  let added = 0;
+  let added = 0, fired = 0;
   try {
+    // Due timers: one event each (keyed by timer and due time), then the timer is done or moves to its next time.
+    for (const f of dueCount ? due.fire : []) {
+      const p = L.run(DEX838, { line: f.line });
+      if (!p.ok) { console.log(`Waiting for the owner: 07_inbox/timers/${f.timer}.md: its note cannot become a DEX838 line (${p.error}). Not fired.`); continue; }
+      const u = due.updates.find((x) => x.id === f.timer);
+      if (dry) { console.log(`Would fire 07_inbox/events/${f.file}: ${p.parsed.scope}${p.parsed.context.issue ? ` #${p.parsed.context.issue}` : ''}: ${p.parsed.subject}`); continue; }
+      fs.mkdirSync(EVENTS, { recursive: true });
+      let wrote = true;
+      try { fs.writeFileSync(path.join(EVENTS, f.file), f.text, { flag: 'wx' }); } catch (e) { if (e.code !== 'EEXIST') throw e; wrote = false; }
+      setFront(path.join(TIMERS, `${f.timer}.md`), u.status ? { status: u.status, fired: f.eventId } : { due: u.due, fired: f.eventId });
+      if (!wrote) continue;
+      fired++;
+      console.log(`Timer due 07_inbox/events/${f.file}: ${p.parsed.scope}${p.parsed.context.issue ? ` #${p.parsed.context.issue}` : ''}: ${p.parsed.subject}${u.due ? ` (next: ${u.due})` : ''}`);
+    }
     const known = fs.existsSync(EVENTS) ? fs.readdirSync(EVENTS).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)) : [];
     const received = new Date().toISOString();
-    for (const g of groups.values()) {
+    for (const g of login ? groups.values() : []) {
       const where = `#${g.issue} (${g.repo})`;
       const r = gh(['issue', 'view', g.issue, '-R', g.repo, '--json', 'comments']);
       let data = null;
@@ -400,7 +437,120 @@ async function inboxCmd(a) {
   } finally {
     if (!dry) fs.rmSync(LOCK, { force: true });
   }
-  console.log(dry ? 'Inbox: dry run; nothing written.' : `Inbox: ${added} new event(s) in 07_inbox/events/.`);
+  console.log(dry ? 'Inbox: dry run; nothing written.' : `Inbox: ${added} new event(s) in 07_inbox/events/.${fired ? ` ${fired} timer(s) came due.` : ''}`);
+}
+
+// ---- timers: dex wakes itself for follow-ups and schedules -------------------------------------
+// timer add writes 07_inbox/timers/<id>.md with a DEX838 line; inbox turns each due timer into an event; timer done
+// closes the event once the agent has acted on it. A follow-up fires once; a schedule (--every) moves to its next time.
+const TIMERS = path.join(VAULT, '07_inbox', 'timers');
+function readTimers() {
+  const out = [];
+  for (const f of (fs.existsSync(TIMERS) ? fs.readdirSync(TIMERS).filter((x) => x.endsWith('.md')).sort() : [])) {
+    const raw = fs.readFileSync(path.join(TIMERS, f), 'utf8').replace(/\r\n/g, '\n');
+    const t = readHeld(path.join(TIMERS, f));
+    if (!t) continue;
+    const at = raw.indexOf('\n## The note\n\n');
+    out.push({ id: t.id, skill: t.skill, issue: t.issue || undefined, due: t.due, every: t.every || undefined, status: t.status, note: at < 0 ? '' : raw.slice(at + '\n## The note\n\n'.length).trim() });
+  }
+  return out;
+}
+async function timerCmd(a) {
+  const sub = a._[1];
+  const L = await lib();
+  if (sub === 'add') {
+    const skill = typeof a.skill === 'string' ? a.skill : '';
+    const note = typeof a.note === 'string' ? a.note.trim() : '';
+    const dueAt = typeof a.due === 'string' ? Date.parse(a.due) : NaN;
+    if (!skill || !note || Number.isNaN(dueAt)) die('Usage: node dex-vault/.dex/vault.mjs timer add --due <ISO time> --skill <name> --note "<text>" [--issue <n>] [--every 30m|12h|1d|1w]');
+    if (!/^[a-z0-9-]+$/.test(skill)) die(`Skill names are lowercase letters, digits and dashes: ${skill}`);
+    const issue = typeof a.issue === 'string' ? a.issue.replace(/^#/, '') : null;
+    if (issue !== null && !/^\d+$/.test(issue)) die(`An issue is a number: ${a.issue}`);
+    const every = typeof a.every === 'string' ? a.every : null;
+    const due = new Date(dueAt).toISOString();
+    const base = `${skill}${issue ? `-${issue}` : ''}-${due.replace(/[-:]/g, '').slice(0, 13).toLowerCase()}`;
+    let id = base;
+    for (let n = 2; fs.existsSync(path.join(TIMERS, `${id}.md`)); n++) id = `${base}-${n}`;
+    const check = L.run('p6/timer-due', { timers: [{ id, skill, issue: issue || undefined, due, every: every || undefined, note, status: 'waiting' }], now: '1970-01-01T00:00:00.000Z' });
+    if (!check.ok || check.skipped.length) die(`The timer cannot be set: ${check.ok ? check.skipped[0].why : check.error}`);
+    const ctx = [`timer:${id}`, `due:${due}`, issue ? `issue:${issue}` : null, every ? `every:${every}` : null].filter(Boolean).join(',');
+    const subject = note.replace(/\s+/g, ' ').replace(/"/g, "'").replace(/dex([([])/gi, (m, b) => `${m.slice(0, 3)} ${b}`).slice(0, 160);
+    const line = `dex(${skill}, @${ctx})["${subject}"]`;
+    if (!L.run(DEX838, { line }).ok) die('The note cannot be held as a DEX838 line. Reword it.');
+    const set = typeof a.now === 'string' ? a.now : new Date().toISOString();
+    const text = ['---', `id: ${id}`, `skill: ${skill}`, ...(issue ? [`issue: ${issue}`] : []), `due: ${due}`, ...(every ? [`every: ${every}`] : []), `set: ${set}`, 'status: waiting', '---', line, '',
+      `Readable: ${every ? `every ${every} from` : 'once, at'} ${due}, inbox turns this into an event for ${skill}${issue ? ` on #${issue}` : ''}.`, '', '## The note', '', note, ''].join('\n');
+    fs.mkdirSync(TIMERS, { recursive: true });
+    fs.writeFileSync(path.join(TIMERS, `${id}.md`), text, { flag: 'wx' });
+    console.log(`Timer set 07_inbox/timers/${id}.md: ${every ? `every ${every} from` : 'once, at'} ${due}: ${note}`);
+    return;
+  }
+  if (sub === 'list') {
+    const list = readTimers().filter((t) => (t.status || 'waiting') === 'waiting').sort((x, y) => String(x.due).localeCompare(String(y.due)));
+    if (!list.length) { console.log('no timers waiting'); return; }
+    for (const t of list) console.log(`${t.due}  ${t.skill}${t.issue ? ` #${t.issue}` : ''}${t.every ? ` (every ${t.every})` : ''}: ${t.note}  [${t.id}]`);
+    return;
+  }
+  if (sub === 'done') {
+    const id = typeof a.event === 'string' ? a.event : '';
+    if (!/^t-[a-z0-9-]+-\d{8}t\d{4}$/i.test(id)) die('Usage: node dex-vault/.dex/vault.mjs timer done --event <timer event id, t-...>');
+    const f = path.join(EVENTS, `${id}.md`);
+    const e = fs.existsSync(f) ? readHeld(f) : null;
+    if (!e || e.source !== 'timer') die(`No timer event 07_inbox/events/${id}.md.`);
+    if ((e.status || 'pending') !== 'pending') die(`07_inbox/events/${id}.md is already ${e.status}. Nothing done.`);
+    setFront(f, { status: 'done', closed: typeof a.now === 'string' ? a.now : new Date().toISOString() });
+    console.log(`Closed 07_inbox/events/${id}.md.`);
+    return;
+  }
+  die('Usage: node dex-vault/.dex/vault.mjs timer add|list|done (see the header of this file)');
+}
+
+// ---- digest: a quiet outbox ---------------------------------------------------------------------
+// Builds the one message a run may send: only what is not yet in 06_journal/reported.md, at most one digest a day unless
+// the owner asked (--asked). Nothing new: nothing is sent and nothing is written. Prints the text; the agent sends it.
+const REPORTED = path.join(VAULT, '06_journal', 'reported.md');
+function readReported() {
+  if (!fs.existsSync(REPORTED)) return [];
+  return fs.readFileSync(REPORTED, 'utf8').split(/\r?\n/).filter((l) => /^\|\s*\d{4}-\d{2}-\d{2}\s*\|/.test(l))
+    .map((l) => l.split('|').slice(1, -1).map((c) => c.trim())).map(([date, time, channel, kind, key, what]) => ({ date, time, channel, kind, key, what }));
+}
+async function digestCmd(a) {
+  const L = await lib();
+  const now = typeof a.now === 'string' ? a.now : new Date().toISOString();
+  const reported = readReported();
+  const items = [];
+  for (const e of pendingEvents(L)) {
+    if (!e.parsed) continue;
+    if (e.source === 'timer') items.push({ key: `event:${e.id}`, kind: 'timer', text: `${e.skill}${e.issue ? ` #${e.issue}` : ''}: ${e.parsed.subject}` });
+    else items.push({ key: `event:${e.id}`, kind: 'answer', text: `${e.author} answered on #${e.issue}: ${e.parsed.subject}` });
+  }
+  for (const f of (fs.existsSync(HELD) ? fs.readdirSync(HELD).filter((x) => x.endsWith('.md')).sort() : [])) {
+    const h = readHeld(path.join(HELD, f));
+    if (!h || (h.status || 'held') !== 'held') continue;
+    const r = L.run(DEX838, { line: h.wire });
+    if (r.ok) items.push({ key: `held:${h.id}@${h.parked}`, kind: 'held', text: `${h.skill}${h.issue ? ` #${h.issue}` : ''}: ${r.parsed.subject}` });
+  }
+  // Runs since the last digest (on the first digest, today's and yesterday's only), so an old run log is not replayed.
+  const lastDigest = reported.filter((r) => r.kind === 'digest').map((r) => r.date).sort().pop();
+  const from = lastDigest || new Date(Date.parse(now) - 86400000).toISOString().slice(0, 10);
+  const runlog = path.join(VAULT, 'RUNLOG.md');
+  if (fs.existsSync(runlog)) for (const l of fs.readFileSync(runlog, 'utf8').split(/\r?\n/)) {
+    const m = /^\|\s*(\d+)\s*\|\s*(\d{4}-\d{2}-\d{2})\s*\|[^|]*\|[^|]*\|\s*(.*?)\s*\|\s*$/.exec(l);
+    if (m && m[2] >= from) items.push({ key: `run:${m[1]}`, kind: 'run', text: `run ${m[1]}: ${m[3].replace(/\\\|/g, '/').slice(0, 160)}` });
+  }
+  const channel = typeof a.channel === 'string' ? a.channel : 'session';
+  const r = L.run('p6/digest', { items, reported, now, asked: !!a.asked, channel });
+  if (!r.ok) die(`The digest cannot be built: ${r.error}`);
+  if (!r.send) {
+    console.log(r.reason === 'nothing new' ? 'Digest: nothing new since the last one. Nothing to send.' : `Digest: one a day, and today's was already sent. ${r.waiting} new item(s) wait for tomorrow's, or for --asked if the owner asks.`);
+    return;
+  }
+  if (a['dry-run']) { console.log(r.text); console.log('\nDigest: dry run; nothing recorded.'); return; }
+  fs.mkdirSync(path.dirname(REPORTED), { recursive: true });
+  if (!fs.existsSync(REPORTED)) fs.writeFileSync(REPORTED, '---\ntype: reported\nprovenance: AAC\n---\n# Reported to the owner\n\nOne line per item told to the owner, so nothing is told twice. `vault.mjs digest` reads and writes it.\n\n| Date | Time | Channel | Kind | Key | What |\n|---|---|---|---|---|---|\n');
+  fs.appendFileSync(REPORTED, r.rows.map((x) => `| ${x.date} | ${x.time} | ${x.channel} | ${x.kind} | ${x.key} | ${x.what} |`).join('\n') + '\n');
+  console.log(r.text);
+  console.log(`\nDigest: ${r.rows.length - 1} item(s) recorded in 06_journal/reported.md. Send this as one message now.`);
 }
 
 // ---- scaffold backfill: sections a newer version added to the node template ----------------------

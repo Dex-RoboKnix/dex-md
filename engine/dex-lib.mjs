@@ -8268,6 +8268,57 @@ function run(input) {
 }
 return { run, node: "L4.E02", input: "{ line: string, strict?: boolean }" };
 })();
+LIB["p6/digest"] = (() => {
+// node: L4.E07
+// input: { items: [{ key, kind, text }], reported: [{ date: "YYYY-MM-DD", key, kind }], now: ISO8601, asked?: boolean, channel?: string }
+
+// A quiet outbox: earn the owner's attention slowly. A digest holds only what was not told before (its key is not in
+// reported.md). Nothing new: nothing is sent. At most one digest a day, unless the owner asked for one.
+// Pure: it returns whether to send, the text, and the reported.md rows to add; the vault tool writes them.
+
+const KEY = /^[A-Za-z0-9:@._#-]{1,200}$/;
+const CHANNEL = /^[a-z][a-z0-9-]{0,30}$/;
+const KINDS = ['answer', 'timer', 'held', 'run', 'note'];
+const LABEL = { answer: 'Answers in', timer: 'Reminders due', held: 'Waiting for you', run: 'Done since the last digest', note: 'Notes' };
+const time = (s) => (typeof s === 'string' ? Date.parse(s) : NaN);
+const cell = (s) => String(s).replace(/\s+/g, ' ').replace(/\|/g, '/').trim();
+
+function run(input) {
+  if (!input || typeof input !== 'object') return { ok: false, error: 'input must be an object' };
+  const { items, reported, now } = input;
+  const channel = input.channel === undefined ? 'session' : input.channel;
+  if (!Array.isArray(items)) return { ok: false, error: 'items must be an array' };
+  if (!Array.isArray(reported)) return { ok: false, error: 'reported must be an array' };
+  if (Number.isNaN(time(now))) return { ok: false, error: 'now must be an ISO time' };
+  if (typeof channel !== 'string' || !CHANNEL.test(channel)) return { ok: false, error: 'channel must be a short lowercase word, like session or phone' };
+  for (const it of items) {
+    if (!it || typeof it !== 'object' || typeof it.key !== 'string' || !KEY.test(it.key)) return { ok: false, error: 'each item needs a key of letters, digits and :@._#-' };
+    if (!KINDS.includes(it.kind)) return { ok: false, error: `item ${it.key}: kind must be one of ${KINDS.join(', ')}` };
+    if (typeof it.text !== 'string' || !it.text.trim()) return { ok: false, error: `item ${it.key}: text is empty` };
+  }
+  const today = new Date(time(now)).toISOString().slice(0, 10);
+  const told = new Set(reported.filter((r) => r && typeof r.key === 'string').map((r) => r.key));
+  const seen = new Set();
+  const fresh = items.filter((it) => !told.has(it.key) && !seen.has(it.key) && seen.add(it.key));
+  if (!fresh.length) return { ok: true, send: false, reason: 'nothing new', text: '', rows: [], trace: { node: 'L4.E07', items: items.length, fresh: 0 } };
+  const sentToday = reported.some((r) => r && r.kind === 'digest' && r.date === today);
+  if (sentToday && input.asked !== true) return { ok: true, send: false, reason: 'one a day', text: '', rows: [], waiting: fresh.length, trace: { node: 'L4.E07', items: items.length, fresh: fresh.length } };
+  const lines = [`Dex digest, ${today}: ${fresh.length} new.`];
+  for (const k of KINDS) {
+    const of = fresh.filter((it) => it.kind === k);
+    if (!of.length) continue;
+    lines.push('', `${LABEL[k]}:`);
+    for (const it of of) lines.push(`- ${cell(it.text)}`);
+  }
+  const iso = new Date(time(now)).toISOString();
+  const rows = [
+    ...fresh.map((it) => ({ date: today, time: iso.slice(11, 16), channel, kind: it.kind, key: it.key, what: cell(it.text).slice(0, 200) })),
+    { date: today, time: iso.slice(11, 16), channel, kind: 'digest', key: `digest:${iso}`, what: `${fresh.length} item(s)${input.asked === true ? ', asked for' : ''}` },
+  ];
+  return { ok: true, send: true, reason: input.asked === true && sentToday ? 'asked' : 'new', text: lines.join('\n'), rows, trace: { node: 'L4.E07', items: items.length, fresh: fresh.length } };
+}
+return { run, node: "L4.E07", input: "{ items: [{ key, kind, text }], reported: [{ date: \"YYYY-MM-DD\", key, kind }], now: ISO8601, asked?: boolean, channel?: string }" };
+})();
 LIB["p6/inbox-events"] = (() => {
 // node: L4.E03
 // input: { held: [{ id, skill, issue, parked: ISO8601 }], comments: [{ id, url?, author, body, createdAt: ISO8601 }], login: string, repo: "owner/name", known?: [string], received: ISO8601 }
@@ -8442,6 +8493,90 @@ function run(input) {
   return { ok: true, journal: { id: journalId, text }, trace: { node: 'L4.E03', event: e.id, held: h.id } };
 }
 return { run, node: "L4.E03", input: "{ event: { id, held, skill, issue, repo, url?, author, commented: ISO8601, body }, held: { id, skill, issue, question }, checked: string, journalId: \"J<n>\", now: ISO8601 }" };
+})();
+LIB["p6/timer-due"] = (() => {
+// node: L4.E07
+// input: { timers: [{ id, skill, issue?, due: ISO8601, every?: "30m"|"12h"|"1d"|"1w", note, status }], now: ISO8601 }
+
+// Timers: dex wakes itself for follow-ups and schedules. A timer that is due becomes one inbox event. A follow-up
+// (no every) is then done; a schedule moves to its next time after now, so a week away fires it once, not seven times.
+// Pure: it returns the event files to write and the timer changes; the vault tool checks each line and writes.
+
+const ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
+const SKILL = /^[a-z0-9-]+$/;
+const ISSUE = /^\d+$/;
+const UNIT = { m: 60000, h: 3600000, d: 86400000, w: 604800000 };
+const time = (s) => (typeof s === 'string' ? Date.parse(s) : NaN);
+
+// "30m", "12h", "1d", "1w" -> milliseconds; anything else -> null. Shortest period 5 minutes.
+function period(every) {
+  const m = /^(\d{1,4})([mhdw])$/.exec(typeof every === 'string' ? every : '');
+  if (!m) return null;
+  const ms = Number(m[1]) * UNIT[m[2]];
+  return ms >= 5 * 60000 ? ms : null;
+}
+
+// A note made safe to sit inside ["..."]: one line, no double quotes, no dex( or dex[, at most 160 characters.
+function noteSubject(note) {
+  const s = String(note).replace(/\s+/g, ' ').trim().replace(/"/g, "'").replace(/dex([([])/gi, (m, b) => `${m.slice(0, 3)} ${b}`);
+  return s.length > 160 ? `${s.slice(0, 159)}…` : s;
+}
+
+const compact = (iso) => iso.replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z').slice(0, 13); // 20261118T0900
+
+function run(input) {
+  if (!input || typeof input !== 'object') return { ok: false, error: 'input must be an object' };
+  const { timers, now } = input;
+  if (!Array.isArray(timers)) return { ok: false, error: 'timers must be an array' };
+  if (Number.isNaN(time(now))) return { ok: false, error: 'now must be an ISO time' };
+  const at = time(now);
+  const fire = [];
+  const updates = [];
+  const skipped = [];
+  for (const t of timers) {
+    if (!t || typeof t !== 'object' || typeof t.id !== 'string' || !ID.test(t.id)) { skipped.push({ id: t && t.id, why: 'no usable id' }); continue; }
+    if ((t.status || 'waiting') !== 'waiting') continue;
+    if (typeof t.skill !== 'string' || !SKILL.test(t.skill)) { skipped.push({ id: t.id, why: 'skill must be lowercase letters, digits and dashes' }); continue; }
+    if (t.issue !== undefined && t.issue !== null && !(typeof t.issue === 'string' && ISSUE.test(t.issue))) { skipped.push({ id: t.id, why: 'issue must be a number' }); continue; }
+    if (Number.isNaN(time(t.due))) { skipped.push({ id: t.id, why: 'due must be an ISO time' }); continue; }
+    if (t.every !== undefined && t.every !== null && period(t.every) === null) { skipped.push({ id: t.id, why: 'every must be like 30m, 12h, 1d or 1w (5 minutes or more)' }); continue; }
+    if (typeof t.note !== 'string' || !t.note.trim()) { skipped.push({ id: t.id, why: 'the note is empty' }); continue; }
+    const due = time(t.due);
+    if (due > at) continue;
+    const dueIso = new Date(due).toISOString();
+    const eventId = `t-${t.id}-${compact(dueIso)}`;
+    const ctx = ['source:timer', `timer:${t.id}`, `due:${dueIso}`, t.issue ? `issue:${t.issue}` : null, t.every ? `every:${t.every}` : null].filter(Boolean).join(',');
+    const line = `dex(${t.skill}, @${ctx})["${noteSubject(t.note)}"]`;
+    const text = [
+      '---',
+      `id: ${eventId}`,
+      'source: timer',
+      `timer: ${t.id}`,
+      `skill: ${t.skill}`,
+      ...(t.issue ? [`issue: ${t.issue}`] : []),
+      `due: ${dueIso}`,
+      `received: ${new Date(at).toISOString()}`,
+      'status: pending',
+      '---',
+      line,
+      '',
+      `Readable: a timer ${t.every ? `that repeats every ${t.every}` : 'set as a follow-up'} came due for ${t.skill}${t.issue ? ` on #${t.issue}` : ''}. The note is the agent's own reminder; act on it, then close it with \`vault.mjs timer done --event ${eventId}\`.`,
+      '',
+      '## The note',
+      '',
+      t.note.replace(/\r\n/g, '\n').trimEnd(),
+      '',
+    ].join('\n');
+    fire.push({ timer: t.id, eventId, file: `${eventId}.md`, line, text });
+    if (t.every) {
+      const p = period(t.every);
+      const next = due + (Math.floor((at - due) / p) + 1) * p; // the first time after now: missed periods fire once
+      updates.push({ id: t.id, due: new Date(next).toISOString() });
+    } else updates.push({ id: t.id, status: 'done' });
+  }
+  return { ok: true, fire, updates, skipped, trace: { node: 'L4.E07', timers: timers.length, due: fire.length } };
+}
+return { run, node: "L4.E07", input: "{ timers: [{ id, skill, issue?, due: ISO8601, every?: \"30m\"|\"12h\"|\"1d\"|\"1w\", note, status }], now: ISO8601 }" };
 })();
 export const modules = () => Object.keys(LIB);
 export const info = (name) => (LIB[name] ? { name, node: LIB[name].node, input: LIB[name].input } : null);

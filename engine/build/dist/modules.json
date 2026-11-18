@@ -505,6 +505,11 @@
     "input": "{ line: string, strict?: boolean }"
   },
   {
+    "name": "p6/digest",
+    "node": "L4.E07",
+    "input": "{ items: [{ key, kind, text }], reported: [{ date: \"YYYY-MM-DD\", key, kind }], now: ISO8601, asked?: boolean, channel?: string }"
+  },
+  {
     "name": "p6/inbox-events",
     "node": "L4.E03",
     "input": "{ held: [{ id, skill, issue, parked: ISO8601 }], comments: [{ id, url?, author, body, createdAt: ISO8601 }], login: string, repo: \"owner/name\", known?: [string], received: ISO8601 }"
@@ -513,5 +518,10 @@
     "name": "p6/late-answer",
     "node": "L4.E03",
     "input": "{ event: { id, held, skill, issue, repo, url?, author, commented: ISO8601, body }, held: { id, skill, issue, question }, checked: string, journalId: \"J<n>\", now: ISO8601 }"
+  },
+  {
+    "name": "p6/timer-due",
+    "node": "L4.E07",
+    "input": "{ timers: [{ id, skill, issue?, due: ISO8601, every?: \"30m\"|\"12h\"|\"1d\"|\"1w\", note, status }], now: ISO8601 }"
   }
 ]

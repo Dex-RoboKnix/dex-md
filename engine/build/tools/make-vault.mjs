@@ -46,6 +46,10 @@ swap('// Paths come from this file\'s location', [
   '//        read the owner\'s new comments on each held question\'s issue (GitHub CLI) into 07_inbox/events/, once each.',
   '//   node dex-vault/.dex/vault.mjs answer --event <comment-id> --checked "<text>"',
   '//        record a late answer twice in the journal, mark it done and its question answered, and print where to resume.',
+  '//   node dex-vault/.dex/vault.mjs timer add --due <ISO> --skill <name> --note "<text>" [--issue <n>] [--every 30m|12h|1d|1w] | timer list | timer done --event <id>',
+  '//        follow-ups and schedules in 07_inbox/timers/; inbox turns each due timer into an event.',
+  '//   node dex-vault/.dex/vault.mjs digest [--channel <name>] [--asked] [--dry-run]',
+  '//        the one message a run may send: only what is not in 06_journal/reported.md yet, at most one a day unless asked.',
   '//',
   '// Paths come from this file\'s location',
 ].join('\n'), false);
@@ -53,8 +57,8 @@ swap('// Paths come from this file\'s location', [
 const mainAt = v.indexOf('// ---- main');
 if (mainAt < 0) throw new Error('main section not found');
 v = v.slice(0, mainAt) + add + '\n' + v.slice(mainAt);
-swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, answer: answerCmd, audit: auditCmd };', false);
-swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox|answer>", false);
+swap('const commands = { scaffold, place, adapt, fold, check, migrate };', 'const commands = { scaffold, place, adapt, fold, check, migrate, modules: modulesCmd, run: runCmd, classify: classifyCmd, checkpoint: checkpointCmd, park: parkCmd, resume: resumeCmd, inbox: inboxCmd, answer: answerCmd, timer: timerCmd, digest: digestCmd, audit: auditCmd };', false);
+swap("<scaffold|place|adapt|fold|check|migrate>", "<scaffold|place|adapt|fold|check|audit|migrate|modules|run|classify|checkpoint|park|resume|inbox|answer|timer|digest>", false);
 swap('commands[cmd](a);', 'Promise.resolve(commands[cmd](a)).catch((e) => die(`Error: ${e.message}`));', false);
 fs.writeFileSync(path.join(ROOT, 'src/vault.mjs'), v);
 console.log('wrote src/vault.mjs', v.split('\n').length, 'lines; remaining "mof" mentions:', (v.match(/\bmof\b/gi) || []).length);

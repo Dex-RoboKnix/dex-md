@@ -51,6 +51,15 @@ test('a session reads late answers first: dex.md, the CLAUDE.md template and dex
   assert.match(loop, /Each run ends one way: send the human one message, decide there is nothing to send, or park a new question/);
 });
 
+test('the quiet outbox: dex-loop and the CLAUDE.md template send only what digest gives, at most one a day', () => {
+  const loop = read('skills/dex-loop.md');
+  assert.match(loop, /`node dex-vault\/\.dex\/vault\.mjs digest` decides what the message may hold: only what is not in `06_journal\/reported\.md` yet, at most one digest a day unless the human asks \(`--asked`\)\. When it says nothing new, send nothing\./);
+  assert.match(loop, /vault\.mjs timer done --event <id>/);
+  const t = read('templates/dex-claude.md');
+  assert.match(t, /^8\. \*\*Late answers first\.\*\*[^\n]*A run sends the human only what `vault\.mjs digest` gives: nothing already told, at most one digest a day unless asked\.$/m);
+  assert.match(t, /commands: [^)]*\binbox, answer, timer, digest\b/);
+});
+
 test('rules read 1 to 22 in order, in dex.md and in method/01-rules.md', () => {
   for (const f of ['dex.md', 'method/01-rules.md']) {
     const nums = read(f).split('\n').filter((l) => /^\d+\. \*\*/.test(l)).map((l) => Number(l.split('.')[0]));

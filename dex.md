@@ -121,7 +121,7 @@ Dex is pre-1.0. Being built now, and not in this version until it is released, s
 
 - **Questions that outlive a session.** A held question is a file in the vault, so it travels with the vault repo (built).
 - **Answers from anywhere.** Answer a held question as a comment on the issue, from your phone; the next session picks the work back up from it (built).
-- **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice.
+- **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice (built).
 - **The away-for-a-week test.** A list of what stalls when you are not there, and how each is fixed.
 
 ## Start
