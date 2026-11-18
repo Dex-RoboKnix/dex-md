@@ -14,7 +14,7 @@ status: prototype, pre-1.0, for local testing. Not yet run end to end by a perso
 
 **Dex is one file you attach to a live or blank project.** It acts as a lens on the matter, builds and keeps updating its DexSpine vault (a shared second brain for you and an LLM) in `dex-vault/` next to this file, and turns the work into issues. It holds nothing about any particular matter: the **slant** comes from the folder it lands in, confirmed by the human.
 
-This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, 100 tested modules, the Folio) and the seven dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
+This file is short on purpose. The method (what each stage does in detail), the engine (the vault tool, over 100 tested modules, the Folio) and the seven dex skills live in the **dex-md repo** and are cloned at a pinned tag in Stage 2. Spend your effort on the grilling; placing files is mechanical and a script does it.
 
 **dex.md finds a better balance between quality and efficiency, keeping the human in the loop before things change.** The workflow is a brake: nothing changes without your yes. If the human follows it, it works. If a stage is skipped, it does not. You grill the human first and assess coverage at every checkpoint.
 
@@ -75,7 +75,8 @@ Readable: each issue is asked about, planned, built and checked, and every step 
 - **The story** (`dex-vault/08_story.md`): the matter retold in a few pages, one chapter added at each checkpoint.
 - **Issues** for the work, each with its route (grill, task, research or spec), on GitHub or in the vault's own action list.
 - **The Claude project files and the seven skills**, placed in your project only on your yes, so the next session starts from the same rules.
-- **Held questions** in `dex-vault/07_inbox/held/`: anything asked and not yet answered, kept until you answer it.
+- **Held questions** in `dex-vault/07_inbox/held/`: anything asked and not yet answered, kept until you answer it, here or as a comment on its issue.
+- **Reminders and a quiet outbox:** the agent's own follow-ups in `dex-vault/07_inbox/timers/`, and `06_journal/reported.md`, so nothing you were told is told again.
 
 ## A first session
 
@@ -117,12 +118,13 @@ Readable: each issue is asked about, planned, built and checked, and every step 
 
 ## Where it is going
 
-Dex is pre-1.0. Being built now, and not in this version until it is released, so that the agent keeps working well when you are away and answers reach it from wherever you are:
+Dex is pre-1.0. Since 0.12.0 the agent keeps your place when you step away, and your answers reach it from wherever you are:
 
-- **Questions that outlive a session.** A held question is a file in the vault, so it travels with the vault repo (built).
-- **Answers from anywhere.** Answer a held question as a comment on the issue, from your phone; the next session picks the work back up from it (built).
-- **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice (built).
-- **The away-for-a-week test.** A list of what stalls when you are not there, and how each is fixed.
+- **Questions that outlive a session.** A held question is a file in the vault, so it travels with the vault repo.
+- **Answers from anywhere.** Answer a held question as a comment on its issue, from your phone; the next session records it and picks the work back up from it.
+- **Follow-ups and schedules.** The agent sets its own reminders, and a quiet outbox sends at most one digest a day, never the same thing twice.
+
+Next: a way to wake the agent while no session is open, so this runs while you are away for a week, not only when you come back.
 
 ## Start
 
