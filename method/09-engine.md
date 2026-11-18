@@ -68,5 +68,5 @@ The reference the install may fetch (Stage 2, on its own yes) is pinned for this
 | | |
 |---|---|
 | Repository | `https://github.com/Dex-RoboKnix/dexspine-core` |
-| Ref (a full commit hash, never a branch) | `fbcd0a89008e87416c5a0bfe6b56524b584b49a8` |
-| Checked | the ref was on `origin/main` in the maintainer's local clone on `2026-10-09`; it was not re-checked against the remote. If the clone cannot check it out, say so and use the built-in questions. |
+| Ref (a full commit hash, never a branch) | `444c024e9b9eaf76253db4ce5b053bea39ff8788` |
+| Checked | the ref is the head of the public `origin/main`, checked against the remote on `2026-11-18`, the day the DEX838 parser was published there. If the clone cannot check it out, say so and use the built-in questions. |

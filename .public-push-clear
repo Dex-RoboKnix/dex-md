@@ -1,0 +1,3 @@
+# Layer 8 clearances for the public-push check: <class> <place> <journal reference>.
+# Each line is a hit the owner decided may stay; the owner's yes is in the owner's journal.
+api-token engine/build/test/p2/mcp-propose.test.mjs:20 J168

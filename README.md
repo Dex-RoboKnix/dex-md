@@ -49,7 +49,7 @@ dex.md pins three DexRoboKnix repos:
 | Repo | Ref | Stage | Why |
 |---|---|---|---|
 | [dex-md](https://github.com/Dex-RoboKnix/dex-md) (this repo) | tag in dex.md section 3 | 2 | method, engine, skills |
-| [dexspine-core](https://github.com/Dex-RoboKnix/dexspine-core) (L1) | commit `fbcd0a89` | 2, own yes | DexSpine base questions, DEX838 notation |
+| [dexspine-core](https://github.com/Dex-RoboKnix/dexspine-core) (L1) | commit `444c024e` | 2, own yes | DexSpine base questions, DEX838 notation |
 | shadowos (L2, private for now) | `v0.2.0` | 6b, optional | the desktop, run with `node server.mjs --root <folder>` |
 
 The folio builders and template come from [dexfolio](https://github.com/Dex-RoboKnix/dexfolio) (L2) `v0.1.0`, vendored byte-identical in `engine/`, so no separate clone is needed.

@@ -4,8 +4,9 @@ provenance: AAC
 
 # Changelog
 
-## Unreleased
+## 0.12.0 (2026-11-18)
 
+- **Version.** dex.md, `package.json` and the vault tool report 0.12.0. dex.md pins dex-md `v0.12.0` and dexspine-core `444c024e`, where the DEX838 parser is now published. In the vault: the 0.12.0 row of the upgrade table.
 - **Held questions leave the machine.** `park` writes `07_inbox/held/<skill>[-<issue>].md`, tracked with the vault, with one DEX838 line checked in strict mode before it is written. Several questions can be held at once; `resume` lists them oldest first, and a line that does not parse waits for the owner and is never acted on. An old `.dex/state/<skill>.json` moves across on the first `park` or `resume`.
 - **A late answer arrives.** `vault.mjs inbox` reads the owner's comments on each held question's issue with the GitHub CLI and writes each new one as `07_inbox/events/<comment-id>.md`: a DEX838 line checked in strict mode, then the comment verbatim, status `pending`. A second pull adds nothing. Only the signed-in account's comments made after the question was parked count; other accounts are listed and never acted on, and comments the agent posted (ending in `<!-- dex:agent -->`) are skipped. One run at a time, held by a lock; without `gh` it says so and writes nothing. New module `p6/inbox-events`.
 - **The next run resumes it.** A session starts by reading late answers: `inbox`, then `resume`, which now lists each held question with any answer that came in on GitHub. `vault.mjs answer --event <id> --checked "<copy>"` records the answer twice in a new journal entry (the comment verbatim and the spelling-checked copy, with the comment id as its source), marks the event `done` and the question `answered`, and prints where to carry on. An answer whose question is not held waits for the owner. CLAUDE.md gains rule 8 (late answers first) and the marker in rule 1; dex-loop reads late answers before it picks, and on each `/loop` tick. New module `p6/late-answer`.
